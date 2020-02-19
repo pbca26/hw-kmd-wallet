@@ -1,10 +1,10 @@
 import React from 'react';
-import getKomodoRewards from 'get-komodo-rewards';
+import getKomodoRewards from './lib/get-komodo-rewards';
 import ledger from './lib/ledger';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
-import {SERVICE_FEE_PERCENT, TX_FEE} from './constants';
+import {TX_FEE} from './constants';
 import ActionListModal from './ActionListModal';
 
 class CheckRewardsButton extends React.Component {
@@ -38,8 +38,7 @@ class CheckRewardsButton extends React.Component {
   calculateRewardData = ({accounts, tiptime}) => accounts.map(account => {
     account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
     account.rewards = account.utxos.reduce((rewards, utxo) => rewards + getKomodoRewards({tiptime, ...utxo}), 0);
-    account.serviceFee = Math.floor((account.rewards / 100) * SERVICE_FEE_PERCENT);
-    account.claimableAmount = account.rewards - account.serviceFee - TX_FEE;
+    account.claimableAmount = account.rewards - TX_FEE;
 
     return account;
   });
@@ -105,7 +104,7 @@ class CheckRewardsButton extends React.Component {
           handleClose={this.resetState}
           show={isCheckingRewards}>
           <p>
-            Exporting public keys from your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} device, scanning the blockchain for funds, and calculating any claimable rewards. Please approve any public key export requests on your device.
+            Exporting public keys from your {this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor'} device, scanning the blockchain for funds, and calculating any claimable rewards. Please approve any public key export requests on your device.
           </p>
         </ActionListModal>
       </React.Fragment>

@@ -6,13 +6,15 @@ import blockchain from './lib/blockchain';
 import getAddress from './lib/get-address';
 import updateActionState from './lib/update-action-state';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
-import {SERVICE_FEE_PERCENT, SERVICE_FEE_ADDRESS} from './constants';
 
 class ClaimRewardsButton extends React.Component {
   state = this.initialState;
 
   get initialState() {
+    this.setSkipBroadcast = this.setSkipBroadcast.bind(this);
+
     return {
+      isDebug: window.location.href.indexOf('#enable-verify') > -1,
       isClaimingRewards: false,
       error: false,
       success: false,
@@ -36,31 +38,35 @@ class ClaimRewardsButton extends React.Component {
           icon: 'fas fa-broadcast-tower',
           description: <div>Broadcasting the reward claim transaction to the network.</div>,
           state: null
-        }
-      }
+        },
+      },
+      skipBroadcast: false,
+      skipBroadcastClicked: false,
     };
+  }
+
+  setSkipBroadcast() {
+    if (!this.state.skipBroadcastClicked) {
+      this.setState({
+        skipBroadcast: !this.state.skipBroadcast,
+        skipBroadcastClicked: true,
+      });
+    }
   }
 
   resetState = () => this.setState(this.initialState);
 
   getUnusedAddressIndex = () => this.props.account.addresses.filter(address => !address.isChange).length;
 
-  getUnusedAddress = () => getAddress(this.props.account.externalNode.derive(this.getUnusedAddressIndex()).publicKey);
+  getUnusedAddress = () => this.props.address.length ? this.props.address : getAddress(this.props.account.externalNode.derive(this.getUnusedAddressIndex()).publicKey);
 
   getOutputs = () => {
     const {
       balance,
       claimableAmount,
-      serviceFee,
     } = this.props.account;
 
-    const outputs = [
-      {address: this.getUnusedAddress(), value: (balance + claimableAmount)}
-    ];
-
-    if (serviceFee > 0) {
-      outputs.push({address: SERVICE_FEE_ADDRESS, value: serviceFee})
-    }
+    const outputs =  {address: this.getUnusedAddress(), value: (balance + claimableAmount)};
 
     return outputs;
   };
@@ -74,6 +80,7 @@ class ClaimRewardsButton extends React.Component {
     this.setState(prevState => ({
       ...this.initialState,
       isClaimingRewards: true,
+      skipBroadcast: false,
     }));
 
     let currentAction;
@@ -88,11 +95,12 @@ class ClaimRewardsButton extends React.Component {
 
       currentAction = 'confirmAddress';
       updateActionState(this, currentAction, 'loading');
+
       const unusedAddress = this.getUnusedAddress();
       const derivationPath = `44'/141'/${accountIndex}'/0/${this.getUnusedAddressIndex()}`;
       const verify = true;
-      const ledgerUnusedAddress = await ledger.getAddress(derivationPath, verify);
-      if(ledgerUnusedAddress !== unusedAddress) {
+      const ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, verify);
+      if (ledgerUnusedAddress !== unusedAddress) {
         throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ` derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
       }
       updateActionState(this, currentAction, true);
@@ -101,23 +109,29 @@ class ClaimRewardsButton extends React.Component {
       updateActionState(this, currentAction, 'loading');
       const outputs = this.getOutputs();
       const rewardClaimTransaction = await ledger.createTransaction(utxos, outputs);
-      if(!rewardClaimTransaction) {
+      if (!rewardClaimTransaction) {
         throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ' failed to generate a valid transaction');
       }
       updateActionState(this, currentAction, true);
+      
+      if (this.state.skipBroadcast) {
+        this.setState({
+          success: <React.Fragment><span style={{'padding': '10px 0', 'display': 'block'}}>Raw transaction:</span> <span style={{'wordBreak': 'break-all', 'display': 'block'}}>{rewardClaimTransaction}</span></React.Fragment>
+        });
+      } else {
+        currentAction = 'broadcastTransaction';
+        updateActionState(this, currentAction, 'loading');
+        const {txid} = await blockchain.broadcast(rewardClaimTransaction);
+        if (!txid || txid.length !== 64) {
+          throw new Error('Unable to broadcast transaction');
+        }
+        updateActionState(this, currentAction, true);
 
-      currentAction = 'broadcastTransaction';
-      updateActionState(this, currentAction, 'loading');
-      const {txid} = await blockchain.broadcast(rewardClaimTransaction);
-      if(!txid || txid.length !== 64) {
-        throw new Error('Unable to broadcast transaction');
+        this.props.handleRewardClaim(txid);
+        this.setState({
+          success: <React.Fragment>Claim TXID: <TxidLink txid={txid}/></React.Fragment>
+        });
       }
-      updateActionState(this, currentAction, true);
-
-      this.props.handleRewardClaim(txid);
-      this.setState({
-        success: <React.Fragment>Claim TXID: <TxidLink txid={txid}/></React.Fragment>
-      });
     } catch (error) {
       updateActionState(this, currentAction, false);
       this.setState({error: error.message});
@@ -127,7 +141,7 @@ class ClaimRewardsButton extends React.Component {
   render() {
     const {isClaimingRewards} = this.state;
     const isClaimableAmount = (this.props.account.claimableAmount > 0);
-    const [userOutput, feeOutput] = this.getOutputs();
+    const userOutput = this.getOutputs();
 
     return (
       <React.Fragment>
@@ -140,13 +154,15 @@ class ClaimRewardsButton extends React.Component {
           handleClose={this.resetState}
           show={isClaimingRewards}>
           <p>
-            You should receive a total of <strong>{humanReadableSatoshis(userOutput.value)} KMD</strong> to the new unused address: <strong>{userOutput.address}</strong><br />
-            {feeOutput ? (
-              <React.Fragment>
-                There will also be a {SERVICE_FEE_PERCENT}% service fee of <strong>{humanReadableSatoshis(feeOutput.value)} KMD</strong> to: <strong>{feeOutput.address}</strong>
-              </React.Fragment>
-            ) : null}
+            You should receive a total of <strong>{humanReadableSatoshis(userOutput.value)} KMD</strong> to {!this.props.address.length && 'the new unused'}address: <strong>{userOutput.address}</strong><br />
           </p>
+          {this.state.isDebug &&
+            <label className="switch" onClick={this.setSkipBroadcast}>
+              <input type="checkbox" name="skipBroadcast" value={this.state.skipBroadcast} checked={this.state.skipBroadcast} readOnly />
+              <span className="slider round"></span>
+              <span className="slider-text">Don't broadcast transaction</span>
+            </label>
+          }
         </ActionListModal>
       </React.Fragment>
     );

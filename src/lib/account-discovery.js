@@ -3,6 +3,8 @@ import blockchain from './blockchain';
 import getAddress from './get-address';
 import bitcoin from 'bitcoinjs-lib';
 
+let pubKeysCache = {};
+
 const walkDerivationPath = async node => {
   const addressConcurrency = 10;
   const gapLimit = 20;
@@ -36,10 +38,14 @@ const walkDerivationPath = async node => {
 
 const getAccountAddresses = async account => {
   const derivationPath = `44'/141'/${account}'`;
-  const xpub = await ledger.getXpub(derivationPath);
+  const xpub = pubKeysCache[derivationPath] || await ledger.getXpub(derivationPath);
   const node = bitcoin.bip32.fromBase58(xpub);
   const externalNode = node.derive(0);
   const internalNode = node.derive(1);
+
+  if (!pubKeysCache[derivationPath]) {
+    pubKeysCache[derivationPath] = xpub;
+  }
 
   const [externalAddresses, internalAddresses] = await Promise.all([
     walkDerivationPath(externalNode),
@@ -51,7 +57,7 @@ const getAccountAddresses = async account => {
       ...address,
       account,
       isChange,
-      derivationPath: `${derivationPath}/${isChange ? 1 : 0}/${address.addressIndex}`
+      derivationPath: `${derivationPath}/${isChange ? 1 : 0}/${address.addressIndex}`,
     });
   };
 
@@ -63,7 +69,8 @@ const getAccountAddresses = async account => {
   return {
     externalNode,
     internalNode,
-    addresses
+    addresses,
+    xpub,
   };
 };
 

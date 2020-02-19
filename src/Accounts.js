@@ -2,7 +2,7 @@ import React from 'react';
 import Utxos from './Utxos';
 import ClaimRewardsButton from './ClaimRewardsButton';
 import TxidLink from './TxidLink';
-import {SERVICE_FEE_PERCENT, TX_FEE} from './constants';
+import {TX_FEE} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import './Accounts.scss';
 import './Account.scss';
@@ -13,16 +13,33 @@ class Account extends React.Component {
   get initialState() {
     return {
       isClaimed: false,
-      claimTxid: null
+      claimTxid: null,
+      address: '',
+      // debug options
+      showXpub: null,
+      isDebug: window.location.href.indexOf('#enable-verify') > -1,
     };
+  }
+
+  updateInput(e) {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
   }
 
   handleRewardClaim = txid => {
     this.setState({
       isClaimed: true,
-      claimTxid: txid
+      claimTxid: txid,
+      showXpub: null,
     });
   };
+
+  showXpub(index) {
+    this.setState({
+      showXpub: index === this.state.showXpub ? null : index,
+    });
+  }
 
   render() {
     const {account, tiptime} = this.props;
@@ -32,7 +49,8 @@ class Account extends React.Component {
       balance,
       rewards,
       claimableAmount,
-      serviceFee
+      serviceFee,
+      xpub,
     } = account;
 
     const isClaimableAmount = (claimableAmount > 0);
@@ -66,12 +84,6 @@ class Account extends React.Component {
                       <td>{humanReadableSatoshis(rewards)} KMD</td>
                       <td>Rewards accrued</td>
                     </tr>
-                    {(SERVICE_FEE_PERCENT !== 0 && serviceFee !== 0) && (
-                      <tr>
-                        <td>{humanReadableSatoshis(serviceFee)} KMD</td>
-                        <td>{SERVICE_FEE_PERCENT}% service fee</td>
-                      </tr>
-                    )}
                     <tr>
                       <td>{humanReadableSatoshis(TX_FEE)} KMD</td>
                       <td>Network transaction fee</td>
@@ -84,12 +96,52 @@ class Account extends React.Component {
                 </table>
               </React.Fragment>
             )}
+            {account.addresses && account.addresses.length &&
+              <div style={this.state.address ? {'padding': '10px 20px 20px 20px'} : {'padding': '10px 20px 30px 20px'}}>
+                Send rewards to
+                <select
+                  style={{'marginLeft': '10px'}}
+                  className="account-index-selector"
+                  name="address"
+                  value={this.state.address}
+                  onChange={ (event) => this.updateInput(event) }>
+                  <option
+                    key="rewards-output-address-default"
+                    value="">
+                    Unused address (default)
+                  </option>
+                  {account.addresses.slice(0, 10).map((item, index) => (
+                    <option
+                      key={`rewards-output-address-${index}`}
+                      value={item.address}>
+                      {item.address}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            }
+            {this.state.address &&
+              <div style={{'padding': '0 20px 30px 20px'}}>
+                <strong>Warning:</strong> sending rewards to a non-default address will break so called pseudo anonimity (one time address usage) and link your addresses together! This is not recommended option.
+              </div>
+            }
             {(isClaimed && claimTxid) && (
               <div className="is-pulled-right">
                 Claim TXID: <TxidLink txid={claimTxid}/>
               </div>
             )}
-            <ClaimRewardsButton account={account} handleRewardClaim={this.handleRewardClaim} isClaimed={this.state.isClaimed} vendor={this.props.vendor}>
+            {this.state.isDebug &&
+              <button className="button is-primary" onClick={() => this.showXpub(accountIndex)}>
+                {this.state.showXpub >=0 && this.state.showXpub == accountIndex ? 'Hide Xpub' : 'Show Xpub'}
+              </button>
+            }
+            {this.state.showXpub >=0 &&
+             this.state.showXpub == accountIndex &&
+              <div style={{'padding': '20px', 'wordBreak': 'break-all'}}>
+                <strong>Xpub:</strong> {xpub}
+              </div>
+            }
+            <ClaimRewardsButton account={account} handleRewardClaim={this.handleRewardClaim} isClaimed={this.state.isClaimed} vendor={this.props.vendor} address={this.state.address}>
               Claim Rewards
             </ClaimRewardsButton>
           </div>

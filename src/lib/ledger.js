@@ -1,10 +1,10 @@
 import TransportU2F from '@ledgerhq/hw-transport-u2f';
+import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import Btc from '@ledgerhq/hw-app-btc';
-import buildOutputScript from 'build-output-script';
+import buildOutputScript from './build-output-script';
 import bip32Path from 'bip32-path';
-import createXpub from 'create-xpub';
+import createXpub from './create-xpub';
 import TrezorConnect from 'trezor-connect';
-import {SERVICE_FEE_ADDRESS} from '../constants';
 
 let vendor;
 
@@ -12,13 +12,13 @@ const setVendor = (name) => {
   vendor = name;
 };
 
-const getVendor = (name) => {
-  return getVendor;
+const getVendor = () => {
+  return vendor;
 };
 
 const getDevice = async () => {
   if (vendor === 'ledger') {
-    const transport = await TransportU2F.create();
+    const transport = window.location.href.indexOf('ledger-webusb') > -1 ? await TransportWebUSB.create() : await TransportU2F.create();
     const ledger = new Btc(transport);
 
     ledger.close = () => transport.close();
@@ -54,7 +54,7 @@ const isAvailable = async () => {
 const getAddress = async (derivationPath, verify) => {
   if (vendor === 'ledger') {
     const ledger = await getDevice();
-    const {bitcoinAddress} = await ledger.getWalletPublicKey(derivationPath, verify);
+    const {bitcoinAddress} = await ledger.getWalletPublicKey(derivationPath, {verify});
     await ledger.close();
 
     return bitcoinAddress;
@@ -91,7 +91,7 @@ const createTransaction = async function(utxos, outputs) {
     }));
     const associatedKeysets = utxos.map(utxo => utxo.derivationPath);
     const changePath = undefined;
-    const outputScript = buildOutputScript(outputs);
+    const outputScript = buildOutputScript([outputs]);
     const unixtime = Math.floor(Date.now() / 1000);
     const lockTime = (unixtime - 777);
     const sigHashType = undefined;
@@ -142,13 +142,11 @@ const createTransaction = async function(utxos, outputs) {
       });
     }
 
-    for (let i = 0; i < outputs.length; i++) {
-      tx.outputs.push({
-        address: outputs[i].address,
-        amount: outputs[i].value.toString(),
-        script_type: 'PAYTOADDRESS',
-      });
-    }
+    tx.outputs.push({
+      address: outputs.address,
+      amount: outputs.value.toString(),
+      script_type: 'PAYTOADDRESS',
+    });
 
     for (let i = 0; i < utxos.length; i++) {
       if (uniqueTxids.indexOf(utxos[i].txid) === -1) {

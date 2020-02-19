@@ -1,5 +1,11 @@
 import {INSIGHT_API_URL} from '../constants';
 
+let explorerUrl = INSIGHT_API_URL.komodoplatform;
+
+export const setExplorerUrl = (name) => {
+  explorerUrl = INSIGHT_API_URL[name];
+};
+
 const get = async (endpoint, postData) => {
   const opts = {};
 
@@ -11,7 +17,7 @@ const get = async (endpoint, postData) => {
     opts.method = 'POST';
   }
 
-  const response = await fetch(`${INSIGHT_API_URL}${endpoint}`, opts);
+  const response = await fetch(`${explorerUrl}${endpoint}`, opts);
   const isJson = response.headers.get('Content-Type').includes('application/json');
 
   const body = isJson ? await response.json() : await response.text();
@@ -40,9 +46,26 @@ const getTipTime = async () => {
   const block = await getBlock(bestblockhash);
 
   return block.time;
-}
+};
 
 const broadcast = transaction => get('tx/send', {rawtx: transaction});
+
+export const getInfo = async (explorerUrl) => {
+  try {
+    const response = await fetch(`${explorerUrl}/status?q=getInfo`);
+    const isJson = response.headers.get('Content-Type').includes('application/json');
+
+    const body = isJson ? await response.json() : await response.text();
+
+    if (!response.ok) {
+      throw new Error(body);
+    }
+
+    return body;
+  } catch (e) {
+    return null;
+  }
+};
 
 const blockchain = {
   get,
@@ -53,7 +76,7 @@ const blockchain = {
   getBestBlockHash,
   getBlock,
   getTipTime,
-  broadcast
+  broadcast,
 };
 
 export default blockchain;

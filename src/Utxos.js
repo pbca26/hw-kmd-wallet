@@ -1,5 +1,5 @@
 import React from 'react';
-import getKomodoRewards from 'get-komodo-rewards';
+import getKomodoRewards from './lib/get-komodo-rewards';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import humanRewardEndDate from './lib/human-reward-end-date';
 import Boolean from './Boolean';
