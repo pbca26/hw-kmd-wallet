@@ -1,14 +1,14 @@
 {
-  "name": "ledger-kmd-reward-claim",
+  "name": "hw-vote",
   "version": "0.1.0",
   "author": "Luke Childs <lukechilds123@gmail.com> (http://lukechilds.co.uk), Komodo Platform (https://komodoplatform.com)",
-  "repository": "atomiclabs/ledger-kmd-reward-claim",
-  "homepage": "https://atomiclabs.github.io/ledger-kmd-reward-claim/",
+  "repository": "pbca26/hw-vote",
+  "homepage": "https://pbca26.github.io/hw-vote/",
   "license": "MIT",
   "private": true,
   "scripts": {
     "start": "HTTPS=true react-app-rewired start",
-    "build": "PUBLIC_URL=https://atomiclabs.github.io/ledger-kmd-reward-claim/ react-app-rewired build",
+    "build": "PUBLIC_URL=https://pbca26/hw-vote/ react-app-rewired build",
     "predeploy": "yarn build",
     "deploy": "gh-pages -d build",
     "test": "react-app-rewired test",
