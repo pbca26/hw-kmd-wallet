@@ -106,7 +106,7 @@ class App extends React.Component {
               <img src="favicon.png" className="KmdIcon" alt="Komodo logo" />
             </div>
             <h1 className="navbar-item">
-              <strong>HW KMD Rewards Claim</strong>
+              <strong>HW KMD Notary Elections</strong>
             </h1>
           </div>
         </Header>
@@ -114,7 +114,7 @@ class App extends React.Component {
         <section className="main">
           <React.Fragment>
             <div className="container content text-center">
-              <h2>Claim your KMD rewards on your hardware wallet device.</h2>
+              <h2>Cast your VOTEs from a hardware wallet device.</h2>
             </div>
             <div className="vendor-selector">
               <h3>Choose your vendor</h3>
@@ -128,7 +128,7 @@ class App extends React.Component {
 
         <Footer>
           <p>
-            <strong>Hardware wallet KMD Rewards Claim</strong> by <a target="_blank" rel="noopener noreferrer" href="https://github.com/atomiclabs">Atomic Labs</a> and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
+            <strong>Hardware wallet KMD Notary Elections</strong> by <a target="_blank" rel="noopener noreferrer" href="https://github.com/atomiclabs">Atomic Labs</a> and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
           </p>
           <p>
             The <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}`}>source code</a> is licensed under <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}/blob/master/LICENSE`}>MIT</a>.
@@ -162,10 +162,10 @@ class App extends React.Component {
               </div>
               <h1 className="navbar-item">
                 {!this.state.vendor &&
-                  <strong>HW KMD Rewards Claim</strong>
+                  <strong>HW KMD Notary Elections</strong>
                 }
                 {this.state.vendor &&
-                  <strong>{this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} KMD Rewards Claim</strong>
+                  <strong>{this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} KMD Notary Elections</strong>
                 }
                 <span className="explorer-selector-block">
                   <i className="fa fa-cog"></i>
@@ -195,7 +195,7 @@ class App extends React.Component {
                 <div className="navbar-item">
                   <div className="buttons">
                     <CheckRewardsButton handleRewardData={this.handleRewardData} vendor={this.state.vendor}>
-                      <strong>Check Rewards</strong>
+                      <strong>Check Balance</strong>
                     </CheckRewardsButton>
                     <button className="button is-light" disabled={isEqual(this.state, this.initialState)} onClick={this.resetState}>
                       Reset
@@ -210,16 +210,17 @@ class App extends React.Component {
             {this.state.accounts.length === 0 ? (
               <React.Fragment>
                 <div className="container content">
-                  <h2>Claim your KMD rewards on your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} device.</h2>
+                  <h2>Cast your VOTEs from {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} device.</h2>
                   {this.state.vendor === 'ledger' &&
                     <p>Make sure the KMD app and firmware on your Ledger are up to date, then connect your Ledger, open the KMD app, and click the "Check Rewards" button.</p>
                   }
                   {this.state.vendor === 'trezor' &&
-                    <p>Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the "Check Rewards" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.</p>
+                    <p>Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the "Check Balance" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.</p>
                   }
-                  <p>Also, make sure that your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} is initialized prior using <strong>KMD Rewards Claim tool</strong>.</p>
+                  <p>Also, make sure that your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} is initialized prior using <strong>KMD Notary Elections tool</strong>.</p>
                 </div>
                 <img className="hw-graphic" src={`${this.state.vendor}-logo.png`} alt={this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} />
+                <div className="trezor-webusb-container"></div>
               </React.Fragment>
             ) : (
               <Accounts {...this.state} />
@@ -230,7 +231,7 @@ class App extends React.Component {
 
           <Footer>
             <p>
-              <strong>{this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} KMD Rewards Claim</strong> by  and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
+              <strong>{this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} KMD Notary Elections</strong> by  and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
               The <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}`}>source code</a> is licensed under <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}/blob/master/LICENSE`}>MIT</a>.
               <br />
               View the <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}#usage`}>README</a> for usage instructions.
