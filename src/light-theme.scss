@@ -1,0 +1,86 @@
+.tlight {
+  background-color: #F5F5F5;
+
+  * {
+    color: #182331;
+  }
+
+  a {
+    color: #536a84;
+
+    &:hover {
+      color: #536a84;
+      text-decoration: underline;
+    }
+  }
+
+  .Accounts {
+    .box {
+      border-radius: 4px;
+      padding: 0;
+
+      .content {
+        padding: 0;
+        padding: 1.25rem 0;
+        
+        > * {
+          padding-left: 1.25rem;
+        }
+        .breakdown,
+        button {
+          margin-left: 1.25rem;
+        }
+        .balance {
+          padding-top: 10px;
+        }
+        h4 {
+          padding-top: 10px;
+        }
+        .table {
+          &.is-striped {  
+            td:first-child,
+            th:first-child {
+              padding-left: 1.25rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .button {
+    &.is-primary {
+      color: #fff;
+      background: #2b6680;
+      
+      &:hover {
+        background: #317792;
+      }
+    }
+  }
+
+  .has-text-success .fas {
+    color: #23d160 !important;
+  }
+  .has-text-danger .fas {
+    color: #ff3860 !important;
+  }
+
+  .theme-selector {
+    .item {
+      &.light.active {
+        border: solid 1px #000;
+        cursor: default;
+      }
+      &.black:hover {
+        border: solid 1px #000;
+      }
+    }
+  }
+
+  .hw-graphic,
+  .vendor-trezor,
+  .vendor-ledger {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+}

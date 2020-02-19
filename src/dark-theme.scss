@@ -1,0 +1,138 @@
+.tdark {
+  background-color: #1A2939;
+  color: #fff;
+
+  .content {
+    h2,
+    h3,
+    h4 {
+      color: #fff;
+    }
+  }
+
+  .Footer {
+    .content {
+      strong {
+        color: #fff;
+      }
+    }
+  }
+
+  .navbar {
+    background-color: #233548;
+    
+    strong {
+      color: #fff;
+    }
+  }
+
+  a {
+    color: #41EAD4;
+
+    &:hover {
+      color: #41EAD4;
+      text-decoration: underline;
+    }
+  }
+
+  .button {
+    &.is-primary {
+      color: #fff;
+      background-color: #2b6680;
+      
+      &:hover {
+        background-color: #317592;
+      }
+    }
+  }
+
+  .Modal {
+    .modal-content {
+      .card {
+        background: #1A2939;
+        color: #fff;
+      }
+      .card-header {
+        box-shadow: none;
+        border-bottom: solid 1px rgba(255, 255, 255, 0.2);
+      }
+      .card-header-title {
+        color: #fff;
+      }
+      .panel-block {
+        border-color: rgba(255, 255, 255, 0.5);
+
+        &.is-active {
+          border: solid 1px #fff;
+        }
+      }
+    }
+  }
+
+  .Accounts {
+    .box {
+      background: #233548;
+      border-radius: 4px;
+      padding: 0;
+
+      .content {
+        padding: 0;
+        padding: 1.25rem 0;
+        
+        > * {
+          padding-left: 1.25rem;
+        }
+        .breakdown,
+        button {
+          margin-left: 1.25rem;
+        }
+        .balance {
+          color: #cecece;
+          padding-top: 10px;
+        }
+        h4 {
+          padding-top: 10px;
+        }
+        strong {
+          color: #fff;
+        }
+      }
+      .table {
+        &.is-striped {
+          background: #364C65;
+          color: #fff;
+
+          td,
+          th {
+            background: #364C65;
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.25);
+          }
+          td:first-child,
+          th:first-child {
+            padding-left: 1.25rem;
+          }
+        }
+      }
+      .breakdown {
+        color: #fff;
+      }
+    }
+  }
+
+  .has-text-success .fas {
+    color: #23d160 !important;
+  }
+  .has-text-danger .fas {
+    color: #ff3860 !important;
+  }
+
+  .theme-selector {
+    .item {
+      &.light.active {
+        border: solid 1px rgba(255, 255, 255, 0.7);
+        cursor: default;
+      }
+    }
+  }
+}

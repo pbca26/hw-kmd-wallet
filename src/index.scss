@@ -1,0 +1,19 @@
+@import './bulma-custom.scss';
+@import './App.scss';
+@import './dark-theme.scss';
+@import './light-theme.scss';
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Rubik';
+  
+  * {
+    font-family: 'Rubik';
+  }
+}
+
+html {
+  background: inherit !important;
+}
