@@ -38,6 +38,16 @@ const parseHistory = (txs, addr) => {
     console.log('vinsum: ' + vinSum)
     console.log('voutSum: ' + voutSum)
 
+    tx = {
+      type: 'sent',
+      amount: Math.abs(Number(Number(Math.abs(vinSum) - Math.abs(voutSum) - 0.0001).toFixed(8))),
+      timestamp: txs[i].height === -1 ? Math.floor(Date.now() / 1000) : txs[i].blocktime || 'unknown',
+      date: txs[i].blocktime ? secondsToString(txs[i].blocktime) : 'unknown',
+      txid: txs[i].txid || 'unknown',
+      height: txs[i].height === -1 ? 0 : txs[i].height,
+      confirmations: txs[i].confirmations,
+    };
+
     txHistory.push(tx);
   }
   
