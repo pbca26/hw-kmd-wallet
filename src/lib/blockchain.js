@@ -31,6 +31,8 @@ const get = async (endpoint, postData) => {
 
 const getAddress = address => get(`addr/${address}/?noTxList=1`);
 
+const getHistory = (address, coin) => get(`/txs?address=${address}`, coin);
+
 const getUtxos = addresses => get(`addrs/utxo`, {addrs: addresses.join(',')});
 
 const getTransaction = txid => get(`tx/${txid}`);
@@ -71,6 +73,7 @@ const blockchain = {
   get,
   getAddress,
   getUtxos,
+  getHistory,
   getTransaction,
   getRawTransaction,
   getBestBlockHash,
