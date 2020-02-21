@@ -69,4 +69,5 @@ If you feel you've contributed and aren't listed here, please let us know.
 ## License
 
 MIT © Atomic Labs<br />
-MIT © Luke Childs
+MIT © Luke Childs<br />
+MIT © Komodo Platform<br />
