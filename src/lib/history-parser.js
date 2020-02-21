@@ -31,7 +31,7 @@ const parseHistory = (txs, addr) => {
       }
 
       if (addr.indexOf(txs[i].vout[j].scriptPubKey.addresses[0]) > -1) {
-        voutsSum += Number(txs[i].vout[j].value);
+        voutSum += Number(txs[i].vout[j].value);
       }
     }
   
@@ -48,9 +48,10 @@ const parseHistory = (txs, addr) => {
       confirmations: txs[i].confirmations,
     };
 
-    if (vinSum && voutSum) {
+    // TODO: dectect send to self txs
+    if /*(vinSum && voutSum) {
       tx.type = 'self';
-    } else if (vinSum && !voutSum) {
+    } else if */(vinSum && !voutSum) {
       tx.type = 'sent';
     } else if (!vinSum && voutSum) {
       tx.type = 'received';
