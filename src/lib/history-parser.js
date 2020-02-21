@@ -48,6 +48,14 @@ const parseHistory = (txs, addr) => {
       confirmations: txs[i].confirmations,
     };
 
+    if (vinSum && voutSum) {
+      tx.type = 'self';
+    } else if (vinSum && !voutSum) {
+      tx.type = 'sent';
+    } else if (!vinSum && voutSum) {
+      tx.type = 'received';
+    }
+
     txHistory.push(tx);
   }
   
