@@ -1,4 +1,4 @@
-export const TX_FEE = 20000;
+export const TX_FEE = 10000;
 export const INSIGHT_API_URL = {
   default: 'https://rick.kmd.dev/insight-api-komodo/',
 };
