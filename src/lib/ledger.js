@@ -142,11 +142,13 @@ const createTransaction = async function(utxos, outputs) {
       });
     }
 
-    tx.outputs.push({
-      address: outputs[i].address,
-      amount: outputs[i].value.toString(),
-      script_type: 'PAYTOADDRESS',
-    });
+    for (let i = 0; i < outputs.length; i++) {
+      tx.outputs.push({
+        address: outputs[i].address,
+        amount: outputs[i].value.toString(),
+        script_type: 'PAYTOADDRESS',
+      });
+    }
 
     for (let i = 0; i < utxos.length; i++) {
       if (uniqueTxids.indexOf(utxos[i].txid) === -1) {
