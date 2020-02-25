@@ -135,9 +135,24 @@ export const getAddressHistory = async (addresses) => {
     }          
   });
 
+  let uniqueTxids = [];
+  let filteredHistoryTxs = [];
+
+  for (let i = 0; i < 2; i++) {        
+    for (let j = 0; j < allTxs.length; j++) {
+      if (uniqueTxids.indexOf(allTxs[j].txid) === -1) {
+        uniqueTxids.push(allTxs[j].txid);
+        filteredHistoryTxs.push(allTxs[j]);
+      }
+    }
+  }
+
+  console.warn('filteredHistoryTxs', filteredHistoryTxs);
+  
   return {
     addresses: addressCacheTemp,
     allTxs,
+    historyParsed: parseHistory(filteredHistoryTxs, Object.keys(Object.assign(addressCacheTemp))),
   };
 };
 
