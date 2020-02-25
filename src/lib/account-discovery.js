@@ -2,8 +2,15 @@ import ledger from './ledger';
 import blockchain from './blockchain';
 import getAddress from './get-address';
 import bitcoin from 'bitcoinjs-lib';
+import parseHistory from './history-parser';
 
 let pubKeysCache = {};
+
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
 
 const walkDerivationPath = async node => {
   const addressConcurrency = 10;
@@ -98,6 +105,40 @@ const getAddressUtxos = async addresses => {
   }));
 };
 
+export const getAddressHistory = async (addresses) => {
+  let addressCacheTemp = {};
+  let allTxs = [];
+  let addressHistory = [];
+  let addressHistoryIDs = [];
+
+  console.warn('addresses', addresses);
+
+  await asyncForEach(addresses, async (addressItem, index) => {
+    const addressHistoryRes = await blockchain.getHistory(addressItem.address);
+    
+    console.warn('addressHistoryRes', addressHistoryRes);
+
+    if (addressHistoryRes && addressHistoryRes.txs) {
+      addressCacheTemp[addressItem.address] = addressHistoryRes.txs;
+  
+      for (let i = 0; i < addressHistoryRes.txs.length; i++) {
+        if (addressHistoryIDs.indexOf(addressHistoryRes.txs[i].txid) === -1) {
+          addressHistory.push(addressHistoryRes.txs[i]);
+          addressHistoryIDs.push(addressHistoryRes.txs[i].txid);
+        }
+        if (allTxs.indexOf(addressHistoryRes.txs[i].txid) === -1) {
+          allTxs.push(addressHistoryRes.txs[i]);
+        }
+      }
+    }          
+  });
+
+  return {
+    addresses: addressCacheTemp,
+    allTxs,
+  };
+};
+
 const accountDiscovery = async () => {
   const accounts = [];
 
@@ -110,6 +151,7 @@ const accountDiscovery = async () => {
     }
 
     account.utxos = await getAddressUtxos(account.addresses);
+    account.history = await getAddressHistory(account.addresses); 
     account.accountIndex = accountIndex;
 
     accounts.push(account);
