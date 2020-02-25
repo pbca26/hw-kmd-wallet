@@ -130,6 +130,8 @@ export const getAddressHistory = async (addresses) => {
           allTxs.push(addressHistoryRes.txs[i]);
         }
       }
+    } else {
+      // TODO: something went wrong, request again
     }          
   });
 
