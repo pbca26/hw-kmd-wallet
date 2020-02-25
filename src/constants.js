@@ -13,3 +13,4 @@ export const KOMODO = {
   scriptHash: 0x55,
   wif: 0xBC
 };
+export const coin = 'RICK';
