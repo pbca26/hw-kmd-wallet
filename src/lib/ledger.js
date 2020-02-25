@@ -93,7 +93,7 @@ const createTransaction = async function(utxos, outputs) {
     const changePath = undefined;
     const outputScript = buildOutputScript([outputs]);
     const unixtime = Math.floor(Date.now() / 1000);
-    const lockTime = (unixtime - 777);
+    const lockTime = 0;
     const sigHashType = undefined;
     const segwit = undefined;
     const initialTimestamp = undefined;
@@ -130,7 +130,7 @@ const createTransaction = async function(utxos, outputs) {
       refTxs: [],
     };
 
-    tx.locktime = Math.floor(Date.now() / 1000) - 777;
+    tx.locktime = 0;
 
     for (let i = 0; i < utxos.length; i++) {
       const derivationPathPartials = utxos[i].derivationPath.replace(/'/g, '').split('/');
@@ -143,8 +143,8 @@ const createTransaction = async function(utxos, outputs) {
     }
 
     tx.outputs.push({
-      address: outputs.address,
-      amount: outputs.value.toString(),
+      address: outputs[i].address,
+      amount: outputs[i].value.toString(),
       script_type: 'PAYTOADDRESS',
     });
 
