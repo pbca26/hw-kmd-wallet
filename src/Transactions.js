@@ -19,10 +19,10 @@ const Transactions = ({transactions}) => {
       <tbody>
         {transactions.map(tx => (
           <tr key={tx.txid} className="utxo">
-            <td>{tx.type}</td>
+            <td>{Number(tx.height) === -1 || Number(tx.height) === 0 || Number(tx.confirmations) === 0 ? 'pending' : tx.type}</td>
             <td>{tx.amount}</td>
             <td>{tx.confirmations}</td>
-            <td>{tx.date}</td>
+            <td>{Number(tx.height) === -1 || Number(tx.height) === 0 ? '' : tx.date}</td>
             <td>{tx.txid}</td>
           </tr>
         ))}
