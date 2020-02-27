@@ -55,8 +55,6 @@ class App extends React.Component {
   checkExplorerEndpoints = async () => {
     const getInfoRes = await Promise.all([
       getInfo(INSIGHT_API_URL.default),
-      getInfo(INSIGHT_API_URL.komodoplatform),
-      getInfo(INSIGHT_API_URL.dexstats)
     ]);
 
     console.warn('checkExplorerEndpoints', getInfoRes);
