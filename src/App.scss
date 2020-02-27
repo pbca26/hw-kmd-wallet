@@ -13,6 +13,18 @@
     flex: 1;
     padding-top: 5.4em;
 
+    .ws--nowrap {
+      white-space: nowrap;
+    }
+  
+    .wb--all {
+      word-break: break-all;
+    }
+  
+    .cap--first {
+      text-transform: capitalize;
+    }
+
     .hw-graphic {
       height: 140px;
       position: absolute;

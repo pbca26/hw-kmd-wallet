@@ -1,5 +1,6 @@
 import React from 'react';
 import Boolean from './Boolean';
+import {INSIGHT_EXPLORER_URL} from './constants';
 
 const Transactions = ({transactions}) => {
   const headings = ['Type', 'Amount', 'Confirmations', 'Date', 'Transaction ID'];
@@ -19,11 +20,15 @@ const Transactions = ({transactions}) => {
       <tbody>
         {transactions.map(tx => (
           <tr key={tx.txid} className="utxo">
-            <td>{Number(tx.height) === -1 || Number(tx.height) === 0 || Number(tx.confirmations) === 0 ? 'pending' : tx.type}</td>
+            <td className="cap--first">{Number(tx.height) === -1 || Number(tx.height) === 0 || Number(tx.confirmations) === 0 ? 'pending' : tx.type}</td>
             <td>{tx.amount}</td>
             <td>{tx.confirmations}</td>
-            <td>{Number(tx.height) === -1 || Number(tx.height) === 0 ? '' : tx.date}</td>
-            <td>{tx.txid}</td>
+            <td className="ws--nowrap">{Number(tx.height) === -1 || Number(tx.height) === 0 ? '' : tx.date}</td>
+            <td className="wb--all">
+              <a
+                target="_blank"
+                href={`${INSIGHT_EXPLORER_URL}/tx/${tx.txid}`}>{tx.txid}</a>
+            </td>
           </tr>
         ))}
       </tbody>
