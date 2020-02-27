@@ -1,8 +1,8 @@
 import React from 'react';
-import Utxos from './Utxos';
+import Transactions from './Transactions';
 import ClaimRewardsButton from './ClaimRewardsButton';
 import TxidLink from './TxidLink';
-import {TX_FEE} from './constants';
+import {TX_FEE, coin} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import './Accounts.scss';
 import './Account.scss';
@@ -46,6 +46,7 @@ class Account extends React.Component {
     const {
       accountIndex,
       utxos,
+      history,
       balance,
       rewards,
       claimableAmount,
@@ -56,44 +57,28 @@ class Account extends React.Component {
     const isClaimableAmount = (claimableAmount > 0);
     const {isClaimed, claimTxid} = this.state;
 
+    console.warn('utxos', utxos);
+    console.warn('history', history);
+
     return (
-      <div className={`Account column is-full ${isClaimed ? 'is-claimed' : ''}`}>
+      <div className={`Account column is-full ${isClaimed ? 'isclaimed' : ''}`}>
         <div className="box">
           <div className="content">
             <h2>
               Account {accountIndex + 1}
               <div className="balance">
-                {humanReadableSatoshis(balance)} KMD
+                {humanReadableSatoshis(balance)} {coin}
               </div>
-              <small>
-                + {humanReadableSatoshis(Math.max(0, claimableAmount))} KMD Claimable Rewards
-              </small>
             </h2>
-            {(utxos.length > 0) && (
+            {(history.historyParsed.length === 0) && (
               <React.Fragment>
-                <h4>UTXOs</h4>
-                <Utxos utxos={utxos} tiptime={tiptime} />
+                No history
               </React.Fragment>
             )}
-            {isClaimableAmount && (
+            {(history.historyParsed.length > 0) && (
               <React.Fragment>
-                <h4>Breakdown</h4>
-                <table className="breakdown">
-                  <tbody>
-                    <tr>
-                      <td>{humanReadableSatoshis(rewards)} KMD</td>
-                      <td>Rewards accrued</td>
-                    </tr>
-                    <tr>
-                      <td>{humanReadableSatoshis(TX_FEE)} KMD</td>
-                      <td>Network transaction fee</td>
-                    </tr>
-                    <tr>
-                      <td><strong>{humanReadableSatoshis(claimableAmount)} KMD</strong></td>
-                      <td>Total claimable amount</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <h4>Transactions</h4>
+                <Transactions transactions={history.historyParsed} />
               </React.Fragment>
             )}
             {account.addresses && account.addresses.length &&
