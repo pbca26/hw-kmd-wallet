@@ -3,7 +3,7 @@ import React from 'react';
 import {hot} from 'react-hot-loader';
 import {isEqual} from 'lodash';
 import Header from './Header';
-import CheckRewardsButton from './CheckRewardsButton';
+import CheckBalanceButton from './CheckBalanceButton';
 import Accounts from './Accounts';
 import WarnU2fCompatibility from './WarnU2fCompatibility';
 import Footer from './Footer';
@@ -207,9 +207,9 @@ class App extends React.Component {
               <div className="navbar-end">
                 <div className="navbar-item">
                   <div className="buttons">
-                    <CheckRewardsButton handleRewardData={this.handleRewardData} vendor={this.state.vendor}>
+                    <CheckBalanceButton handleRewardData={this.handleRewardData} vendor={this.state.vendor}>
                       <strong>Check Balance</strong>
-                    </CheckRewardsButton>
+                    </CheckBalanceButton>
                     <button className="button is-light" disabled={isEqual(this.state, this.initialState)} onClick={this.resetState}>
                       Reset
                     </button>

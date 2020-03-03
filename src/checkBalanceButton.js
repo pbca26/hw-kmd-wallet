@@ -7,7 +7,7 @@ import updateActionState from './lib/update-action-state';
 import {TX_FEE} from './constants';
 import ActionListModal from './ActionListModal';
 
-class CheckRewardsButton extends React.Component {
+class CheckBalanceButton extends React.Component {
   state = this.initialState;
 
   get initialState() {
@@ -113,4 +113,4 @@ class CheckRewardsButton extends React.Component {
 
 }
 
-export default CheckRewardsButton;
+export default CheckBalanceButton;
