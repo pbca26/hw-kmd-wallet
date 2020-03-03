@@ -25,6 +25,14 @@
       text-transform: capitalize;
     }
 
+    .form-control {
+      &.edit {
+        padding: 5px 10px;
+        width: 300px;
+        font-size: 14px;
+      }
+    }
+
     .hw-graphic {
       height: 140px;
       position: absolute;

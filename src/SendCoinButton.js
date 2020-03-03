@@ -7,7 +7,7 @@ import getAddress from './lib/get-address';
 import updateActionState from './lib/update-action-state';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 
-class ClaimRewardsButton extends React.Component {
+class SendCoinButton extends React.Component {
   state = this.initialState;
 
   get initialState() {
@@ -169,4 +169,4 @@ class ClaimRewardsButton extends React.Component {
   }
 }
 
-export default ClaimRewardsButton;
+export default SendCoinButton;
