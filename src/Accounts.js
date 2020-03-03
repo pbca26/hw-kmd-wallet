@@ -1,6 +1,6 @@
 import React from 'react';
 import Transactions from './Transactions';
-import ClaimRewardsButton from './ClaimRewardsButton';
+import SendCoinButton from './SendCoinButton';
 import TxidLink from './TxidLink';
 import {TX_FEE, coin} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
@@ -110,11 +110,32 @@ class Account extends React.Component {
                 <strong>Warning:</strong> sending rewards to a non-default address will break so called pseudo anonimity (one time address usage) and link your addresses together! This is not recommended option.
               </div>
             }
-            {(isClaimed && claimTxid) && (
-              <div className="is-pulled-right">
-                Claim TXID: <TxidLink txid={claimTxid}/>
+            <div className="send-form" style={{'padding': '20px 20px 30px 20px'}}>
+              <div>
+                Amount <input
+                  style={{'marginLeft': '10px'}}
+                  type="text"
+                  className="form-control edit"
+                  name="amount"
+                  onChange={ this.updateInput }
+                  value={ this.state.amount }
+                  placeholder="Enter an amount"
+                  autoComplete="off"
+                  required />
               </div>
-            )}
+              <div style={{'margin': '30px 0 20px 0'}}>
+                Send to <input
+                  style={{'marginLeft': '10px'}}
+                  type="text"
+                  className="form-control edit"
+                  name="sendTo"
+                  onChange={ this.updateInput }
+                  value={ this.state.sendTo }
+                  placeholder="Enter an address"
+                  autoComplete="off"
+                  required />
+              </div>
+            </div>
             {this.state.isDebug &&
               <button className="button is-primary" onClick={() => this.showXpub(accountIndex)}>
                 {this.state.showXpub >=0 && this.state.showXpub == accountIndex ? 'Hide Xpub' : 'Show Xpub'}
@@ -126,9 +147,9 @@ class Account extends React.Component {
                 <strong>Xpub:</strong> {xpub}
               </div>
             }
-            <ClaimRewardsButton account={account} handleRewardClaim={this.handleRewardClaim} isClaimed={this.state.isClaimed} vendor={this.props.vendor} address={this.state.address}>
+            <SendCoinButton account={account} handleRewardClaim={this.handleRewardClaim} isClaimed={this.state.isClaimed} vendor={this.props.vendor} address={this.state.address}>
               Claim Rewards
-            </ClaimRewardsButton>
+            </SendCoinButton>
           </div>
         </div>
       </div>
