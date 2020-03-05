@@ -11,10 +11,14 @@ class Account extends React.Component {
   state = this.initialState;
 
   get initialState() {
+    this.updateInput = this.updateInput.bind(this);
+
     return {
       isClaimed: false,
       claimTxid: null,
       address: '',
+      amount: 0,
+      sendTo: '',
       // debug options
       showXpub: null,
       isDebug: window.location.href.indexOf('#enable-verify') > -1,
@@ -83,7 +87,7 @@ class Account extends React.Component {
             )}
             {account.addresses && account.addresses.length &&
               <div style={this.state.address ? {'padding': '10px 20px 20px 20px'} : {'padding': '10px 20px 30px 20px'}}>
-                Send rewards to
+                Send change to
                 <select
                   style={{'marginLeft': '10px'}}
                   className="account-index-selector"
@@ -107,7 +111,7 @@ class Account extends React.Component {
             }
             {this.state.address &&
               <div style={{'padding': '0 20px 30px 20px'}}>
-                <strong>Warning:</strong> sending rewards to a non-default address will break so called pseudo anonimity (one time address usage) and link your addresses together! This is not recommended option.
+                <strong>Warning:</strong> sending coins to a non-default address will break so called pseudo anonimity (one time address usage) and link your addresses together! This is not recommended option.
               </div>
             }
             <div className="send-form" style={{'padding': '20px 20px 30px 20px'}}>
@@ -147,8 +151,15 @@ class Account extends React.Component {
                 <strong>Xpub:</strong> {xpub}
               </div>
             }
-            <SendCoinButton account={account} handleRewardClaim={this.handleRewardClaim} isClaimed={this.state.isClaimed} vendor={this.props.vendor} address={this.state.address}>
-              Claim Rewards
+            <SendCoinButton
+              account={account}
+              handleRewardClaim={this.handleRewardClaim}
+              vendor={this.props.vendor}
+              address={this.state.address}
+              balance={balance}
+              sendTo={this.state.sendTo}
+              amount={this.state.amount}>
+              Send
             </SendCoinButton>
           </div>
         </div>
