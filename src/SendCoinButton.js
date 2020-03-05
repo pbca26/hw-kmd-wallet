@@ -6,6 +6,11 @@ import blockchain from './lib/blockchain';
 import getAddress from './lib/get-address';
 import updateActionState from './lib/update-action-state';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
+import {TX_FEE, coin} from './constants';
+
+import transactionBuilder from 'agama-wallet-lib/src/transaction-builder';
+import {toSats, fromSats} from 'agama-wallet-lib/src/utils';
+import networks from 'agama-wallet-lib/src/bitcoinjs-networks-all';
 
 class SendCoinButton extends React.Component {
   state = this.initialState;
@@ -42,6 +47,10 @@ class SendCoinButton extends React.Component {
       },
       skipBroadcast: false,
       skipBroadcastClicked: false,
+      amount: 0,
+      sendTo: null,
+      change: 0,
+      changeTo: null,
     };
   }
 
