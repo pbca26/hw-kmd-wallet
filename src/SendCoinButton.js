@@ -80,6 +80,24 @@ class SendCoinButton extends React.Component {
     return outputs;
   };
 
+  filterUtxos = (utxoListSimplified, utxoListDetailed) => {
+    let utxos = [];
+    
+    for (let i = 0; i < utxoListSimplified.length; i++) {
+      for (let j = 0; j < utxoListDetailed.length; j++) {
+        if (utxoListDetailed[j].vout === utxoListSimplified[i].vout &&
+            utxoListDetailed[j].txid === utxoListSimplified[i].txid) {
+          utxos.push(utxoListDetailed[j]);
+          break;
+        }
+      }
+    }
+
+    console.warn('filterUtxos', utxos);
+
+    return utxos;
+  }
+
   claimRewards = async () => {
     const {
       accountIndex,
