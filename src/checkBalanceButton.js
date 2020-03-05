@@ -84,6 +84,7 @@ class CheckBalanceButton extends React.Component {
 
       this.setState({...this.initialState});
     } catch (error) {
+      console.warn(error);
       updateActionState(this, currentAction, false);
       this.setState({error: error.message});
     }
@@ -98,7 +99,7 @@ class CheckBalanceButton extends React.Component {
           {this.props.children}
         </button>
         <ActionListModal
-          title="Scanning Blockchain for Rewards"
+          title="Scanning Blockchain"
           actions={actions}
           error={error}
           handleClose={this.resetState}
