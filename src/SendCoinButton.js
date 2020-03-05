@@ -80,6 +80,50 @@ class SendCoinButton extends React.Component {
     return outputs;
   };
 
+  validate() {
+    const amount = Number(this.props.amount);
+    const balance = humanReadableSatoshis(this.props.balance);
+    let error;
+
+    if ((Number(amount) + 0.0002) > balance) {
+      error = 'insufficient balance';
+    } else if (Number(amount) < 0.0002) {
+      error = 'amount is too small, min is 0.0001 ' + coin;
+    } else if (!this.state.sendTo) {
+      let _validateAddress;
+      let _msg;
+
+      // TODO: validate address
+      /*if (isKomodoCoin(_coin) ||
+          Config.whitelabel) {
+        _validateAddress = addressVersionCheck(btcNetworks.kmd, this.state.sendTo);
+      } else {
+        _validateAddress = addressVersionCheck(btcNetworks[_coin], this.state.sendTo);
+      }
+
+      if (_validateAddress === 'Invalid pub address') {
+        _msg = _validateAddress;
+      } else if (!_validateAddress) {
+        _msg = `${this.state.sendTo} ${translate('SEND.IS_NOT_A_VALID_ADDR', _coin.toUpperCase())}`;
+      }
+
+      if (_msg) {
+        Store.dispatch(
+          triggerToaster(
+            _msg,
+            translate('TOASTR.WALLET_NOTIFICATION'),
+            'error'
+          )
+        );
+        valid = false;
+      }*/
+    } else if (!Number(amount) || Number(amount) < 0) {
+      error = 'wrong amount format'
+    }
+
+    return error;
+  }
+
   filterUtxos = (utxoListSimplified, utxoListDetailed) => {
     let utxos = [];
     
