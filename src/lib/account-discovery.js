@@ -164,12 +164,20 @@ const accountDiscovery = async () => {
     const account = await getAccountAddresses(accountIndex);
 
     if (account.addresses.length === 0) {
-      break;
+      account.utxos = [];
+      account.history = {
+        addresses: [],
+        allTxs: [],
+        historyParsed: [],
+      }; 
+      account.accountIndex = accountIndex;
+      accounts.push(account);
+      return accounts;
+    } else {
+      account.utxos = await getAddressUtxos(account.addresses);
+      account.history = await getAddressHistory(account.addresses); 
+      account.accountIndex = accountIndex;
     }
-
-    account.utxos = await getAddressUtxos(account.addresses);
-    account.history = await getAddressHistory(account.addresses); 
-    account.accountIndex = accountIndex;
 
     accounts.push(account);
     accountIndex++;
