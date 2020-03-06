@@ -76,7 +76,7 @@ class Account extends React.Component {
             </h2>
             {(history.historyParsed.length === 0) && (
               <React.Fragment>
-                No history
+                <span style={{'padding': '10px 20px 20px 20px'}}>No history</span>
               </React.Fragment>
             )}
             {(history.historyParsed.length > 0) && (
@@ -85,7 +85,7 @@ class Account extends React.Component {
                 <Transactions transactions={history.historyParsed} />
               </React.Fragment>
             )}
-            {account.addresses && account.addresses.length &&
+            {account.addresses && account.addresses.length > 0 &&
               <div style={this.state.address ? {'padding': '10px 20px 20px 20px'} : {'padding': '10px 20px 30px 20px'}}>
                 Send change to
                 <select
@@ -114,32 +114,34 @@ class Account extends React.Component {
                 <strong>Warning:</strong> sending coins to a non-default address will break so called pseudo anonimity (one time address usage) and link your addresses together! This is not recommended option.
               </div>
             }
-            <div className="send-form" style={{'padding': '20px 20px 30px 20px'}}>
-              <div>
-                Amount <input
-                  style={{'marginLeft': '10px'}}
-                  type="text"
-                  className="form-control edit"
-                  name="amount"
-                  onChange={ this.updateInput }
-                  value={ this.state.amount }
-                  placeholder="Enter an amount"
-                  autoComplete="off"
-                  required />
+            { balance > 0 &&
+              <div className="send-form" style={{'padding': '20px 20px 30px 20px'}}>
+                <div>
+                  Amount <input
+                    style={{'marginLeft': '10px'}}
+                    type="text"
+                    className="form-control edit"
+                    name="amount"
+                    onChange={ this.updateInput }
+                    value={ this.state.amount }
+                    placeholder="Enter an amount"
+                    autoComplete="off"
+                    required />
+                </div>
+                <div style={{'margin': '30px 0 20px 0'}}>
+                  Send to <input
+                    style={{'marginLeft': '10px'}}
+                    type="text"
+                    className="form-control edit"
+                    name="sendTo"
+                    onChange={ this.updateInput }
+                    value={ this.state.sendTo }
+                    placeholder="Enter an address"
+                    autoComplete="off"
+                    required />
+                </div>
               </div>
-              <div style={{'margin': '30px 0 20px 0'}}>
-                Send to <input
-                  style={{'marginLeft': '10px'}}
-                  type="text"
-                  className="form-control edit"
-                  name="sendTo"
-                  onChange={ this.updateInput }
-                  value={ this.state.sendTo }
-                  placeholder="Enter an address"
-                  autoComplete="off"
-                  required />
-              </div>
-            </div>
+            }
             {this.state.isDebug &&
               <button className="button is-primary" onClick={() => this.showXpub(accountIndex)}>
                 {this.state.showXpub >=0 && this.state.showXpub == accountIndex ? 'Hide Xpub' : 'Show Xpub'}
@@ -151,16 +153,18 @@ class Account extends React.Component {
                 <strong>Xpub:</strong> {xpub}
               </div>
             }
-            <SendCoinButton
-              account={account}
-              handleRewardClaim={this.handleRewardClaim}
-              vendor={vendor}
-              address={this.state.address}
-              balance={balance}
-              sendTo={this.state.sendTo}
-              amount={this.state.amount}>
-              Send
-            </SendCoinButton>
+            { balance > 0 &&
+              <SendCoinButton
+                account={account}
+                handleRewardClaim={this.handleRewardClaim}
+                vendor={vendor}
+                address={this.state.address}
+                balance={balance}
+                sendTo={this.state.sendTo}
+                amount={this.state.amount}>
+                Send
+              </SendCoinButton>
+            }
           </div>
         </div>
       </div>
