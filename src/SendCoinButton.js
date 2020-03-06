@@ -164,7 +164,18 @@ class SendCoinButton extends React.Component {
       
       if (this.state.skipBroadcast) {
         this.setState({
-          success: <React.Fragment><span style={{'padding': '10px 0', 'display': 'block'}}>Raw transaction:</span> <span style={{'wordBreak': 'break-all', 'display': 'block'}}>{rewardClaimTransaction}</span></React.Fragment>
+          success: 
+            <React.Fragment>
+              <span style={{
+                'padding': '10px 0',
+                'display': 'block'
+              }}>Raw transaction:</span>
+              <span style={{
+                'wordBreak': 'break-all',
+                'display': 'block',
+                'padding-left': '3px'
+              }}>{rewardClaimTransaction}</span>
+            </React.Fragment>
         });
       } else {
         currentAction = 'broadcastTransaction';
