@@ -94,31 +94,6 @@ class SendCoinButton extends React.Component {
       const _validateAddress = checkPublicAddress(this.props.sendTo);
 
       if (!_validateAddress) error = 'Invalid send to address';
-
-      // TODO: validate address
-      /*if (isKomodoCoin(_coin) ||
-          Config.whitelabel) {
-        _validateAddress = addressVersionCheck(btcNetworks.kmd, this.state.sendTo);
-      } else {
-        _validateAddress = addressVersionCheck(btcNetworks[_coin], this.state.sendTo);
-      }
-
-      if (_validateAddress === 'Invalid pub address') {
-        _msg = _validateAddress;
-      } else if (!_validateAddress) {
-        _msg = `${this.state.sendTo} ${translate('SEND.IS_NOT_A_VALID_ADDR', _coin.toUpperCase())}`;
-      }
-
-      if (_msg) {
-        Store.dispatch(
-          triggerToaster(
-            _msg,
-            translate('TOASTR.WALLET_NOTIFICATION'),
-            'error'
-          )
-        );
-        valid = false;
-      }*/
     } else if (!Number(amount) || Number(amount) < 0) {
       error = 'wrong amount format'
     }
@@ -215,20 +190,32 @@ class SendCoinButton extends React.Component {
     const {isClaimingRewards} = this.state;
     const isClaimableAmount = (this.props.account.claimableAmount > 0);
     const userOutput = this.getOutputs();
+    const isNoBalace = Number(this.props.balance) <= 0;
+
+    console.warn('this.props', this.props);
 
     return (
       <React.Fragment>
-        <button className="button is-primary" disabled={this.props.isClaimed || !isClaimableAmount} onClick={this.claimRewards}>
+        <button
+          className="button is-primary"
+          disabled={isNoBalace || !this.props.sendTo || !this.props.amount}
+          onClick={this.claimRewards}>
           {this.props.children}
         </button>
         <ActionListModal
           {...this.state}
-          title="Claiming Rewards"
+          title="Send"
           handleClose={this.resetState}
           show={isClaimingRewards}>
-          <p>
-            You should receive a total of <strong>{humanReadableSatoshis(userOutput.value)} KMD</strong> to {!this.props.address.length && 'the new unused'}address: <strong>{userOutput.address}</strong><br />
-          </p>
+          {!this.state.sendTo &&
+            <p>Awaiting user input...</p>
+          }
+          {this.state.sendTo &&
+            <p>Send <strong>{humanReadableSatoshis(this.state.amount)} {coin}</strong> to <strong>{this.state.sendTo}</strong></p>
+          }
+          {this.state.change > 0 &&
+            <p>Send change <strong>{humanReadableSatoshis(this.state.change)} {coin}</strong> to address: <strong>{this.state.changeTo}</strong></p>
+          }
           {this.state.isDebug &&
             <label className="switch" onClick={this.setSkipBroadcast}>
               <input type="checkbox" name="skipBroadcast" value={this.state.skipBroadcast} checked={this.state.skipBroadcast} readOnly />
