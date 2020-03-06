@@ -90,13 +90,12 @@ class SendCoinButton extends React.Component {
       error = 'insufficient balance';
     } else if (Number(amount) < 0.0002) {
       error = 'amount is too small, min is 0.0001 ' + coin;
-    } else if (!this.props.sendTo || this.props.sendTo) {
-      const _validateAddress = checkPublicAddress(this.props.sendTo);
-
-      if (!_validateAddress) error = 'Invalid send to address';
     } else if (!Number(amount) || Number(amount) < 0) {
       error = 'wrong amount format'
     }
+
+    const validateAddress = checkPublicAddress(this.props.sendTo);
+    if (!validateAddress) error = 'Invalid send to address';
 
     return error;
   }
