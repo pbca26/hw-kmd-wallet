@@ -13,7 +13,7 @@ const checkPublicAddress = (address) => {
     return false;
   } catch (e) {
     // TODO: throw error
-    return 'Invalid pub address';
+    return false;
   }
 };
 
