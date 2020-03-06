@@ -46,7 +46,7 @@ class Account extends React.Component {
   }
 
   render() {
-    const {account, tiptime} = this.props;
+    const {account, tiptime, vendor} = this.props;
     const {
       accountIndex,
       utxos,
@@ -154,7 +154,7 @@ class Account extends React.Component {
             <SendCoinButton
               account={account}
               handleRewardClaim={this.handleRewardClaim}
-              vendor={this.props.vendor}
+              vendor={vendor}
               address={this.state.address}
               balance={balance}
               sendTo={this.state.sendTo}
@@ -168,7 +168,7 @@ class Account extends React.Component {
   }
 }
 
-const Accounts = ({accounts, tiptime}) => (
+const Accounts = ({accounts, tiptime, vendor}) => (
   <div className="Accounts">
     <div className="container">
       <div className="columns is-multiline">
@@ -177,6 +177,7 @@ const Accounts = ({accounts, tiptime}) => (
             key={account.accountIndex}
             account={account}
             tiptime={tiptime}
+            vendor={vendor}
             />
         ))}
       </div>
