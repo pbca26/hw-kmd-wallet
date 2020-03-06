@@ -4,6 +4,7 @@ import TxidLink from './TxidLink';
 import ledger from './lib/ledger';
 import blockchain from './lib/blockchain';
 import getAddress from './lib/get-address';
+import checkPublicAddress from './lib/validate-address';
 import updateActionState from './lib/update-action-state';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import {TX_FEE, coin} from './constants';
@@ -89,9 +90,10 @@ class SendCoinButton extends React.Component {
       error = 'insufficient balance';
     } else if (Number(amount) < 0.0002) {
       error = 'amount is too small, min is 0.0001 ' + coin;
-    } else if (!this.state.sendTo) {
-      let _validateAddress;
-      let _msg;
+    } else if (!this.props.sendTo || this.props.sendTo) {
+      const _validateAddress = checkPublicAddress(this.props.sendTo);
+
+      if (!_validateAddress) error = 'Invalid send to address';
 
       // TODO: validate address
       /*if (isKomodoCoin(_coin) ||
