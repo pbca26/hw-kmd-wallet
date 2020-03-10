@@ -1,3 +1,10 @@
 .Accounts {
   padding: 0 1.5rem;
+
+  .receive-btn {
+    margin-left: 0 !important;
+    position: absolute;
+    right: 20px;
+    margin-top: -88px;
+  }
 }
