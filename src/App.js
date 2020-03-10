@@ -14,6 +14,8 @@ import ledger from './lib/ledger';
 import {getLocalStorageVar, setLocalStorageVar} from './localstorage-util';
 import {INSIGHT_API_URL} from './constants';
 import {setExplorerUrl, getInfo} from './lib/blockchain';
+import accountDiscovery from './lib/account-discovery';
+import blockchain from './lib/blockchain';
 
 // TODO: receive modal, tos modal
 
@@ -26,6 +28,7 @@ class App extends React.Component {
       tiptime: null,
       explorerEndpoint: 'default',
       vendor: null,
+      isFirstRun: true,
       theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
   }
@@ -96,8 +99,23 @@ class App extends React.Component {
     this.setState(this.initialState);
   }
 
+  syncData = async () => {
+    if (!this.state.isFirstRun) {
+      console.warn('sync data called');
+
+      let [accounts, tiptime] = await Promise.all([
+        accountDiscovery(),
+        blockchain.getTipTime()
+      ]);
+
+      console.warn('syncData accounts', accounts);
+
+      this.setState({accounts, tiptime});
+    }
+  }
+
   handleRewardData = ({accounts, tiptime}) => {
-    this.setState({accounts, tiptime});
+    this.setState({accounts, tiptime, isFirstRun: false});
   }
 
   setVendor = (vendor) => {
@@ -238,7 +256,7 @@ class App extends React.Component {
                 <div className="trezor-webusb-container"></div>
               </React.Fragment>
             ) : (
-              <Accounts {...this.state} />
+              <Accounts {...this.state} syncData={this.syncData} />
             )}
           </section>
 

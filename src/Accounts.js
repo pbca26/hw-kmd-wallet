@@ -161,7 +161,8 @@ class Account extends React.Component {
                 address={this.state.address}
                 balance={balance}
                 sendTo={this.state.sendTo}
-                amount={this.state.amount}>
+                amount={this.state.amount}
+                syncData={this.props.syncData}>
                 Send
               </SendCoinButton>
             }
@@ -172,7 +173,7 @@ class Account extends React.Component {
   }
 }
 
-const Accounts = ({accounts, tiptime, vendor}) => (
+const Accounts = ({accounts, tiptime, vendor, syncData}) => (
   <div className="Accounts">
     <div className="container">
       <div className="columns is-multiline">
@@ -182,6 +183,7 @@ const Accounts = ({accounts, tiptime, vendor}) => (
             account={account}
             tiptime={tiptime}
             vendor={vendor}
+            syncData={syncData}
             />
         ))}
       </div>

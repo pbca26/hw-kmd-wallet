@@ -64,7 +64,14 @@ class SendCoinButton extends React.Component {
     }
   }
 
-  resetState = () => this.setState(this.initialState);
+  resetState = () => {
+    if (this.sendCoin.success && !this.sendCoin.error) {
+      setTimeout(() => {
+        this.props.syncData();
+      }, 5000);
+    }
+    this.setState(this.initialState);
+  }
 
   getUnusedAddressIndex = () => this.props.account.addresses.filter(address => !address.isChange).length;
 
