@@ -175,6 +175,29 @@ class SendCoinButton extends React.Component {
 
       currentAction = 'approveTransaction';
       updateActionState(this, currentAction, 'loading');
+      
+      const txData = transactionBuilder.data(
+        networks[coin.toLowerCase()],
+        toSats(this.props.amount),
+        TX_FEE,
+        this.props.sendTo,
+        ledgerUnusedAddress,
+        formattedUtxos
+      );
+
+      console.warn('txData', txData);
+
+      const filteredUtxos = this.filterUtxos(txData.inputs, formattedUtxos);
+
+      this.setState({
+        ...this.initialState,
+        isClaimingRewards: true,
+        skipBroadcast: false,
+        amount: txData.value,
+        sendTo: txData.outputAddress,
+        changeTo: txData.changeAddress,
+        change: txData.change,
+      });
 
       const outputs = this.getOutputs();
       const rewardClaimTransaction = await ledger.createTransaction(utxos, outputs);
