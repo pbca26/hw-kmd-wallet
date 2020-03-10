@@ -122,126 +122,135 @@ class SendCoinButton extends React.Component {
     return utxos;
   }
 
-  claimRewards = async () => {
-    const {
-      accountIndex,
-      utxos,
-    } = this.props.account;
-
+  sendCoin = async () => {
+    console.warn('send coin clicked');
+    const isUserInputValid = this.validate();
+    
     this.setState(prevState => ({
       ...this.initialState,
       isClaimingRewards: true,
       skipBroadcast: false,
     }));
 
-    let currentAction;
-    try {
-      currentAction = 'connect';
-      updateActionState(this, currentAction, 'loading');
-      const ledgerIsAvailable = await ledger.isAvailable();
-      if (!ledgerIsAvailable) {
-        throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ' device is unavailable!');
-      }
-      updateActionState(this, currentAction, true);
-
-      currentAction = 'confirmAddress';
-      updateActionState(this, currentAction, 'loading');
-
+    if (!isUserInputValid) {
       const {
         accountIndex,
         utxos,
       } = this.props.account;
 
-      console.warn(utxos);
-      let formattedUtxos = [];
-
-      for (let i = 0; i < utxos.length; i++) {
-        let utxo = utxos[i];
-        console.warn(utxos[i].amount);
-  
-        utxo.amountSats = utxo.satoshis; 
-        formattedUtxos.push(utxo);
-      }
-      console.warn('formatted utxos', formattedUtxos);
-      
-      const unusedAddress = this.getUnusedAddressChange();
-      const derivationPath = `44'/141'/${accountIndex}'/1/${this.getUnusedAddressIndexChange()}`;
-      const verify = true;
-      const ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, verify);
-      if (ledgerUnusedAddress !== unusedAddress) {
-        throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ` derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
-      }
-      updateActionState(this, currentAction, true);
-
-      currentAction = 'approveTransaction';
-      updateActionState(this, currentAction, 'loading');
-
-      const txData = transactionBuilder.data(
-        networks[coin.toLowerCase()],
-        toSats(this.props.amount),
-        TX_FEE,
-        this.props.sendTo,
-        ledgerUnusedAddress,
-        formattedUtxos
-      );
-
-      console.warn('txData', txData);
-
-      const filteredUtxos = this.filterUtxos(txData.inputs, formattedUtxos);
-
-      this.setState({
-        ...this.initialState,
-        isClaimingRewards: true,
-        skipBroadcast: false,
-        amount: txData.value,
-        sendTo: txData.outputAddress,
-        changeTo: txData.changeAddress,
-        change: txData.change,
-      });
-
-      const rawtx = await ledger.createTransaction(
-        filteredUtxos, txData.change > 0 ?
-        [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change}] : [{address: txData.outputAddress, value: txData.value}]
-      );
-
-      console.warn('rawtx', rawtx);
-      if (!rawtx) {
-        throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ' failed to generate a valid transaction');
-      }
-      updateActionState(this, currentAction, true);
-      
-      if (this.state.skipBroadcast) {
-        this.setState({
-          success: 
-            <React.Fragment>
-              <span style={{
-                'padding': '10px 0',
-                'display': 'block'
-              }}>Raw transaction:</span>
-              <span style={{
-                'wordBreak': 'break-all',
-                'display': 'block',
-                'paddingLeft': '3px'
-              }}>{rawtx}</span>
-            </React.Fragment>
-        });
-      } else {
-        currentAction = 'broadcastTransaction';
+      let currentAction;
+      try {
+        currentAction = 'connect';
         updateActionState(this, currentAction, 'loading');
-        const {txid} = await blockchain.broadcast(rawtx);
-        if (!txid || txid.length !== 64) {
-          throw new Error('Unable to broadcast transaction');
+        const ledgerIsAvailable = await ledger.isAvailable();
+        if (!ledgerIsAvailable) {
+          throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ' device is unavailable!');
         }
         updateActionState(this, currentAction, true);
 
-        this.props.handleRewardClaim(txid);
+        currentAction = 'confirmAddress';
+        updateActionState(this, currentAction, 'loading');
+
+        const {
+          accountIndex,
+          utxos,
+        } = this.props.account;
+
+        console.warn(utxos);
+        let formattedUtxos = [];
+
+        for (let i = 0; i < utxos.length; i++) {
+          let utxo = utxos[i];
+          console.warn(utxos[i].amount);
+    
+          utxo.amountSats = utxo.satoshis; 
+          formattedUtxos.push(utxo);
+        }
+        console.warn('formatted utxos', formattedUtxos);
+        
+        const unusedAddress = this.getUnusedAddressChange();
+        const derivationPath = `44'/141'/${accountIndex}'/1/${this.getUnusedAddressIndexChange()}`;
+        const verify = true;
+        const ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, verify);
+        if (ledgerUnusedAddress !== unusedAddress) {
+          throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ` derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
+        }
+        updateActionState(this, currentAction, true);
+
+        currentAction = 'approveTransaction';
+        updateActionState(this, currentAction, 'loading');
+
+        const txData = transactionBuilder.data(
+          networks[coin.toLowerCase()],
+          toSats(this.props.amount),
+          TX_FEE,
+          this.props.sendTo,
+          ledgerUnusedAddress,
+          formattedUtxos
+        );
+
+        console.warn('txData', txData);
+
+        const filteredUtxos = this.filterUtxos(txData.inputs, formattedUtxos);
+
         this.setState({
-          success: <React.Fragment>Transaction ID: <TxidLink txid={txid}/></React.Fragment>
+          ...this.initialState,
+          isClaimingRewards: true,
+          skipBroadcast: false,
+          amount: txData.value,
+          sendTo: txData.outputAddress,
+          changeTo: txData.changeAddress,
+          change: txData.change,
         });
+
+        const rawtx = await ledger.createTransaction(
+          filteredUtxos, txData.change > 0 ?
+          [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change}] : [{address: txData.outputAddress, value: txData.value}]
+        );
+
+        console.warn('rawtx', rawtx);
+        if (!rawtx) {
+          throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ' failed to generate a valid transaction');
+        }
+        updateActionState(this, currentAction, true);
+        
+        if (this.state.skipBroadcast) {
+          this.setState({
+            success: 
+              <React.Fragment>
+                <span style={{
+                  'padding': '10px 0',
+                  'display': 'block'
+                }}>Raw transaction:</span>
+                <span style={{
+                  'wordBreak': 'break-all',
+                  'display': 'block',
+                  'paddingLeft': '3px'
+                }}>{rawtx}</span>
+              </React.Fragment>
+          });
+        } else {
+          currentAction = 'broadcastTransaction';
+          updateActionState(this, currentAction, 'loading');
+          const {txid} = await blockchain.broadcast(rawtx);
+          if (!txid || txid.length !== 64) {
+            throw new Error('Unable to broadcast transaction');
+          }
+          updateActionState(this, currentAction, true);
+
+          this.props.handleRewardClaim(txid);
+          this.setState({
+            success: <React.Fragment>Transaction ID: <TxidLink txid={txid}/></React.Fragment>
+          });
+        }
+      } catch (error) {
+        updateActionState(this, currentAction, false);
+        this.setState({error: error.message});
       }
-    } catch (error) {
-      updateActionState(this, currentAction, false);
-      this.setState({error: error.message});
+    } else {
+      console.warn(isUserInputValid);
+      updateActionState(this, 'connect', false);
+      this.setState({error: isUserInputValid});
     }
   };
 
@@ -258,7 +267,7 @@ class SendCoinButton extends React.Component {
         <button
           className="button is-primary"
           disabled={isNoBalace || !this.props.sendTo || !this.props.amount}
-          onClick={this.claimRewards}>
+          onClick={this.sendCoin}>
           {this.props.children}
         </button>
         <ActionListModal
