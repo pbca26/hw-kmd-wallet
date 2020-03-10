@@ -45,7 +45,7 @@ const parseHistory = (txs, addr) => {
       date: txs[i].blocktime ? secondsToString(txs[i].blocktime) : 'unknown',
       txid: txs[i].txid || 'unknown',
       height: txs[i].height === -1 ? 0 : txs[i].height,
-      confirmations: txs[i].confirmations,
+      confirmations: txs[i].confirmations || 0,
     };
 
     // TODO: dectect send to self txs
@@ -59,6 +59,8 @@ const parseHistory = (txs, addr) => {
 
     txHistory.push(tx);
   }
+  
+  txHistory = sortTransactions(txHistory, 'timestamp');
   
   console.log(txHistory)
   return txHistory;
