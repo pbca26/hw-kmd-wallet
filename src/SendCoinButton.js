@@ -70,6 +70,10 @@ class SendCoinButton extends React.Component {
 
   getUnusedAddress = () => this.props.address.length ? this.props.address : getAddress(this.props.account.externalNode.derive(this.getUnusedAddressIndex()).publicKey);
 
+  getUnusedAddressIndexChange = () => this.props.account.addresses.filter(address => address.isChange).length;
+  
+  getUnusedAddressChange = () => this.props.address.length ? this.props.address : getAddress(this.props.account.internalNode.derive(this.getUnusedAddressIndexChange()).publicKey);
+  
   getOutputs = () => {
     const {
       balance,
