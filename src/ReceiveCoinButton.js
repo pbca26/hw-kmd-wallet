@@ -19,7 +19,7 @@ class ReceiveCoinButton extends React.Component {
     return {
       isExtractingNewAddress: false,
       error: false,
-      address: null,
+      success: false,
       actions: {
         connect: {
           icon: 'fab fa-usb',
@@ -73,7 +73,13 @@ class ReceiveCoinButton extends React.Component {
       updateActionState(this, currentAction, true);
 
       this.setState({
-        address: unusedAddress,
+        success: 
+          <React.Fragment>
+            <span style={{
+              'padding': '10px 0',
+              'display': 'block'
+            }}>This your new deposit address <strong>{unusedAddress}</strong></span>
+          </React.Fragment>
       });
     } catch (error) {
       console.warn(error);
@@ -83,17 +89,18 @@ class ReceiveCoinButton extends React.Component {
   };
 
   render() {
-    const {isExtractingNewAddress, actions, error} = this.state;
+    const {isExtractingNewAddress, actions, error, success} = this.state;
 
     return (
       <React.Fragment>
-        <button className="button is-primary" onClick={this.getNewAddress}>
+        <button className="button is-primary receive-btn" onClick={this.getNewAddress}>
           {this.props.children}
         </button>
         <ActionListModal
           title="Receive coin"
           actions={actions}
           error={error}
+          success={success}
           handleClose={this.resetState}
           show={isExtractingNewAddress}>
           <p>

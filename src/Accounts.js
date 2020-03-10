@@ -1,6 +1,7 @@
 import React from 'react';
 import Transactions from './Transactions';
 import SendCoinButton from './SendCoinButton';
+import ReceiveCoinButton from './ReceiveCoinButton';
 import TxidLink from './TxidLink';
 import {TX_FEE, coin} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
@@ -74,6 +75,12 @@ class Account extends React.Component {
                 {humanReadableSatoshis(balance)} {coin}
               </div>
             </h2>
+            <ReceiveCoinButton
+              account={account}
+              vendor={vendor}
+              address={this.state.address}>
+              Receive
+            </ReceiveCoinButton>
             {(history.historyParsed.length === 0) && (
               <React.Fragment>
                 <span style={{'padding': '10px 20px 20px 20px'}}>No history</span>
