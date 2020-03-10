@@ -108,6 +108,12 @@ class App extends React.Component {
         blockchain.getTipTime()
       ]);
 
+      accounts.map(account => {
+        account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
+    
+        return account;
+      });
+
       console.warn('syncData accounts', accounts);
 
       this.setState({accounts, tiptime});
