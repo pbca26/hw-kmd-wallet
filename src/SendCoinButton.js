@@ -147,6 +147,23 @@ class SendCoinButton extends React.Component {
       currentAction = 'confirmAddress';
       updateActionState(this, currentAction, 'loading');
 
+      const {
+        accountIndex,
+        utxos,
+      } = this.props.account;
+
+      console.warn(utxos);
+      let formattedUtxos = [];
+
+      for (let i = 0; i < utxos.length; i++) {
+        let utxo = utxos[i];
+        console.warn(utxos[i].amount);
+  
+        utxo.amountSats = utxo.satoshis; 
+        formattedUtxos.push(utxo);
+      }
+      console.warn('formatted utxos', formattedUtxos);
+      
       const unusedAddress = this.getUnusedAddress();
       const derivationPath = `44'/141'/${accountIndex}'/0/${this.getUnusedAddressIndex()}`;
       const verify = true;
