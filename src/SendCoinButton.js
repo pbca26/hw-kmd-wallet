@@ -164,8 +164,8 @@ class SendCoinButton extends React.Component {
       }
       console.warn('formatted utxos', formattedUtxos);
       
-      const unusedAddress = this.getUnusedAddress();
-      const derivationPath = `44'/141'/${accountIndex}'/0/${this.getUnusedAddressIndex()}`;
+      const unusedAddress = this.getUnusedAddressChange();
+      const derivationPath = `44'/141'/${accountIndex}'/0/${this.getUnusedAddressIndexChange()}`;
       const verify = true;
       const ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, verify);
       if (ledgerUnusedAddress !== unusedAddress) {
@@ -175,6 +175,7 @@ class SendCoinButton extends React.Component {
 
       currentAction = 'approveTransaction';
       updateActionState(this, currentAction, 'loading');
+
       const outputs = this.getOutputs();
       const rewardClaimTransaction = await ledger.createTransaction(utxos, outputs);
       if (!rewardClaimTransaction) {
