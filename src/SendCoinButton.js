@@ -165,7 +165,7 @@ class SendCoinButton extends React.Component {
       console.warn('formatted utxos', formattedUtxos);
       
       const unusedAddress = this.getUnusedAddressChange();
-      const derivationPath = `44'/141'/${accountIndex}'/0/${this.getUnusedAddressIndexChange()}`;
+      const derivationPath = `44'/141'/${accountIndex}'/1/${this.getUnusedAddressIndexChange()}`;
       const verify = true;
       const ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, verify);
       if (ledgerUnusedAddress !== unusedAddress) {
@@ -175,7 +175,7 @@ class SendCoinButton extends React.Component {
 
       currentAction = 'approveTransaction';
       updateActionState(this, currentAction, 'loading');
-      
+
       const txData = transactionBuilder.data(
         networks[coin.toLowerCase()],
         toSats(this.props.amount),
@@ -199,9 +199,13 @@ class SendCoinButton extends React.Component {
         change: txData.change,
       });
 
-      const outputs = this.getOutputs();
-      const rewardClaimTransaction = await ledger.createTransaction(utxos, outputs);
-      if (!rewardClaimTransaction) {
+      const rawtx = await ledger.createTransaction(
+        filteredUtxos, txData.change > 0 ?
+        [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change}] : [{address: txData.outputAddress, value: txData.value}]
+      );
+
+      console.warn('rawtx', rawtx);
+      if (!rawtx) {
         throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ' failed to generate a valid transaction');
       }
       updateActionState(this, currentAction, true);
@@ -217,14 +221,14 @@ class SendCoinButton extends React.Component {
               <span style={{
                 'wordBreak': 'break-all',
                 'display': 'block',
-                'padding-left': '3px'
-              }}>{rewardClaimTransaction}</span>
+                'paddingLeft': '3px'
+              }}>{rawtx}</span>
             </React.Fragment>
         });
       } else {
         currentAction = 'broadcastTransaction';
         updateActionState(this, currentAction, 'loading');
-        const {txid} = await blockchain.broadcast(rewardClaimTransaction);
+        const {txid} = await blockchain.broadcast(rawtx);
         if (!txid || txid.length !== 64) {
           throw new Error('Unable to broadcast transaction');
         }
@@ -232,7 +236,7 @@ class SendCoinButton extends React.Component {
 
         this.props.handleRewardClaim(txid);
         this.setState({
-          success: <React.Fragment>Claim TXID: <TxidLink txid={txid}/></React.Fragment>
+          success: <React.Fragment>Transaction ID: <TxidLink txid={txid}/></React.Fragment>
         });
       }
     } catch (error) {
