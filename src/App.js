@@ -34,6 +34,11 @@ class App extends React.Component {
   }
 
   componentWillMount() {
+    setInterval(() => {
+      console.warn('auto sync called');
+      this.syncData();
+    }, 300 * 1000);
+
     // this will work only on localhost
     if (window.location.href.indexOf('devmode') > -1) {
       TrezorConnect.init({
