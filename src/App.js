@@ -15,6 +15,8 @@ import {getLocalStorageVar, setLocalStorageVar} from './localstorage-util';
 import {INSIGHT_API_URL} from './constants';
 import {setExplorerUrl, getInfo} from './lib/blockchain';
 
+// TODO: receive modal, tos modal
+
 class App extends React.Component {
   state = this.initialState;
 
@@ -225,7 +227,7 @@ class App extends React.Component {
                 <div className="container content">
                   <h2>Cast your VOTEs from {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} device.</h2>
                   {this.state.vendor === 'ledger' &&
-                    <p>Make sure the KMD app and firmware on your Ledger are up to date, then connect your Ledger, open the KMD app, and click the "Check Rewards" button.</p>
+                    <p>Make sure the KMD app and firmware on your Ledger are up to date, then connect your Ledger, open the KMD app, and click the "Check Balance" button.</p>
                   }
                   {this.state.vendor === 'trezor' &&
                     <p>Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the "Check Balance" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.</p>
