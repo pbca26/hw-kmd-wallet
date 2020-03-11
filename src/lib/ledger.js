@@ -90,8 +90,8 @@ const createTransaction = async function(utxos, outputs) {
       return [tx, utxo.vout];
     }));
     const associatedKeysets = utxos.map(utxo => utxo.derivationPath);
-    const changePath = undefined;
-    const outputScript = buildOutputScript([outputs]);
+    const changePath = outputs.length === 2 ? outputs[1].derivationPath : undefined;
+    const outputScript = buildOutputScript(outputs);
     const unixtime = Math.floor(Date.now() / 1000);
     const lockTime = 0;
     const sigHashType = undefined;
