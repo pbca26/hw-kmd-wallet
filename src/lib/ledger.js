@@ -141,11 +141,19 @@ const createTransaction = async function(utxos, outputs) {
         amount: utxos[i].satoshis.toString(),
       });
     }
+    
+    tx.outputs.push({
+      address: outputs[0].address,
+      amount: outputs[0].value.toString(),
+      script_type: 'PAYTOADDRESS',
+    });
 
-    for (let i = 0; i < outputs.length; i++) {
+    if (outputs.length === 2) {
+      const changeAddressDerivationPathPartials = outputs[1].derivationPath.replace(/'/g, '').split('/');
+      
       tx.outputs.push({
-        address: outputs[i].address,
-        amount: outputs[i].value.toString(),
+        address_n: [(44 | 0x80000000) >>> 0, (141 | 0x80000000) >>> 0, (changeAddressDerivationPathPartials[2] | 0x80000000) >>> 0, changeAddressDerivationPathPartials[3], changeAddressDerivationPathPartials[4]],
+        amount: outputs[1].value.toString(),
         script_type: 'PAYTOADDRESS',
       });
     }
