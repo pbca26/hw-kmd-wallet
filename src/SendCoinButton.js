@@ -9,9 +9,8 @@ import updateActionState from './lib/update-action-state';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import {TX_FEE, coin, KOMODO} from './constants';
 
-import transactionBuilder from 'agama-wallet-lib/src/transaction-builder';
-import {toSats, fromSats} from 'agama-wallet-lib/src/utils';
-import networks from 'agama-wallet-lib/src/bitcoinjs-networks-all';
+import {transactionBuilder} from './lib/utils';
+import {toSats, fromSats} from './lib/utils';
 
 class SendCoinButton extends React.Component {
   state = this.initialState;
@@ -290,7 +289,7 @@ class SendCoinButton extends React.Component {
             <p>Send <strong>{humanReadableSatoshis(this.state.amount)} {coin}</strong> to <strong>{this.state.sendTo}</strong></p>
           }
           {this.state.change > 0 &&
-           this.state.isDebug &&
+            this.state.isDebug &&
             <p>Send change <strong>{humanReadableSatoshis(this.state.change)} {coin}</strong> to address: <strong>{this.state.changeTo}</strong></p>
           }
           {this.state.isDebug &&
