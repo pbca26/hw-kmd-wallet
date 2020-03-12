@@ -7,7 +7,7 @@ import getAddress from './lib/get-address';
 import checkPublicAddress from './lib/validate-address';
 import updateActionState from './lib/update-action-state';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
-import {TX_FEE, coin} from './constants';
+import {TX_FEE, coin, KOMODO} from './constants';
 
 import transactionBuilder from 'agama-wallet-lib/src/transaction-builder';
 import {toSats, fromSats} from 'agama-wallet-lib/src/utils';
@@ -64,14 +64,7 @@ class SendCoinButton extends React.Component {
     }
   }
 
-  resetState = () => {
-    if (this.sendCoin.success && !this.sendCoin.error) {
-      setTimeout(() => {
-        this.props.syncData();
-      }, 5000);
-    }
-    this.setState(this.initialState);
-  }
+  resetState = () => this.setState(this.initialState);
 
   getUnusedAddressIndex = () => this.props.account.addresses.filter(address => !address.isChange).length;
 
@@ -178,7 +171,8 @@ class SendCoinButton extends React.Component {
         const unusedAddress = this.getUnusedAddressChange();
         const derivationPath = `44'/141'/${accountIndex}'/1/${this.getUnusedAddressIndexChange()}`;
         const verify = true;
-        const ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, verify);
+        const ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, false);
+        console.warn(ledgerUnusedAddress);
         if (ledgerUnusedAddress !== unusedAddress) {
           throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ` derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
         }
@@ -187,8 +181,8 @@ class SendCoinButton extends React.Component {
         currentAction = 'approveTransaction';
         updateActionState(this, currentAction, 'loading');
 
-        const txData = transactionBuilder.data(
-          networks[coin.toLowerCase()],
+        const txData = transactionBuilder(
+          KOMODO,
           toSats(this.props.amount),
           TX_FEE,
           this.props.sendTo,
@@ -212,7 +206,7 @@ class SendCoinButton extends React.Component {
 
         const rawtx = await ledger.createTransaction(
           filteredUtxos, txData.change > 0 ?
-          [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change}] : [{address: txData.outputAddress, value: txData.value}]
+          [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change, derivationPath}] : [{address: txData.outputAddress, value: txData.value}]
         );
 
         console.warn('rawtx', rawtx);
@@ -236,6 +230,9 @@ class SendCoinButton extends React.Component {
                 }}>{rawtx}</span>
               </React.Fragment>
           });
+          setTimeout(() => {
+            this.props.syncData();
+          }, 5000);
         } else {
           currentAction = 'broadcastTransaction';
           updateActionState(this, currentAction, 'loading');
@@ -249,8 +246,12 @@ class SendCoinButton extends React.Component {
           this.setState({
             success: <React.Fragment>Transaction ID: <TxidLink txid={txid}/></React.Fragment>
           });
+          setTimeout(() => {
+            this.props.syncData();
+          }, 5000);
         }
       } catch (error) {
+        console.warn(error);
         updateActionState(this, currentAction, false);
         this.setState({error: error.message});
       }
