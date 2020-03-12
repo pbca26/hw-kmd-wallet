@@ -290,6 +290,7 @@ class SendCoinButton extends React.Component {
             <p>Send <strong>{humanReadableSatoshis(this.state.amount)} {coin}</strong> to <strong>{this.state.sendTo}</strong></p>
           }
           {this.state.change > 0 &&
+           this.state.isDebug &&
             <p>Send change <strong>{humanReadableSatoshis(this.state.change)} {coin}</strong> to address: <strong>{this.state.changeTo}</strong></p>
           }
           {this.state.isDebug &&
