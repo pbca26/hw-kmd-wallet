@@ -27,6 +27,12 @@ class Account extends React.Component {
   }
 
   updateInput(e) {
+    if (e.target.name === 'sendTo') {
+      e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+    } else if (e.target.name === 'amount') {
+      e.target.value = e.target.value.replace(/[^0-9.]/g, '');
+    }
+
     this.setState({
       [e.target.name]: e.target.value,
     });
