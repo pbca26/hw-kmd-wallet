@@ -6,7 +6,21 @@ import bip32Path from 'bip32-path';
 import createXpub from './create-xpub';
 import TrezorConnect from 'trezor-connect';
 
+// TODO: get ledger fw version programmatically
+//       https://github.com/LedgerHQ/ledger-live-common/blob/master/src/hw/getVersion.js
+//       https://github.com/LedgerHQ/ledgerjs/issues/365
+
 let vendor;
+let ledgerFWVersion = 'default';
+
+const setLedgerFWVersion = (name) => {
+  ledgerFWVersion = name;
+  console.warn(ledgerFWVersion);
+};
+
+const getLedgerFWVersion = () => {
+  return ledgerFWVersion;
+};
 
 const setVendor = (name) => {
   vendor = name;
@@ -18,7 +32,7 @@ const getVendor = () => {
 
 const getDevice = async () => {
   if (vendor === 'ledger') {
-    const transport = window.location.href.indexOf('ledger-webusb') > -1 ? await TransportWebUSB.create() : await TransportU2F.create();
+    const transport = window.location.href.indexOf('ledger-webusb') > -1 || ledgerFWVersion === 'webusb' ? await TransportWebUSB.create() : await TransportU2F.create();
     const ledger = new Btc(transport);
 
     ledger.close = () => transport.close();
