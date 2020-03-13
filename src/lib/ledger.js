@@ -249,7 +249,9 @@ const ledger = {
   createTransaction,
   getXpub,
   setVendor,
-  getVendor
+  getVendor,
+  setLedgerFWVersion,
+  getLedgerFWVersion
 };
 
 export default ledger;
