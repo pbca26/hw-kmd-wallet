@@ -12,7 +12,7 @@ import './App.scss';
 import TrezorConnect from 'trezor-connect';
 import ledger from './lib/ledger';
 import {getLocalStorageVar, setLocalStorageVar} from './localstorage-util';
-import {INSIGHT_API_URL} from './constants';
+import {INSIGHT_API_URL, LEDGER_FW_VERSIONS} from './constants';
 import {setExplorerUrl, getInfo} from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
@@ -29,6 +29,7 @@ class App extends React.Component {
       explorerEndpoint: 'default',
       vendor: null,
       isFirstRun: true,
+      ledgerFWVersion: 'default',
       theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
   }
@@ -67,6 +68,14 @@ class App extends React.Component {
     }
 
     this.checkExplorerEndpoints();
+  }
+
+  updateLedgerFWVersion(e) {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+
+    ledger.setLedgerFWVersion(e.target.value);
   }
 
   updateExplorerEndpoint(e) {
@@ -265,6 +274,24 @@ class App extends React.Component {
                 </div>
                 <img className="hw-graphic" src={`${this.state.vendor}-logo.png`} alt={this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} />
                 <div className="trezor-webusb-container"></div>
+                {this.state.vendor === 'ledger' &&
+                  <div className="ledger-fw-version-selector-block">
+                    Mode
+                    <select
+                      className="ledger-fw-selector"
+                      name="ledgerFWVersion"
+                      value={this.state.ledgerFWVersion}
+                      onChange={ (event) => this.updateLedgerFWVersion(event) }>
+                      {Object.keys(LEDGER_FW_VERSIONS).map((val, index) => (
+                        <option
+                          key={`ledger-fw-selector-${val}`}
+                          value={val}>
+                          {LEDGER_FW_VERSIONS[val]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                }
               </React.Fragment>
             ) : (
               <Accounts {...this.state} syncData={this.syncData} />
