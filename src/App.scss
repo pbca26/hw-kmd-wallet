@@ -66,5 +66,20 @@
     .content {
       padding: 0 20px;
     }
+
+    .ledger-fw-version-selector-block {
+      margin-top: 70px;
+      height: 35px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
+      .ledger-fw-selector {
+        margin-left: 10px;
+        position: relative;
+        top: -1px;
+      }
+    }
   }
 }
