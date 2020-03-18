@@ -41,7 +41,7 @@ class SendCoinButton extends React.Component {
         },
         broadcastTransaction: {
           icon: 'fas fa-broadcast-tower',
-          description: <div>Broadcasting the reward claim transaction to the network.</div>,
+          description: <div>Broadcasting transaction to the network.</div>,
           state: null
         },
       },
