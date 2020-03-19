@@ -67,7 +67,7 @@
       padding: 0 20px;
     }
 
-    .ledger-fw-version-selector-block {
+    .ledger-device-selector {
       margin-top: 70px;
       height: 35px;
       position: absolute;
@@ -75,10 +75,24 @@
       left: 50%;
       transform: translate(-50%, -50%);
 
-      .ledger-fw-selector {
-        margin-left: 10px;
-        position: relative;
-        top: -1px;
+      .ledger-device-selector-buttons {
+        .button {
+          background: #fff;
+
+          &:last-child {
+            margin-left: 40px;
+          }
+        }
+      }
+
+      .ledger-fw-version-selector-block {
+        margin-top: 20px;
+
+        .ledger-fw-selector {
+          margin-left: 10px;
+          position: relative;
+          top: -1px;
+        }
       }
     }
   }
