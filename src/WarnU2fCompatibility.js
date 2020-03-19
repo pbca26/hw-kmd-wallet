@@ -14,8 +14,8 @@ class WarnU2fCompatibility extends React.Component {
   render() {
     return (
       <Modal title="Warning: U2F Not Supported in This Browser" show={this.state.u2fSupported === false}>
-        <p>The U2F API is required for the web browser to communicate with the {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} device.</p>
-        <p>Try using Chrome or Opera instead.</p>
+        <p>The U2F API is required for the web browser to communicate with the hardware wallet device.</p>
+        <p>Try using Chrome instead.</p>
         <p>You can view a list of U2F supporting browsers at <a target="_blank" rel="noopener noreferrer" href="https://caniuse.com/#feat=u2f">caniuse.com/#feat=u2f</a>.</p>
       </Modal>
     );
