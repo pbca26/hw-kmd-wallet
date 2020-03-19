@@ -13,6 +13,22 @@ import TrezorConnect from 'trezor-connect';
 let vendor;
 let ledgerFWVersion = 'default';
 
+const getUniqueInputs = (utxos) => {
+  let uniqueInputs = [];
+  let uniqueTxids = [];
+
+  for (let i = 0; i < utxos.length; i++) {
+    if (uniqueTxids.indexOf(utxos[i].txid) === -1) {
+      uniqueTxids.push(utxos[i].txid);
+      uniqueInputs.push(utxos[i]);
+    }
+  }
+
+  console.warn(`total utxos ${utxos.length} | unique utxos ${uniqueTxids.length}`);
+  
+  return uniqueInputs;
+};
+
 const setLedgerFWVersion = (name) => {
   ledgerFWVersion = name;
   console.warn(ledgerFWVersion);
