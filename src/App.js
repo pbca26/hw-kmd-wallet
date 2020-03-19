@@ -186,6 +186,8 @@ class App extends React.Component {
           </React.Fragment>
         </section>
 
+        <WarnU2fCompatibility vendor={this.state.vendor} />
+
         <Footer>
           <p>
             <strong>Hardware wallet KMD Notary Elections</strong> by <a target="_blank" rel="noopener noreferrer" href="https://github.com/atomiclabs">Atomic Labs</a> and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
@@ -318,8 +320,6 @@ class App extends React.Component {
               <Accounts {...this.state} syncData={this.syncData} />
             )}
           </section>
-
-          <WarnU2fCompatibility vendor={this.state.vendor} />
 
           <Footer>
             <p>
