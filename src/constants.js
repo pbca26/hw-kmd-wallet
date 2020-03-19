@@ -15,6 +15,6 @@ export const KOMODO = {
 };
 export const coin = 'RICK';
 export const LEDGER_FW_VERSIONS = {
-  default: 'Nano S firmware 1.5',
-  webusb: 'Nano S firmware 1.6', // nano s fw > 1.6 
+  default: 'Nano S firmware v1.5',
+  webusb: 'Nano S firmware v1.6', // nano s fw > 1.6 
 };

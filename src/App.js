@@ -29,6 +29,7 @@ class App extends React.Component {
       explorerEndpoint: 'default',
       vendor: null,
       isFirstRun: true,
+      ledgerDeviceType: null,
       ledgerFWVersion: 'default',
       theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
@@ -68,6 +69,12 @@ class App extends React.Component {
     }
 
     this.checkExplorerEndpoints();
+  }
+
+  updateLedgerDeviceType(type) {
+    this.setState({
+      'ledgerDeviceType': type,
+    });
   }
 
   updateLedgerFWVersion(e) {
@@ -247,9 +254,11 @@ class App extends React.Component {
               <div className="navbar-end">
                 <div className="navbar-item">
                   <div className="buttons">
-                    <CheckBalanceButton handleRewardData={this.handleRewardData} vendor={this.state.vendor}>
-                      <strong>Check Balance</strong>
-                    </CheckBalanceButton>
+                    {(this.state.vendor === 'trezor' || (this.state.vendor === 'ledger' && this.state.ledgerDeviceType)) &&
+                      <CheckBalanceButton handleRewardData={this.handleRewardData} vendor={this.state.vendor}>
+                        <strong>Check Balance</strong>
+                      </CheckBalanceButton>
+                    }
                     <button className="button is-light" disabled={isEqual(this.state, this.initialState)} onClick={this.resetState}>
                       Reset
                     </button>
@@ -274,22 +283,34 @@ class App extends React.Component {
                 </div>
                 <img className="hw-graphic" src={`${this.state.vendor}-logo.png`} alt={this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} />
                 <div className="trezor-webusb-container"></div>
-                {this.state.vendor === 'ledger' &&
-                  <div className="ledger-fw-version-selector-block">
-                    Mode
-                    <select
-                      className="ledger-fw-selector"
-                      name="ledgerFWVersion"
-                      value={this.state.ledgerFWVersion}
-                      onChange={ (event) => this.updateLedgerFWVersion(event) }>
-                      {Object.keys(LEDGER_FW_VERSIONS).map((val, index) => (
-                        <option
-                          key={`ledger-fw-selector-${val}`}
-                          value={val}>
-                          {LEDGER_FW_VERSIONS[val]}
-                        </option>
-                      ))}
-                    </select>
+                {this.state.vendor === 'ledger' && (!this.state.ledgerDeviceType || this.state.ledgerDeviceType === 's') &&
+                  <div className="ledger-device-selector">
+                    <div className="ledger-device-selector-buttons">
+                      <button className="button is-light" disabled={this.state.ledgerDeviceType} onClick={() => this.updateLedgerDeviceType('s')}>
+                        Nano S
+                      </button>
+                      <button className="button is-light" disabled={this.state.ledgerDeviceType} onClick={() => this.updateLedgerDeviceType('x')}>
+                        Nano X
+                      </button>
+                    </div>
+                    { this.state.ledgerDeviceType === 's' &&
+                      <div className="ledger-fw-version-selector-block">
+                        Mode
+                        <select
+                          className="ledger-fw-selector"
+                          name="ledgerFWVersion"
+                          value={this.state.ledgerFWVersion}
+                          onChange={ (event) => this.updateLedgerFWVersion(event) }>
+                          {Object.keys(LEDGER_FW_VERSIONS).map((val, index) => (
+                            <option
+                              key={`ledger-fw-selector-${val}`}
+                              value={val}>
+                              {LEDGER_FW_VERSIONS[val]}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    }
                   </div>
                 }
               </React.Fragment>
