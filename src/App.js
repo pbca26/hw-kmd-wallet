@@ -6,6 +6,7 @@ import Header from './Header';
 import CheckBalanceButton from './CheckBalanceButton';
 import Accounts from './Accounts';
 import WarnU2fCompatibility from './WarnU2fCompatibility';
+import WarnBrowser from './WarnBrowser';
 import Footer from './Footer';
 import {repository} from '../package.json';
 import './App.scss';
@@ -186,7 +187,8 @@ class App extends React.Component {
           </React.Fragment>
         </section>
 
-        <WarnU2fCompatibility vendor={this.state.vendor} />
+        <WarnU2fCompatibility />
+        <WarnBrowser />
 
         <Footer>
           <p>
