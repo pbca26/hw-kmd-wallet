@@ -30,3 +30,9 @@ const maxSpendBalance = (utxoList, fee) => {
   
   return Number(maxSpendBalance);
 };
+
+module.exports = {
+  fromSats,
+  toSats,
+  maxSpendBalance
+};
