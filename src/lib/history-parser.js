@@ -1,5 +1,5 @@
-import {secondsToString} from 'agama-wallet-lib/src/time';
-import {sortTransactions} from 'agama-wallet-lib/src/utils';
+import {secondsToString} from './string';
+import {sortTransactions} from './sort';
 
 const parseHistory = (txs, addr) => {
   let txHistory = [];
