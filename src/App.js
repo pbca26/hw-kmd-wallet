@@ -17,8 +17,9 @@ import {INSIGHT_API_URL, LEDGER_FW_VERSIONS} from './constants';
 import {setExplorerUrl, getInfo} from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
+import apiEndpoints from './lib/insight-endpoints';
 
-// TODO: receive modal, tos modal
+// TODO: receive modal, tos modal, move api end point conn test to blockchain module
 
 class App extends React.Component {
   state = this.initialState;
@@ -32,6 +33,7 @@ class App extends React.Component {
       isFirstRun: true,
       ledgerDeviceType: null,
       ledgerFWVersion: 'default',
+      coin: 'RICK',
       theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
   }
@@ -70,6 +72,17 @@ class App extends React.Component {
     }
 
     this.checkExplorerEndpoints();
+  }
+
+  updateCoin(e) {
+    this.setState({
+      accounts: [],
+      tiptime: null,
+      [e.target.name]: e.target.value,
+    });
+
+    // TODO: run checkExplorerEndpoints on coin select
+    setExplorerUrl(apiEndpoints[e.target.value][0]);
   }
 
   updateLedgerDeviceType(type) {
@@ -258,6 +271,25 @@ class App extends React.Component {
               <div className="navbar-end">
                 <div className="navbar-item">
                   <div className="buttons">
+                    <select
+                      className="coin-selector"
+                      name="coin"
+                      value={this.state.coin}
+                      onChange={ (event) => this.updateCoin(event) }>
+                      <option
+                        key="coins-none"
+                        value=""
+                        disabled>
+                        Select a coin
+                      </option>
+                      {Object.keys(apiEndpoints).map((coinTicker, index) => (
+                        <option
+                          key={`coins-${coinTicker}`}
+                          value={coinTicker}>
+                          {coinTicker}
+                        </option>
+                      ))}
+                    </select>
                     {(this.state.vendor === 'trezor' || (this.state.vendor === 'ledger' && this.state.ledgerDeviceType)) &&
                       <CheckBalanceButton handleRewardData={this.handleRewardData} vendor={this.state.vendor}>
                         <strong>Check Balance</strong>
