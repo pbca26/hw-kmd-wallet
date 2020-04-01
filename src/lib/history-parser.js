@@ -1,19 +1,24 @@
-import {secondsToString} from './string';
-import {sortTransactions} from './sort';
+import secondsToString from './time';
+import sortTransactions from './sort';
 
-const parseHistory = (txs, addr) => {
+const parseHistory = (txs, addr, options) => {
   let txHistory = [];
   let addresses = [];
 
-  console.warn('parsehistory txs', txs)
+  if (options && options.hasOwnProperty('debug')) {
+    console.warn('parsehistory txs', txs);
+  }
   
   for (let i = 0; i < txs.length; i++) {
     let tx = {};
     let vinSum = 0, voutSum = 0;
-    console.log('--- vin -->')
-    console.log(txs[i].vin)
-    console.log('--- vout -->')
-    console.log(txs[i].vout)
+
+    if (options && options.hasOwnProperty('debug')) {
+      console.log('--- vin -->');
+      console.log(txs[i].vin);
+      console.log('--- vout -->');
+      console.log(txs[i].vout);
+    }
     
     for (let j = 0; j < txs[i].vin.length; j++) {
       if (addresses.indexOf(txs[i].vin[j].addr) === -1) {
@@ -35,8 +40,10 @@ const parseHistory = (txs, addr) => {
       }
     }
   
-    console.log('vinsum: ' + vinSum)
-    console.log('voutSum: ' + voutSum)
+    if (options && options.hasOwnProperty('debug')) {
+      console.log(`vinsum: ${vinSum}`);
+      console.log(`voutSum: ${voutSum}`);
+    }
 
     tx = {
       type: 'sent',
@@ -62,7 +69,10 @@ const parseHistory = (txs, addr) => {
   
   txHistory = sortTransactions(txHistory, 'timestamp');
   
-  console.log(txHistory)
+  if (options && options.hasOwnProperty('debug')) {
+    console.log(txHistory);
+  }
+
   return txHistory;
 };
 
