@@ -1,3 +1,4 @@
+// ref: https://github.com/pbca26/agama-wallet-lib/blob/master/src/utils.js#L131
 const convertExponentialToDecimal = (exponentialNumber) => {
   // sanity check - is it exponential number
   const str = exponentialNumber.toString();
@@ -13,10 +14,13 @@ const convertExponentialToDecimal = (exponentialNumber) => {
   }
 }
 
+// ref: https://github.com/pbca26/agama-wallet-lib/blob/master/src/utils.js#L147
 const fromSats = value => convertExponentialToDecimal(Number(Number(value * 0.00000001).toFixed(8)));
 
+// ref: https://github.com/pbca26/agama-wallet-lib/blob/master/src/utils.js#L149
 const toSats = value => Number((Number(value).toFixed(8) * 100000000).toFixed(0));
 
+// ref: https://github.com/pbca26/agama-wallet-lib/blob/master/src/utils.js#L117
 const maxSpendBalance = (utxoList, fee) => {
   let maxSpendBalance = 0;
 
