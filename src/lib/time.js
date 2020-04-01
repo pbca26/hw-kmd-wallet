@@ -1,3 +1,5 @@
+// ref: https://github.com/pbca26/agama-wallet-lib/blob/master/src/time.js#L1
+
 const secondsToString = (seconds, skipMultiply, showSeconds) => {
   const a = new Date(seconds * (skipMultiply ? 1 : 1000));
   const months = [
