@@ -3,7 +3,7 @@ import {INSIGHT_API_URL} from '../constants';
 let explorerUrl = INSIGHT_API_URL.komodoplatform;
 
 export const setExplorerUrl = (name) => {
-  explorerUrl = INSIGHT_API_URL[name];
+  explorerUrl = INSIGHT_API_URL[name] || name;
 };
 
 const get = async (endpoint, postData) => {
