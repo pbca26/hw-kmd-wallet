@@ -5,7 +5,7 @@ import ledger from './lib/ledger';
 import blockchain from './lib/blockchain';
 import getAddress from './lib/get-address';
 import checkPublicAddress from './lib/validate-address';
-import {transactionBuilder} from './lib/transaction-builder';
+import transactionBuilder from './lib/transaction-builder';
 import {toSats, fromSats} from './lib/math';
 import updateActionState from './lib/update-action-state';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
