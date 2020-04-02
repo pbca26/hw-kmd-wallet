@@ -108,19 +108,21 @@ class App extends React.Component {
   }
 
   checkExplorerEndpoints = async () => {
+    const endPoint = apiEndpoints[this.state.coin][0];
+
     const getInfoRes = await Promise.all([
-      getInfo(INSIGHT_API_URL.default),
+      getInfo(endPoint),
     ]);
 
     console.warn('checkExplorerEndpoints', getInfoRes);
     
     for (let i = 0; i < 3; i++) {
       if (getInfoRes[i] && getInfoRes[i].hasOwnProperty('info') && getInfoRes[i].info.hasOwnProperty('version')) {
-        console.warn('set api endpoint to ' + Object.keys(INSIGHT_API_URL)[i]);
-        setExplorerUrl(Object.keys(INSIGHT_API_URL)[i]);
+        console.warn(`set api endpoint to ${endPoint}`);
+        setExplorerUrl(endPoint);
         
         this.setState({
-          explorerEndpoint: Object.keys(INSIGHT_API_URL)[i],
+          explorerEndpoint: endPoint,
         });
 
         break;
