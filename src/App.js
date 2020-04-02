@@ -13,7 +13,7 @@ import './App.scss';
 import TrezorConnect from 'trezor-connect';
 import ledger from './lib/ledger';
 import {getLocalStorageVar, setLocalStorageVar} from './localstorage-util';
-import {INSIGHT_API_URL, LEDGER_FW_VERSIONS} from './constants';
+import {INSIGHT_API_URL, LEDGER_FW_VERSIONS, voteCoin} from './constants';
 import {setExplorerUrl, getInfo} from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
@@ -180,7 +180,7 @@ class App extends React.Component {
               <img src="favicon.png" className="KmdIcon" alt="Komodo logo" />
             </div>
             <h1 className="navbar-item">
-              <strong>HW KMD Notary Elections</strong>
+              <strong>HW KMD {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
             </h1>
           </div>
         </Header>
@@ -188,7 +188,7 @@ class App extends React.Component {
         <section className="main">
           <React.Fragment>
             <div className="container content text-center">
-              <h2>Cast your VOTEs from a hardware wallet device.</h2>
+              <h2>{this.state.coin === voteCoin ? 'Cast your VOTEs' : 'Manage your coins'} from a hardware wallet device.</h2>
             </div>
             <div className="vendor-selector">
               <h3>Choose your vendor</h3>
@@ -205,7 +205,7 @@ class App extends React.Component {
 
         <Footer>
           <p>
-            <strong>Hardware wallet KMD Notary Elections</strong> by <a target="_blank" rel="noopener noreferrer" href="https://github.com/atomiclabs">Atomic Labs</a> and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
+            <strong>{this.state.coin === voteCoin ? 'Hardware wallet KMD Notary Elections' : 'KMD hardware wallet'}</strong> by <a target="_blank" rel="noopener noreferrer" href="https://github.com/atomiclabs">Atomic Labs</a> and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
           </p>
           <p>
             The <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}`}>source code</a> is licensed under <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}/blob/master/LICENSE`}>MIT</a>.
@@ -239,10 +239,10 @@ class App extends React.Component {
               </div>
               <h1 className="navbar-item">
                 {!this.state.vendor &&
-                  <strong>HW KMD Notary Elections</strong>
+                  <strong>HW KMD {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
                 }
                 {this.state.vendor &&
-                  <strong>{this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} KMD Notary Elections</strong>
+                  <strong>{this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} KMD HW {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
                 }
                 <span className="explorer-selector-block">
                   <i className="fa fa-cog"></i>
@@ -308,14 +308,14 @@ class App extends React.Component {
             {this.state.accounts.length === 0 ? (
               <React.Fragment>
                 <div className="container content">
-                  <h2>Cast your VOTEs from {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} device.</h2>
+                  <h2>{this.state.coin === voteCoin ? 'Cast your VOTEs' : 'Manage your coins'} from {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} device.</h2>
                   {this.state.vendor === 'ledger' &&
                     <p>Make sure the KMD app and firmware on your Ledger are up to date, then connect your Ledger, open the KMD app, and click the "Check Balance" button.</p>
                   }
                   {this.state.vendor === 'trezor' &&
                     <p>Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the "Check Balance" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.</p>
                   }
-                  <p>Also, make sure that your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} is initialized prior using <strong>KMD Notary Elections tool</strong>.</p>
+                  <p>Also, make sure that your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} is initialized prior using <strong>KMD {this.state.coin === voteCoin ? 'Notary Elections tool' : 'wallet'}</strong>.</p>
                 </div>
                 <img className="hw-graphic" src={`${this.state.vendor}-logo.png`} alt={this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} />
                 <div className="trezor-webusb-container"></div>
@@ -329,7 +329,7 @@ class App extends React.Component {
                         Nano X
                       </button>
                     </div>
-                    { this.state.ledgerDeviceType === 's' &&
+                    {this.state.ledgerDeviceType === 's' &&
                       <div className="ledger-fw-version-selector-block">
                         Mode
                         <select
@@ -357,7 +357,7 @@ class App extends React.Component {
 
           <Footer>
             <p>
-              <strong>{this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} KMD Notary Elections</strong> by  and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
+              <strong>{this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} KMD {this.state.coin === voteCoin ? 'Notary Elections' : 'HW wallet'}</strong> by  and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
               The <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}`}>source code</a> is licensed under <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}/blob/master/LICENSE`}>MIT</a>.
               <br />
               View the <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}#usage`}>README</a> for usage instructions.
