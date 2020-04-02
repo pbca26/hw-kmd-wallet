@@ -73,6 +73,10 @@ const parseHistory = (txs, addr, options) => {
     console.log(txHistory);
   }
 
+  if (txHistory.length > 10) {
+    txHistory = txHistory.slice(0, 9);
+  }
+
   return txHistory;
 };
 
