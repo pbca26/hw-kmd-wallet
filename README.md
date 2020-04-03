@@ -1,4 +1,4 @@
-# Hardware KMD VOTE2020 wallet
+# Hardware Komodo wallet
 
 ## Usage
 
