@@ -3,6 +3,7 @@ import React from 'react';
 import {hot} from 'react-hot-loader';
 import {isEqual} from 'lodash';
 import Header from './Header';
+import BetaWarning from './BetaWarning';
 import CheckBalanceButton from './CheckBalanceButton';
 import Accounts from './Accounts';
 import WarnU2fCompatibility from './WarnU2fCompatibility';
@@ -13,7 +14,7 @@ import './App.scss';
 import TrezorConnect from 'trezor-connect';
 import ledger from './lib/ledger';
 import {getLocalStorageVar, setLocalStorageVar} from './localstorage-util';
-import {INSIGHT_API_URL, LEDGER_FW_VERSIONS, voteCoin} from './constants';
+import {INSIGHT_API_URL, LEDGER_FW_VERSIONS, voteCoin, testCoins} from './constants';
 import {setExplorerUrl, getInfo} from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
@@ -306,7 +307,11 @@ class App extends React.Component {
             </div>
           </Header>
 
-          <section className="main">
+          {testCoins.indexOf(this.state.coin) === -1 &&
+            <BetaWarning />
+          }
+
+          <section className={`main${testCoins.indexOf(this.state.coin) === -1 ? ' beta-warning-fix' : ''}`}>
             {this.state.accounts.length === 0 ? (
               <React.Fragment>
                 <div className="container content">

@@ -13,6 +13,10 @@
     flex: 1;
     padding-top: 5.4em;
 
+    &.beta-warning-fix {
+      padding-top: 7.4em;
+    }
+
     .ws--nowrap {
       white-space: nowrap;
     }
