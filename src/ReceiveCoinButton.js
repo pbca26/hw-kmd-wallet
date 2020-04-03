@@ -78,7 +78,7 @@ class ReceiveCoinButton extends React.Component {
             <span style={{
               'padding': '10px 0',
               'display': 'block'
-            }}>This your new deposit address <strong>{unusedAddress}</strong></span>
+            }}>This your new {this.props.coin} deposit address <strong>{unusedAddress}</strong></span>
           </React.Fragment>
       });
     } catch (error) {

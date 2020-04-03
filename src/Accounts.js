@@ -3,7 +3,7 @@ import Transactions from './Transactions';
 import SendCoinButton from './SendCoinButton';
 import ReceiveCoinButton from './ReceiveCoinButton';
 import TxidLink from './TxidLink';
-import {TX_FEE, coin} from './constants';
+import {TX_FEE} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import './Accounts.scss';
 import './Account.scss';
@@ -59,7 +59,7 @@ class Account extends React.Component {
   }
 
   render() {
-    const {account, tiptime, vendor} = this.props;
+    const {account, tiptime, vendor, coin} = this.props;
     const {
       accountIndex,
       utxos,
@@ -90,7 +90,8 @@ class Account extends React.Component {
             <ReceiveCoinButton
               account={account}
               vendor={vendor}
-              address={this.state.address}>
+              address={this.state.address}
+              coin={coin}>
               Receive
             </ReceiveCoinButton>
             {(history.historyParsed.length === 0) && (
@@ -101,7 +102,7 @@ class Account extends React.Component {
             {(history.historyParsed.length > 0) && (
               <React.Fragment>
                 <h4>Transactions</h4>
-                <Transactions transactions={history.historyParsed} />
+                <Transactions transactions={history.historyParsed} coin={coin} />
               </React.Fragment>
             )}
             {account.addresses && account.addresses.length > 0 &&
@@ -184,7 +185,8 @@ class Account extends React.Component {
                 balance={balance}
                 sendTo={this.state.sendTo}
                 amount={this.state.amount}
-                syncData={this.props.syncData}>
+                syncData={this.props.syncData}
+                coin={coin}>
                 Send
               </SendCoinButton>
             }
@@ -195,7 +197,7 @@ class Account extends React.Component {
   }
 }
 
-const Accounts = ({accounts, tiptime, vendor, syncData}) => (
+const Accounts = ({accounts, tiptime, vendor, syncData, coin}) => (
   <div className="Accounts">
     <div className="container">
       <div className="columns is-multiline">
@@ -206,6 +208,7 @@ const Accounts = ({accounts, tiptime, vendor, syncData}) => (
             tiptime={tiptime}
             vendor={vendor}
             syncData={syncData}
+            coin={coin}
             />
         ))}
       </div>

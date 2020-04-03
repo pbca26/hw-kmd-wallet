@@ -1,8 +1,8 @@
 import React from 'react';
 import Boolean from './Boolean';
-import {INSIGHT_EXPLORER_URL} from './constants';
+import explorerLink from './lib/explorer-link';
 
-const Transactions = ({transactions}) => {
+const Transactions = ({transactions, coin}) => {
   const headings = ['Type', 'Amount', 'Confirmations', 'Date', 'Transaction ID'];
 
   return (
@@ -27,7 +27,7 @@ const Transactions = ({transactions}) => {
             <td className="wb--all">
               <a
                 target="_blank"
-                href={`${INSIGHT_EXPLORER_URL}/tx/${tx.txid}`}>{tx.txid}</a>
+                href={`${explorerLink[coin]}tx/${tx.txid}`}>{tx.txid}</a>
             </td>
           </tr>
         ))}
