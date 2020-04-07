@@ -82,8 +82,7 @@ class App extends React.Component {
       [e.target.name]: e.target.value,
     });
 
-    // TODO: run checkExplorerEndpoints on coin select
-    setExplorerUrl(apiEndpoints[e.target.value][0]);
+    this.checkExplorerEndpoints();
   }
 
   updateLedgerDeviceType(type) {
