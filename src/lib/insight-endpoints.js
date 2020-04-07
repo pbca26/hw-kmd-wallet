@@ -1,3 +1,5 @@
+// TODO: refactor as coin object
+
 const apiEndpoints = {
   AXO: ['https://axo.explorer.dexstats.info/insight-api-komodo/'],
   ETOMIC: ['https://etomic.explorer.dexstats.info/insight-api-komodo/'],
