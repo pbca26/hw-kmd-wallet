@@ -1,8 +1,4 @@
 export const TX_FEE = 10000;
-export const INSIGHT_API_URL = {
-  default: 'https://rick.kmd.dev/insight-api-komodo/',
-};
-export const INSIGHT_EXPLORER_URL = 'https://rick.kmd.dev/';
 export const KOMODO = {
   messagePrefix: '\x18Komodo Signed Message:\n',
   bip32: {
@@ -13,7 +9,6 @@ export const KOMODO = {
   scriptHash: 0x55,
   wif: 0xBC
 };
-export const coin = 'RICK';
 export const voteCoin = 'VOTE2020';
 export const testCoins = ['RICK', 'MORTY', 'VOTE2020'];
 export const LEDGER_FW_VERSIONS = {
