@@ -246,7 +246,7 @@ class App extends React.Component {
                 {this.state.vendor &&
                   <strong>{this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} KMD HW {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
                 }
-                <span className="explorer-selector-block">
+                {/*<span className="explorer-selector-block">
                   <i className="fa fa-cog"></i>
                   <select
                     className="explorer-selector"
@@ -266,7 +266,7 @@ class App extends React.Component {
                       </option>
                     ))}
                   </select>
-                </span>
+                  </span>*/}
               </h1>
             </div>
             <div className="navbar-menu">
