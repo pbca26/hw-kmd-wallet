@@ -29,7 +29,7 @@ const apiEndpoints = {
   SEC: ['https://sec.explorer.dexstats.info/insight-api-komodo/'],
   THC: ['https://thc.explorer.dexstats.info/insight-api-komodo/'],
   KMDICE: ['https://kmdice.explorer.dexstats.info/insight-api-komodo/'],
-  ZEXO: ['https://zex.explorer.dexstats.info/insight-api-komodo/'],
+  ZEXO: ['https://zexo.explorer.dexstats.info/insight-api-komodo/'],
   KSB: ['https://ksb.explorer.dexstats.info/insight-api-komodo/'],
   OUR: ['https://our.explorer.dexstats.info/insight-api-komodo/'],
   MCL:  ['https://mcl.explorer.dexstats.info/insight-api-komodo/'],
