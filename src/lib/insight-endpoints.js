@@ -53,4 +53,4 @@ const apiEndpoints = {
   */
 };
 
-export default (apiEndpoints);
+export default sortObject(apiEndpoints);
