@@ -1,5 +1,4 @@
 // TODO: refactor as coin object
-
 const apiEndpoints = {
   AXO: ['https://axo.explorer.dexstats.info/insight-api-komodo/'],
   ETOMIC: ['https://etomic.explorer.dexstats.info/insight-api-komodo/'],
@@ -20,7 +19,6 @@ const apiEndpoints = {
   CRYPTO: ['https://crypto.explorer.dexstats.info/insight-api-komodo/'],
   HODL: ['https://hodl.explorer.dexstats.info/insight-api-komodo/'],
   ILN: ['https://explorer.ilien.io/insight-api-komodo/'],
-  SHARK: [],
   BOTS: ['https://bots.explorer.dexstats.info/insight-api-komodo/'],
   MGW: ['https://mgw.explorer.dexstats.info/insight-api-komodo/'],
   WLC21: ['https://wlc21.explorer.dexstats.info/insight-api-komodo/'],
@@ -31,13 +29,13 @@ const apiEndpoints = {
   SEC: ['https://sec.explorer.dexstats.info/insight-api-komodo/'],
   THC: ['https://thc.explorer.dexstats.info/insight-api-komodo/'],
   KMDICE: ['https://kmdice.explorer.dexstats.info/insight-api-komodo/'],
-  ZEXO: ['http://zex.explorer.dexstats.info/insight-api-komodo/'],
-  KSB: ['http://ksb.explorer.dexstats.info/insight-api-komodo/'],
-  OUR: ['http://our.explorer.dexstats.info/insight-api-komodo/'],
-  MCL:  ['http://mcl.explorer.dexstats.info/insight-api-komodo/'],
+  ZEXO: ['https://zex.explorer.dexstats.info/insight-api-komodo/'],
+  KSB: ['https://ksb.explorer.dexstats.info/insight-api-komodo/'],
+  OUR: ['https://our.explorer.dexstats.info/insight-api-komodo/'],
+  MCL:  ['https://mcl.explorer.dexstats.info/insight-api-komodo/'],
   RFOX: ['https://rfox.explorer.dexstats.info/insight-api-komodo/'],
-  LABS: ['http://labs.explorer.dexstats.info/insight-api-komodo/'],
-  VOTE2020: ['http://vote2020.explorer.dexstats.info/insight-api-komodo/'],
+  LABS: ['https://labs.explorer.dexstats.info/insight-api-komodo/'],
+  VOTE2020: ['https://vote2020.explorer.dexstats.info/insight-api-komodo/'],
   RICK: ['https://rick.kmd.dev/insight-api-komodo/', 'https://rick.explorer.dexstats.info/insight-api-komodo/'],
   MORTY: ['https://morty.kmd.dev/insight-api-komodo/', 'https://morty.explorer.dexstats.info/insight-api-komodo/'],
   VRSC: ['https://explorer.komodoplatform.com:10000/vrsc/api/', 'https://vrsc.explorer.dexstats.info/insight-api-komodo/']
@@ -46,6 +44,7 @@ const apiEndpoints = {
   // PIZZA: [],
   // BEER: [],
   // DSEC: [],
+  // SHARK: [],
   /* coins below need special handling due to no overwinter support
   ZILLA: ['https://zilla.explorer.dexstats.info/insight-api-komodo/'],
   OOT: ['https://oot.explorer.dexstats.info/insight-api-komodo/'],
