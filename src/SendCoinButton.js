@@ -124,6 +124,7 @@ class SendCoinButton extends React.Component {
   sendCoin = async () => {
     console.warn('send coin clicked');
     const isUserInputValid = this.validate();
+    const {coin} = this.props;
     
     this.setState(prevState => ({
       ...this.initialState,
@@ -194,13 +195,14 @@ class SendCoinButton extends React.Component {
         const filteredUtxos = this.filterUtxos(txData.inputs, formattedUtxos);
 
         this.setState({
-          ...this.initialState,
           isClaimingRewards: true,
           skipBroadcast: false,
           amount: txData.value,
           sendTo: txData.outputAddress,
           changeTo: txData.changeAddress,
           change: txData.change,
+          skipBroadcast: this.state.skipBroadcast,
+          skipBroadcastClicked: false,
         });
 
         const rawtx = await ledger.createTransaction(
