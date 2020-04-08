@@ -82,7 +82,9 @@ class App extends React.Component {
       [e.target.name]: e.target.value,
     });
 
-    this.checkExplorerEndpoints();
+    setTimeout(() => {
+      this.checkExplorerEndpoints();
+    }, 50);
   }
 
   updateLedgerDeviceType(type) {
