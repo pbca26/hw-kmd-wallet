@@ -1,8 +1,8 @@
 import React from 'react';
-import {INSIGHT_EXPLORER_URL} from './constants';
+import explorerLink from './lib/explorer-link';
 
-const TxidLink = ({txid}) => (
-  <a target="_blank" rel="noopener noreferrer" href={`${INSIGHT_EXPLORER_URL}tx/${txid}`}>{txid}</a>
+const TxidLink = ({txid, coin}) => (
+  <a target="_blank" rel="noopener noreferrer" href={`${explorerLink[coin]}tx/${txid}`}>{txid}</a>
 );
 
 export default TxidLink;

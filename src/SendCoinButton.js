@@ -243,7 +243,7 @@ class SendCoinButton extends React.Component {
 
           this.props.handleRewardClaim(txid);
           this.setState({
-            success: <React.Fragment>Transaction ID: <TxidLink txid={txid}/></React.Fragment>
+            success: <React.Fragment>Transaction ID: <TxidLink txid={txid} coin={coin} /></React.Fragment>
           });
           setTimeout(() => {
             this.props.syncData();
