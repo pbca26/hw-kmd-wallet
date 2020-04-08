@@ -1,4 +1,6 @@
 // TODO: refactor as coin object
+import {sortObject} from './sort';
+
 const apiEndpoints = {
   AXO: ['https://axo.explorer.dexstats.info/insight-api-komodo/'],
   ETOMIC: ['https://etomic.explorer.dexstats.info/insight-api-komodo/'],
@@ -51,4 +53,4 @@ const apiEndpoints = {
   */
 };
 
-export default apiEndpoints;
+export default (apiEndpoints);

@@ -27,4 +27,10 @@ const sortTransactions = (transactions, sortBy='height') => {
   });
 }
 
-module.exports = sortTransactions;
+// ref: https://github.com/pbca26/agama-wallet-lib/blob/master/src/utils.js#L152
+const sortObject = o => Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
+
+module.exports = {
+  sortTransactions,
+  sortObject
+};

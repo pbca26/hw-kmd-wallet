@@ -1,5 +1,5 @@
 import secondsToString from './time';
-import sortTransactions from './sort';
+import {sortTransactions} from './sort';
 
 const parseHistory = (txs, addr, options) => {
   let txHistory = [];
