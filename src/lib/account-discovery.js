@@ -105,7 +105,17 @@ const getAddressUtxos = async addresses => {
   }));
 };
 
-export const getAddressHistory = async (addresses) => {
+const getAddressHistory = async addresses => {
+  const history = await blockchain.getHistory(addresses.map(a => a.address));
+
+  return {
+    addresses: addresses,
+    allTxs: history.items,
+    historyParsed: parseHistory(history.items, addresses),
+  };
+};
+
+export const getAddressHistoryOld = async (addresses) => {
   let addressCacheTemp = {};
   let allTxs = [];
   let addressHistory = [];
