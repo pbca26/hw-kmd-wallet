@@ -1,9 +1,7 @@
-import {INSIGHT_API_URL} from '../constants';
-
-let explorerUrl = INSIGHT_API_URL.komodoplatform;
+let explorerUrl;
 
 export const setExplorerUrl = (name) => {
-  explorerUrl = INSIGHT_API_URL[name] || name;
+  explorerUrl = name;
 };
 
 const get = async (endpoint, postData) => {
@@ -31,7 +29,9 @@ const get = async (endpoint, postData) => {
 
 const getAddress = address => get(`addr/${address}/?noTxList=1`);
 
-const getHistory = (address, coin) => get(`/txs?address=${address}`, coin);
+const getAddressHistory = (address) => get(`/txs?address=${address}`);
+
+const getHistory = addresses => get(`addrs/txs`, {addrs: addresses.join(',')});
 
 const getUtxos = addresses => get(`addrs/utxo`, {addrs: addresses.join(',')});
 
@@ -73,13 +73,14 @@ const blockchain = {
   get,
   getAddress,
   getUtxos,
+  getAddressHistory,
   getHistory,
   getTransaction,
   getRawTransaction,
   getBestBlockHash,
   getBlock,
   getTipTime,
-  broadcast,
+  broadcast
 };
 
 export default blockchain;
