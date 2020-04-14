@@ -1,7 +1,8 @@
 import secondsToString from './time';
 import {sortTransactions} from './sort';
+import compose from './compose';
 
-const parseHistory = (txs, addr, options) => {
+const parse = ([txs, addr, options]) => {
   let txHistory = [];
   let addresses = [];
 
@@ -37,6 +38,7 @@ const parseHistory = (txs, addr, options) => {
 
       if (addr.indexOf(txs[i].vout[j].scriptPubKey.addresses[0]) > -1) {
         voutSum += Number(txs[i].vout[j].value);
+        console.warn('vout', JSON.stringify(txs[i].vout[j]));
       }
     }
   
@@ -66,13 +68,15 @@ const parseHistory = (txs, addr, options) => {
 
     txHistory.push(tx);
   }
-  
-  txHistory = sortTransactions(txHistory, 'timestamp');
-  
-  if (options && options.hasOwnProperty('debug')) {
-    console.log(txHistory);
-  }
 
+  return txHistory;
+};
+
+const sort = (txHistory) => {
+  return sortTransactions(txHistory, 'timestamp');
+};
+
+const limit = (txHistory) => {
   if (txHistory.length > 10) {
     txHistory = txHistory.slice(0, 9);
   }
@@ -80,4 +84,8 @@ const parseHistory = (txs, addr, options) => {
   return txHistory;
 };
 
-export default parseHistory;
+const parsehistory = (txs, addr, options) => {
+  return compose(limit, sort, parse)([txs, addr, options]);
+};
+
+export default parsehistory;
