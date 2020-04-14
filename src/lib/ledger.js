@@ -91,6 +91,7 @@ const getAddress = async (derivationPath, verify) => {
   } else {
     const bitcoinAddress = await TrezorConnect.getAddress({
       path: `m/${derivationPath}`,
+      showOnTrezor: verify ? true : false,
     })
     .then((result) => {
       return result && result.payload && result.payload.address ? result.payload.address : null; 
