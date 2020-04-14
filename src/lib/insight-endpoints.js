@@ -2,6 +2,7 @@
 import {sortObject} from './sort';
 
 const apiEndpoints = {
+  KMD: ['https://explorer.komodoplatform.com:10000/kmd/api/', 'https://kmd.explorer.dexstats.info/insight-api-komodo/'],
   AXO: ['https://axo.explorer.dexstats.info/insight-api-komodo/'],
   ETOMIC: ['https://etomic.explorer.dexstats.info/insight-api-komodo/'],
   KOIN: ['https://koin.explorer.dexstats.info/insight-api-komodo/'],
