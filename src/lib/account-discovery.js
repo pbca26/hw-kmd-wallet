@@ -111,7 +111,7 @@ const getAddressHistory = async addresses => {
   return {
     addresses: addresses,
     allTxs: history.items,
-    historyParsed: parseHistory(history.items, addresses),
+    historyParsed: parseHistory(history.items, addresses.map(a => a.address)),
   };
 };
 
