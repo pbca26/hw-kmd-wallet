@@ -5,6 +5,7 @@ import ReceiveCoinButton from './ReceiveCoinButton';
 import TxidLink from './TxidLink';
 import {TX_FEE} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
+import UtxosModal from './UtxosModal';
 import './Accounts.scss';
 import './Account.scss';
 
@@ -71,6 +72,8 @@ class Account extends React.Component {
       xpub,
     } = account;
 
+    console.warn('account', account);
+
     const isClaimableAmount = (claimableAmount > 0);
     const {isClaimed, claimTxid} = this.state;
 
@@ -94,6 +97,9 @@ class Account extends React.Component {
               coin={coin}>
               Receive
             </ReceiveCoinButton>
+            {coin === 'KMD' && balance > 0 &&
+              <UtxosModal utxos={utxos} tiptime={tiptime} />
+            }
             {(history.historyParsed.length === 0) && (
               <React.Fragment>
                 <span style={{'padding': '10px 20px 20px 20px'}}>No history</span>
@@ -186,6 +192,7 @@ class Account extends React.Component {
                 sendTo={this.state.sendTo}
                 amount={this.state.amount}
                 syncData={this.props.syncData}
+                tiptime={tiptime}
                 coin={coin}>
                 Send
               </SendCoinButton>
