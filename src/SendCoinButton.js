@@ -51,6 +51,7 @@ class SendCoinButton extends React.Component {
       sendTo: null,
       change: 0,
       changeTo: null,
+      rewards: 0,
     };
   }
 
@@ -116,16 +117,21 @@ class SendCoinButton extends React.Component {
         }
       }
     }
-
+    
     console.warn('filterUtxos', utxos);
 
     return utxos;
   }
 
   sendCoin = async () => {
-    console.warn('send coin clicked');
-    const isUserInputValid = this.validate();
-    const {coin} = this.props;
+    const isUserInputValid = this.props.isClaimRewardsOnly ? false : this.validate();
+    const isClaimRewardsOnly = this.props.isClaimRewardsOnly;
+
+    if (isClaimRewardsOnly) {
+      console.warn('claim kmd rewards button clicked');
+    } else {
+      console.warn('send coin clicked');
+    }
     
     this.setState(prevState => ({
       ...this.initialState,
@@ -276,7 +282,7 @@ class SendCoinButton extends React.Component {
     return (
       <React.Fragment>
         <button
-          className="button is-primary"
+          className={`button is-primary${this.props.className ? ' ' + this.props.className : ''}`}
           disabled={isNoBalace || !this.props.sendTo || !this.props.amount}
           onClick={this.sendCoin}>
           {this.props.children}
