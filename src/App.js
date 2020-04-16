@@ -14,7 +14,7 @@ import './App.scss';
 import TrezorConnect from 'trezor-connect';
 import ledger from './lib/ledger';
 import {getLocalStorageVar, setLocalStorageVar} from './localstorage-util';
-import {LEDGER_FW_VERSIONS, voteCoin, testCoins} from './constants';
+import {INSIGHT_API_URL, LEDGER_FW_VERSIONS, voteCoin, testCoins, TX_FEE} from './constants';
 import {setExplorerUrl, getInfo} from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
@@ -34,7 +34,7 @@ class App extends React.Component {
       isFirstRun: true,
       ledgerDeviceType: null,
       ledgerFWVersion: 'default',
-      coin: 'RICK',
+      coin: 'KMD',
       theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
   }
@@ -89,7 +89,7 @@ class App extends React.Component {
 
   updateLedgerDeviceType(type) {
     this.setState({
-      'ledgerDeviceType': type,
+      ledgerDeviceType: type,
     });
   }
 
@@ -149,7 +149,7 @@ class App extends React.Component {
 
       accounts.map(account => {
         account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
-    
+        
         return account;
       });
 
