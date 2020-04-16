@@ -9,7 +9,8 @@ import transactionBuilder from './lib/transaction-builder';
 import {toSats, fromSats} from './lib/math';
 import updateActionState from './lib/update-action-state';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
-import {TX_FEE, KOMODO} from './constants';
+import getKomodoRewards from './lib/get-komodo-rewards';
+import {TX_FEE, KMD_REWARDS_MIN_THRESHOLD, KOMODO} from './constants';
 
 class SendCoinButton extends React.Component {
   state = this.initialState;
