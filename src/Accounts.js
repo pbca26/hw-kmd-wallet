@@ -6,6 +6,7 @@ import TxidLink from './TxidLink';
 import {TX_FEE} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import UtxosModal from './UtxosModal';
+import ClaimRewardsButton from './ClaimRewardsButton';
 import './Accounts.scss';
 import './Account.scss';
 
@@ -99,6 +100,18 @@ class Account extends React.Component {
             </ReceiveCoinButton>
             {coin === 'KMD' && balance > 0 &&
               <UtxosModal utxos={utxos} tiptime={tiptime} />
+            }
+            {coin === 'KMD' && claimableAmount > 0 &&
+              <ClaimRewardsButton
+                account={account}
+                handleRewardClaim={this.handleRewardClaim}
+                vendor={vendor}
+                address={this.state.address}
+                balance={balance}
+                syncData={this.props.syncData}
+                coin={coin}
+                tiptime={tiptime}
+                claimableAmount={claimableAmount} />
             }
             {(history.historyParsed.length === 0) && (
               <React.Fragment>
