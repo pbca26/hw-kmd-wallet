@@ -19,6 +19,7 @@ import {setExplorerUrl, getInfo} from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
 import apiEndpoints from './lib/insight-endpoints';
+import getKomodoRewards from './lib/get-komodo-rewards';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
 
@@ -149,7 +150,9 @@ class App extends React.Component {
 
       accounts.map(account => {
         account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
-        
+        account.rewards = account.utxos.reduce((rewards, utxo) => rewards + getKomodoRewards({tiptime, ...utxo}), 0);
+        account.claimableAmount = account.rewards - TX_FEE;
+
         return account;
       });
 
