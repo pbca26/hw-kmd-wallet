@@ -117,7 +117,7 @@ class SendCoinButton extends React.Component {
         }
       }
     }
-    
+
     console.warn('filterUtxos', utxos);
 
     return utxos;
@@ -290,7 +290,7 @@ class SendCoinButton extends React.Component {
 
           this.props.handleRewardClaim(txid);
           this.setState({
-            success: <React.Fragment>Transaction ID: <TxidLink txid={txid} coin={this.props.coin} /></React.Fragment>
+            success: <React.Fragment>Transaction ID: <TxidLink txid={txid} coin={coin} /></React.Fragment>
           });
           setTimeout(() => {
             this.props.syncData();
@@ -316,7 +316,9 @@ class SendCoinButton extends React.Component {
     const {coin} = this.props;
 
     console.warn('this.props', this.props);
-
+    console.warn('KMD_REWARDS_MIN_THRESHOLD', KMD_REWARDS_MIN_THRESHOLD);
+    console.warn('this.props.account.claimableAmount', this.props.account.claimableAmount);
+    
     return (
       <React.Fragment>
         <button
@@ -327,18 +329,27 @@ class SendCoinButton extends React.Component {
         </button>
         <ActionListModal
           {...this.state}
-          title="Send"
+          title={this.props.isClaimRewardsOnly ? 'Claim KMD rewards' : 'Send'}
           handleClose={this.resetState}
           show={isClaimingRewards}>
           {!this.state.sendTo &&
             <p>Awaiting user input...</p>
           }
           {this.state.sendTo &&
-            <p>Send <strong>{humanReadableSatoshis(this.state.amount)} {coin}</strong> to <strong>{this.state.sendTo}</strong></p>
+           !this.props.isClaimRewardsOnly &&
+            <p>Send <strong>{humanReadableSatoshis(this.state.amount)} {this.props.coin}</strong> to <strong>{this.state.sendTo}</strong></p>
           }
           {this.state.change > 0 &&
             this.state.isDebug &&
-            <p>Send change <strong>{humanReadableSatoshis(this.state.change)} {coin}</strong> to address: <strong>{this.state.changeTo}</strong></p>
+            <p>Send change <strong>{humanReadableSatoshis(this.state.change)} {this.props.coin}</strong> to address: <strong>{this.state.changeTo}</strong></p>
+          }
+          {this.state.rewards > 0 &&
+            <React.Fragment>
+              <p>Claim <strong>{humanReadableSatoshis(this.state.rewards - TX_FEE)} {this.props.coin}</strong> rewards to address: <strong>{this.state.changeTo}</strong>.</p>
+              {this.props.isClaimRewardsOnly &&
+               <p>You should receive a total of <strong>{humanReadableSatoshis(this.state.amount)} {this.props.coin}</strong>.</p>
+              }
+            </React.Fragment>
           }
           {this.state.isDebug &&
             <label className="switch" onClick={this.setSkipBroadcast}>
