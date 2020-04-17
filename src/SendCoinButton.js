@@ -186,31 +186,47 @@ class SendCoinButton extends React.Component {
         
         console.warn('formatted utxos', formattedUtxos);
         
+        const txDataPreflight = transactionBuilder(
+          this.props.coin === 'KMD' ? Object.assign({}, KOMODO, {kmdInterest: true}) : KOMODO,
+          isClaimRewardsOnly ? this.props.balance - TX_FEE : toSats(this.props.amount),
+          TX_FEE,
+          this.props.sendTo ? this.props.sendTo : this.getUnusedAddressChange(),
+          this.getUnusedAddressChange(),
+          formattedUtxos
+        );
+
+        console.warn('txDataPreflight', txDataPreflight);
+
+        let ledgerUnusedAddress;
         const unusedAddress = this.getUnusedAddressChange();
         const derivationPath = `44'/141'/${accountIndex}'/1/${this.getUnusedAddressIndexChange()}`;
-        const verify = true;
-        const ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, false);
-        console.warn(ledgerUnusedAddress);
-        if (ledgerUnusedAddress !== unusedAddress) {
-          throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ` derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
-        }
-        updateActionState(this, currentAction, true);
 
-        currentAction = 'approveTransaction';
-        updateActionState(this, currentAction, 'loading');
+        if (isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest) {
+          const verify = true;
+          ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, false);
+        
+          console.warn(ledgerUnusedAddress);
+          if (ledgerUnusedAddress !== unusedAddress) {
+            throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ` derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
+          }
+          updateActionState(this, currentAction, true);
+        }
 
         const txData = transactionBuilder(
-          KOMODO,
-          toSats(this.props.amount),
+          this.props.coin === 'KMD' ? Object.assign({}, KOMODO, {kmdInterest: true}) : KOMODO,
+          isClaimRewardsOnly ? this.props.balance - TX_FEE : toSats(this.props.amount),
           TX_FEE,
-          this.props.sendTo,
-          ledgerUnusedAddress,
+          isClaimRewardsOnly ? ledgerUnusedAddress : this.props.sendTo,
+          isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest ? ledgerUnusedAddress : 'none',
           formattedUtxos
         );
 
         console.warn('txData', txData);
 
         const filteredUtxos = this.filterUtxos(txData.inputs, formattedUtxos);
+
+        currentAction = 'approveTransaction';
+        updateActionState(this, currentAction, 'loading');
 
         this.setState({
           isClaimingRewards: true,
@@ -221,12 +237,23 @@ class SendCoinButton extends React.Component {
           change: txData.change,
           skipBroadcast: this.state.skipBroadcast,
           skipBroadcastClicked: false,
+          rewards: txData.totalInterest,
         });
 
-        const rawtx = await ledger.createTransaction(
-          filteredUtxos, txData.change > 0 ?
-          [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change, derivationPath}] : [{address: txData.outputAddress, value: txData.value}]
-        );
+        let rawtx;
+        
+        if (this.props.isClaimRewardsOnly) {
+          rawtx = await ledger.createTransaction(
+            filteredUtxos, [{address: txData.outputAddress, value: txData.value}],
+            this.props.coin === 'KMD'
+          );
+        } else {
+          rawtx = await ledger.createTransaction(
+            filteredUtxos, txData.change > 0 || txData.totalInterest ?
+            [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change + txData.totalInterest - TX_FEE, derivationPath}] : [{address: txData.outputAddress, value: txData.value}],
+            this.props.coin === 'KMD'
+          );
+        }
 
         console.warn('rawtx', rawtx);
         if (!rawtx) {
@@ -263,7 +290,7 @@ class SendCoinButton extends React.Component {
 
           this.props.handleRewardClaim(txid);
           this.setState({
-            success: <React.Fragment>Transaction ID: <TxidLink txid={txid} coin={coin} /></React.Fragment>
+            success: <React.Fragment>Transaction ID: <TxidLink txid={txid} coin={this.props.coin} /></React.Fragment>
           });
           setTimeout(() => {
             this.props.syncData();
