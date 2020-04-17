@@ -2,7 +2,17 @@ import React from 'react';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import SendCoinButton from './SendCoinButton';
 
-const ClaimRewardsButton = ({account, vendor, balance, syncData, coin, tiptime, handleRewardClaim, claimableAmount, address}) => (
+const ClaimRewardsButton = ({
+  account,
+  vendor,
+  balance,
+  syncData,
+  coin,
+  tiptime,
+  handleRewardClaim,
+  claimableAmount,
+  address
+}) => (
   <SendCoinButton
     account={account}
     handleRewardClaim={handleRewardClaim}
