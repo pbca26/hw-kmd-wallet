@@ -222,11 +222,11 @@ class App extends React.Component {
           <div className="theme-selector">
             Theme
             <div
-              onClick={ () => this.setTheme('tdark') }
-              className={ 'item black' + (this.state.theme === 'tdark' ? ' active' : '') }></div>
+              onClick={() => this.setTheme('tdark')}
+              className={'item black' + (this.state.theme === 'tdark' ? ' active' : '')}></div>
             <div
-              onClick={ () => this.setTheme('tlight') }
-              className={ 'item light' + (this.state.theme === 'tlight' ? ' active' : '') }></div>
+              onClick={() => this.setTheme('tlight') }
+              className={'item light' + (this.state.theme === 'tlight' ? ' active' : '')}></div>
           </div>
         </Footer>
       </div>
@@ -282,7 +282,7 @@ class App extends React.Component {
                       className="coin-selector"
                       name="coin"
                       value={this.state.coin}
-                      onChange={ (event) => this.updateCoin(event) }>
+                      onChange={(event) => this.updateCoin(event)}>
                       <option
                         key="coins-none"
                         value=""
@@ -347,7 +347,7 @@ class App extends React.Component {
                           className="ledger-fw-selector"
                           name="ledgerFWVersion"
                           value={this.state.ledgerFWVersion}
-                          onChange={ (event) => this.updateLedgerFWVersion(event) }>
+                          onChange={(event) => this.updateLedgerFWVersion(event)}>
                           {Object.keys(LEDGER_FW_VERSIONS).map((val, index) => (
                             <option
                               key={`ledger-fw-selector-${val}`}
@@ -376,11 +376,11 @@ class App extends React.Component {
             <div className="theme-selector">
               Theme
               <div
-                onClick={ () => this.setTheme('tdark') }
-                className={ 'item black' + (this.state.theme === 'tdark' ? ' active' : '') }></div>
+                onClick={() => this.setTheme('tdark')}
+                className={'item black' + (this.state.theme === 'tdark' ? ' active' : '')}></div>
               <div
-                onClick={ () => this.setTheme('tlight') }
-                className={ 'item light' + (this.state.theme === 'tlight' ? ' active' : '') }></div>
+                onClick={() => this.setTheme('tlight') }
+                className={'item light' + (this.state.theme === 'tlight' ? ' active' : '')}></div>
             </div>
           </Footer>
         </div>
