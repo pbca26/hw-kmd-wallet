@@ -19,7 +19,7 @@ class SendCoinButton extends React.Component {
     this.setSkipBroadcast = this.setSkipBroadcast.bind(this);
 
     return {
-      isDebug: window.location.href.indexOf('#enable-verify') > -1,
+      isDebug: window.location.href.indexOf('enable-verify') > -1,
       isClaimingRewards: false,
       error: false,
       success: false,
@@ -203,7 +203,7 @@ class SendCoinButton extends React.Component {
 
         if (isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest) {
           const verify = true;
-          ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, false);
+          ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, isClaimRewardsOnly ? true : false);
         
           console.warn(ledgerUnusedAddress);
           if (ledgerUnusedAddress !== unusedAddress) {
