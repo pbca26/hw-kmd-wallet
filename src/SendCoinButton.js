@@ -140,6 +140,7 @@ class SendCoinButton extends React.Component {
     }));
 
     if (!isUserInputValid) {
+      const {tiptime} = this.props;
       const {
         accountIndex,
         utxos,
@@ -163,16 +164,26 @@ class SendCoinButton extends React.Component {
           utxos,
         } = this.props.account;
 
-        console.warn(utxos);
+        console.warn('utxos', utxos);
+
         let formattedUtxos = [];
 
         for (let i = 0; i < utxos.length; i++) {
           let utxo = utxos[i];
-          console.warn(utxos[i].amount);
+          console.warn('utxos[i].amount', utxos[i].amount);
     
           utxo.amountSats = utxo.satoshis; 
+
+          if (this.props.coin === 'KMD') {
+            const rewards = getKomodoRewards({tiptime, ...utxo});
+            console.warn('rewards', rewards);
+            console.warn('tiptime', tiptime);
+            utxo.interestSats = rewards;
+          }
+
           formattedUtxos.push(utxo);
         }
+        
         console.warn('formatted utxos', formattedUtxos);
         
         const unusedAddress = this.getUnusedAddressChange();
