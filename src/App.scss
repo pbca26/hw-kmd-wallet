@@ -32,7 +32,8 @@
     .form-control {
       &.edit {
         padding: 5px 10px;
-        width: 300px;
+        max-width: 320px;
+        width: 100%;
         font-size: 14px;
       }
     }
