@@ -323,7 +323,7 @@ class SendCoinButton extends React.Component {
       <React.Fragment>
         <button
           className={`button is-primary${this.props.className ? ' ' + this.props.className : ''}`}
-          disabled={isNoBalace || (!this.props.sendTo && this.props.coin !== 'KMD') || (!this.props.amount && this.props.coin !== 'KMD') || (this.props.coin === 'KMD' && this.props.account.claimableAmount < KMD_REWARDS_MIN_THRESHOLD && this.props.isClaimRewardsOnly)}
+          disabled={isNoBalace || (!this.props.sendTo && !this.props.isClaimRewardsOnly) || ((!this.props.amount || Number(this.props.amount) === 0) && !this.props.isClaimRewardsOnly) || (this.props.coin === 'KMD' && this.props.account.claimableAmount < KMD_REWARDS_MIN_THRESHOLD && this.props.isClaimRewardsOnly)}
           onClick={this.sendCoin}>
           {this.props.children}
         </button>
