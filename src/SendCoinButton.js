@@ -12,6 +12,8 @@ import humanReadableSatoshis from './lib/human-readable-satoshis';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import {TX_FEE, KMD_REWARDS_MIN_THRESHOLD, KOMODO} from './constants';
 
+const MAX_TIPTIME_TO_LOCALTIME_DIFF = 10 * 60;
+
 class SendCoinButton extends React.Component {
   state = this.initialState;
 
@@ -203,7 +205,7 @@ class SendCoinButton extends React.Component {
 
         if (isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest) {
           const verify = true;
-          ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, isClaimRewardsOnly ? true : false);
+          ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, isClaimRewardsOnly && this.props.vendor === 'trezor' ? true : false);
         
           console.warn(ledgerUnusedAddress);
           if (ledgerUnusedAddress !== unusedAddress) {
@@ -221,6 +223,7 @@ class SendCoinButton extends React.Component {
           formattedUtxos
         );
 
+        console.warn('amount in', isClaimRewardsOnly ? this.props.balance - TX_FEE : toSats(this.props.amount));
         console.warn('txData', txData);
 
         const filteredUtxos = this.filterUtxos(txData.inputs, formattedUtxos);
@@ -237,7 +240,7 @@ class SendCoinButton extends React.Component {
           change: txData.change,
           skipBroadcast: this.state.skipBroadcast,
           skipBroadcastClicked: false,
-          rewards: txData.totalInterest,
+          rewards: txData.totalInterest - TX_FEE,
         });
 
         let rawtx;
@@ -250,10 +253,13 @@ class SendCoinButton extends React.Component {
         } else {
           rawtx = await ledger.createTransaction(
             filteredUtxos, txData.change > 0 || txData.totalInterest ?
-            [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change + txData.totalInterest - TX_FEE, derivationPath}] : [{address: txData.outputAddress, value: txData.value}],
+            [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change === 0 && txData.totalInterest > 0 ? txData.change + txData.totalInterest - TX_FEE : txData.change, derivationPath}] : [{address: txData.outputAddress, value: txData.value}],
             this.props.coin === 'KMD'
           );
         }
+
+        console.warn('tx outputs', txData.change > 0 || txData.totalInterest ?
+        [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change + txData.totalInterest - (isClaimRewardsOnly ? 0 : TX_FEE * 2), derivationPath}] : [{address: txData.outputAddress, value: txData.value}]);
 
         console.warn('rawtx', rawtx);
         if (!rawtx) {
@@ -290,7 +296,7 @@ class SendCoinButton extends React.Component {
 
           this.props.handleRewardClaim(txid);
           this.setState({
-            success: <React.Fragment>Transaction ID: <TxidLink txid={txid} coin={coin} /></React.Fragment>
+            success: <React.Fragment>Transaction ID: <TxidLink txid={txid} coin={this.props.coin} /></React.Fragment>
           });
           setTimeout(() => {
             this.props.syncData();
