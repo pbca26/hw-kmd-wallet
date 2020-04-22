@@ -8,7 +8,13 @@ import './UtxosModal.scss';
 
 // TODO: display warning sign if one or several utxos are not accruing rewards
 
-const headings = ['Address', 'Value', 'Locktime', 'Rewards', 'Rewards Stop Accruing'];
+const headings = [
+  'Address',
+  'Value',
+  'Locktime',
+  'Rewards',
+  'Rewards Stop Accruing'
+];
 
 class UtxosModal extends React.Component {
   state = {
