@@ -247,13 +247,25 @@ class SendCoinButton extends React.Component {
         
         if (this.props.isClaimRewardsOnly) {
           rawtx = await ledger.createTransaction(
-            filteredUtxos, [{address: txData.outputAddress, value: txData.value}],
+            filteredUtxos,
+            [{
+              address: txData.outputAddress,
+              value: txData.value
+            }],
             this.props.coin === 'KMD'
           );
         } else {
           rawtx = await ledger.createTransaction(
             filteredUtxos, txData.change > 0 || txData.totalInterest ?
-            [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change === 0 && txData.totalInterest > 0 ? txData.change + txData.totalInterest - TX_FEE : txData.change, derivationPath}] : [{address: txData.outputAddress, value: txData.value}],
+            [{
+              address: txData.outputAddress,
+              value: txData.value
+            },
+            {
+              address: txData.changeAddress,
+              value: txData.change === 0 && txData.totalInterest > 0 ? txData.change + txData.totalInterest - TX_FEE : txData.change,
+              derivationPath
+            }] : [{address: txData.outputAddress, value: txData.value}],
             this.props.coin === 'KMD'
           );
         }
@@ -296,7 +308,10 @@ class SendCoinButton extends React.Component {
 
           this.props.handleRewardClaim(txid);
           this.setState({
-            success: <React.Fragment>Transaction ID: <TxidLink txid={txid} coin={this.props.coin} /></React.Fragment>
+            success: 
+              <React.Fragment>
+                Transaction ID: <TxidLink txid={txid} coin={this.props.coin} />
+              </React.Fragment>
           });
           setTimeout(() => {
             this.props.syncData();
@@ -329,7 +344,12 @@ class SendCoinButton extends React.Component {
       <React.Fragment>
         <button
           className={`button is-primary${this.props.className ? ' ' + this.props.className : ''}`}
-          disabled={isNoBalace || (!this.props.sendTo && !this.props.isClaimRewardsOnly) || ((!this.props.amount || Number(this.props.amount) === 0) && !this.props.isClaimRewardsOnly) || (this.props.coin === 'KMD' && this.props.account.claimableAmount < KMD_REWARDS_MIN_THRESHOLD && this.props.isClaimRewardsOnly)}
+          disabled={
+            isNoBalace ||
+            (!this.props.sendTo && !this.props.isClaimRewardsOnly) ||
+            ((!this.props.amount || Number(this.props.amount) === 0) && !this.props.isClaimRewardsOnly) ||
+            (this.props.coin === 'KMD' && this.props.account.claimableAmount < KMD_REWARDS_MIN_THRESHOLD && this.props.isClaimRewardsOnly)
+          }
           onClick={this.sendCoin}>
           {this.props.children}
         </button>
@@ -343,23 +363,38 @@ class SendCoinButton extends React.Component {
           }
           {this.state.sendTo &&
            !this.props.isClaimRewardsOnly &&
-            <p>Send <strong>{humanReadableSatoshis(this.state.amount)} {this.props.coin}</strong> to <strong>{this.state.sendTo}</strong></p>
+            <p>
+              Send <strong>{humanReadableSatoshis(this.state.amount)} {this.props.coin}</strong> to <strong>{this.state.sendTo}</strong>
+            </p>
           }
           {this.state.change > 0 &&
             this.state.isDebug &&
-            <p>Send change <strong>{humanReadableSatoshis(this.state.change)} {this.props.coin}</strong> to address: <strong>{this.state.changeTo}</strong></p>
+            <p>
+              Send change <strong>{humanReadableSatoshis(this.state.change)} {this.props.coin}</strong> to address: <strong>{this.state.changeTo}</strong>
+            </p>
           }
           {this.state.rewards > 0 &&
             <React.Fragment>
-              <p>Claim <strong>{humanReadableSatoshis(this.state.rewards - TX_FEE)} {this.props.coin}</strong> rewards to address: <strong>{this.state.changeTo}</strong>.</p>
+              <p>
+                Claim <strong>{humanReadableSatoshis(this.state.rewards - TX_FEE)} {this.props.coin}</strong> rewards to address: <strong>{this.state.changeTo}</strong>.
+              </p>
               {this.props.isClaimRewardsOnly &&
-               <p>You should receive a total of <strong>{humanReadableSatoshis(this.state.amount)} {this.props.coin}</strong>.</p>
+                <p>
+                  You should receive a total of <strong>{humanReadableSatoshis(this.state.amount)} {this.props.coin}</strong>.
+                </p>
               }
             </React.Fragment>
           }
           {this.state.isDebug &&
-            <label className="switch" onClick={this.setSkipBroadcast}>
-              <input type="checkbox" name="skipBroadcast" value={this.state.skipBroadcast} checked={this.state.skipBroadcast} readOnly />
+            <label
+              className="switch"
+              onClick={this.setSkipBroadcast}>
+              <input
+                type="checkbox"
+                name="skipBroadcast"
+                value={this.state.skipBroadcast}
+                checked={this.state.skipBroadcast}
+                readOnly />
               <span className="slider round"></span>
               <span className="slider-text">Don't broadcast transaction</span>
             </label>

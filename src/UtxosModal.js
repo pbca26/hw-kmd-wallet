@@ -38,7 +38,9 @@ class UtxosModal extends React.Component {
 
     return (
       <React.Fragment>
-        <button className="button is-primary check-utxos-btn" onClick={() => this.open()}>
+        <button
+          className="button is-primary check-utxos-btn"
+          onClick={() => this.open()}>
           Check UTXOs
         </button>
         <Modal
