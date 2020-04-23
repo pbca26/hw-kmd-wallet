@@ -120,7 +120,9 @@ class App extends React.Component {
     console.warn('checkExplorerEndpoints', getInfoRes);
     
     for (let i = 0; i < 3; i++) {
-      if (getInfoRes[i] && getInfoRes[i].hasOwnProperty('info') && getInfoRes[i].info.hasOwnProperty('version')) {
+      if (getInfoRes[i] &&
+          getInfoRes[i].hasOwnProperty('info') &&
+          getInfoRes[i].info.hasOwnProperty('version')) {
         console.warn(`set api endpoint to ${endPoint}`);
         setExplorerUrl(endPoint);
         
@@ -184,7 +186,10 @@ class App extends React.Component {
         <Header>
           <div className="navbar-brand">
             <div className="navbar-item">
-              <img src="favicon.png" className="KmdIcon" alt="Komodo logo" />
+              <img
+                src="favicon.png"
+                className="KmdIcon"
+                alt="Komodo logo" />
             </div>
             <h1 className="navbar-item">
               <strong>HW KMD {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
@@ -200,8 +205,16 @@ class App extends React.Component {
             <div className="vendor-selector">
               <h3>Choose your vendor</h3>
               <div className="vendor-selector-items">
-                <img className="vendor-ledger" src="ledger-logo.png" alt="Ledger" onClick={() => this.setVendor('ledger')} />
-                <img className="vendor-trezor" src="trezor-logo.png" alt="Trezor" onClick={() => this.setVendor('trezor')} />
+                <img
+                  className="vendor-ledger"
+                  src="ledger-logo.png"
+                  alt="Ledger"
+                  onClick={() => this.setVendor('ledger')} />
+                <img
+                  className="vendor-trezor"
+                  src="trezor-logo.png"
+                  alt="Trezor"
+                  onClick={() => this.setVendor('trezor')} />
               </div>
             </div>
           </React.Fragment>
@@ -242,7 +255,10 @@ class App extends React.Component {
           <Header>
             <div className="navbar-brand">
               <div className="navbar-item">
-                <img src="favicon.png" className="KmdIcon" alt="Komodo logo" />
+                <img
+                  src="favicon.png"
+                  className="KmdIcon"
+                  alt="Komodo logo" />
               </div>
               <h1 className="navbar-item">
                 {!this.state.vendor &&
@@ -302,7 +318,10 @@ class App extends React.Component {
                         <strong>Check Balance</strong>
                       </CheckBalanceButton>
                     }
-                    <button className="button is-light" disabled={isEqual(this.state, this.initialState)} onClick={this.resetState}>
+                    <button
+                      className="button is-light"
+                      disabled={isEqual(this.state, this.initialState)}
+                      onClick={this.resetState}>
                       Reset
                     </button>
                   </div>
@@ -328,15 +347,24 @@ class App extends React.Component {
                   }
                   <p>Also, make sure that your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} is initialized prior using <strong>KMD {this.state.coin === voteCoin ? 'Notary Elections tool' : 'wallet'}</strong>.</p>
                 </div>
-                <img className="hw-graphic" src={`${this.state.vendor}-logo.png`} alt={this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} />
+                <img
+                  className="hw-graphic"
+                  src={`${this.state.vendor}-logo.png`}
+                  alt={this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} />
                 <div className="trezor-webusb-container"></div>
                 {this.state.vendor === 'ledger' && (!this.state.ledgerDeviceType || this.state.ledgerDeviceType === 's') &&
                   <div className="ledger-device-selector">
                     <div className="ledger-device-selector-buttons">
-                      <button className="button is-light" disabled={this.state.ledgerDeviceType} onClick={() => this.updateLedgerDeviceType('s')}>
+                      <button
+                        className="button is-light"
+                        disabled={this.state.ledgerDeviceType}
+                        onClick={() => this.updateLedgerDeviceType('s')}>
                         Nano S
                       </button>
-                      <button className="button is-light" disabled={this.state.ledgerDeviceType} onClick={() => this.updateLedgerDeviceType('x')}>
+                      <button
+                        className="button is-light"
+                        disabled={this.state.ledgerDeviceType}
+                        onClick={() => this.updateLedgerDeviceType('x')}>
                         Nano X
                       </button>
                     </div>

@@ -3,16 +3,28 @@ import Modal from './Modal';
 import Boolean from './Boolean';
 import './ActionListModal.scss';
 
-const ActionListModal = ({children, actions = [], error, success, ...modalProps}) => (
+const ActionListModal = ({
+  children,
+  actions = [],
+  error,
+  success,
+  ...modalProps
+}) => (
   <div className="ActionListModal">
     <Modal isCloseable={error || success} {...modalProps}>
       {children}
       <div className="panel">
         {Object.keys(actions).map(action => {
-          const {icon, description, state} = actions[action];
+          const {
+            icon,
+            description,
+            state
+          } = actions[action];
 
           return (
-            <div key={action} className={`panel-block ${state === 'loading' ? 'is-active' : ''}`}>
+            <div
+              key={action}
+              className={`panel-block ${state === 'loading' ? 'is-active' : ''}`}>
               <span className="left-icon icon has-text-grey">
                 <i className={icon}></i>
               </span>
