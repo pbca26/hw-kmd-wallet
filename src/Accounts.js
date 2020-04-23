@@ -20,7 +20,7 @@ class Account extends React.Component {
       isClaimed: false,
       claimTxid: null,
       address: '',
-      amount: 0,
+      amount: '',
       sendTo: '',
       // debug options
       showXpub: null,
