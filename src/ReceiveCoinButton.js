@@ -78,7 +78,9 @@ class ReceiveCoinButton extends React.Component {
             <span style={{
               'padding': '10px 0',
               'display': 'block'
-            }}>This your new {this.props.coin} deposit address <strong>{unusedAddress}</strong></span>
+            }}>
+              This your new {this.props.coin} deposit address <strong>{unusedAddress}</strong>
+            </span>
           </React.Fragment>
       });
     } catch (error) {
@@ -89,11 +91,18 @@ class ReceiveCoinButton extends React.Component {
   };
 
   render() {
-    const {isExtractingNewAddress, actions, error, success} = this.state;
+    const {
+      isExtractingNewAddress,
+      actions,
+      error,
+      success
+    } = this.state;
 
     return (
       <React.Fragment>
-        <button className="button is-primary receive-btn" onClick={this.getNewAddress}>
+        <button
+          className="button is-primary receive-btn"
+          onClick={this.getNewAddress}>
           {this.props.children}
         </button>
         <ActionListModal

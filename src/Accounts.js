@@ -5,6 +5,8 @@ import ReceiveCoinButton from './ReceiveCoinButton';
 import TxidLink from './TxidLink';
 import {TX_FEE} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
+import UtxosModal from './UtxosModal';
+import ClaimRewardsButton from './ClaimRewardsButton';
 import './Accounts.scss';
 import './Account.scss';
 
@@ -18,7 +20,7 @@ class Account extends React.Component {
       isClaimed: false,
       claimTxid: null,
       address: '',
-      amount: 0,
+      amount: '',
       sendTo: '',
       // debug options
       showXpub: null,
@@ -59,7 +61,12 @@ class Account extends React.Component {
   }
 
   render() {
-    const {account, tiptime, vendor, coin} = this.props;
+    const {
+      account,
+      tiptime,
+      vendor,
+      coin
+    } = this.props;
     const {
       accountIndex,
       utxos,
@@ -71,8 +78,13 @@ class Account extends React.Component {
       xpub,
     } = account;
 
+    console.warn('account', account);
+
     const isClaimableAmount = (claimableAmount > 0);
-    const {isClaimed, claimTxid} = this.state;
+    const {
+      isClaimed,
+      claimTxid
+    } = this.state;
 
     console.warn('utxos', utxos);
     console.warn('history', history);
@@ -94,6 +106,23 @@ class Account extends React.Component {
               coin={coin}>
               Receive
             </ReceiveCoinButton>
+            {coin === 'KMD' && balance > 0 &&
+              <UtxosModal
+                utxos={utxos}
+                tiptime={tiptime} />
+            }
+            {coin === 'KMD' && claimableAmount > 0 &&
+              <ClaimRewardsButton
+                account={account}
+                handleRewardClaim={this.handleRewardClaim}
+                vendor={vendor}
+                address={this.state.address}
+                balance={balance}
+                syncData={this.props.syncData}
+                coin={coin}
+                tiptime={tiptime}
+                claimableAmount={claimableAmount} />
+            }
             {(history.historyParsed.length === 0) && (
               <React.Fragment>
                 <span style={{'padding': '10px 20px 20px 20px'}}>No history</span>
@@ -102,7 +131,9 @@ class Account extends React.Component {
             {(history.historyParsed.length > 0) && (
               <React.Fragment>
                 <h4>Transactions</h4>
-                <Transactions transactions={history.historyParsed} coin={coin} />
+                <Transactions
+                  transactions={history.historyParsed}
+                  coin={coin} />
               </React.Fragment>
             )}
             {account.addresses && account.addresses.length > 0 &&
@@ -134,8 +165,10 @@ class Account extends React.Component {
                 <strong>Warning:</strong> sending coins to a non-default address will break so called pseudo anonimity (one time address usage) and link your addresses together! This is not recommended option.
               </div>
             }
-            { balance > 0 &&
-              <div className="send-form" style={{'padding': '20px 20px 30px 20px'}}>
+            {balance > 0 &&
+              <div
+                className="send-form"
+                style={{'padding': '20px 20px 30px 20px'}}>
                 <div>
                   Amount <input
                     style={{'marginLeft': '10px'}}
@@ -147,7 +180,9 @@ class Account extends React.Component {
                     placeholder="Enter an amount"
                     autoComplete="off"
                     required />
-                  <button className="button is-light send-max" onClick={() => this.setSendToMaxAmount(balance)}>
+                  <button
+                    className="button is-light send-max"
+                    onClick={() => this.setSendToMaxAmount(balance)}>
                     Max
                   </button>
                 </div>
@@ -166,13 +201,18 @@ class Account extends React.Component {
               </div>
             }
             {this.state.isDebug &&
-              <button className="button is-primary" onClick={() => this.showXpub(accountIndex)}>
+              <button
+                className="button is-primary"
+                onClick={() => this.showXpub(accountIndex)}>
                 {this.state.showXpub >=0 && this.state.showXpub == accountIndex ? 'Hide Xpub' : 'Show Xpub'}
               </button>
             }
             {this.state.showXpub >=0 &&
              this.state.showXpub == accountIndex &&
-              <div style={{'padding': '20px', 'wordBreak': 'break-all'}}>
+              <div style={{
+                'padding': '20px',
+                'wordBreak': 'break-all'
+              }}>
                 <strong>Xpub:</strong> {xpub}
               </div>
             }
@@ -186,6 +226,7 @@ class Account extends React.Component {
                 sendTo={this.state.sendTo}
                 amount={this.state.amount}
                 syncData={this.props.syncData}
+                tiptime={tiptime}
                 coin={coin}>
                 Send
               </SendCoinButton>
@@ -197,7 +238,13 @@ class Account extends React.Component {
   }
 }
 
-const Accounts = ({accounts, tiptime, vendor, syncData, coin}) => (
+const Accounts = ({
+  accounts,
+  tiptime,
+  vendor,
+  syncData,
+  coin
+}) => (
   <div className="Accounts">
     <div className="container">
       <div className="columns is-multiline">

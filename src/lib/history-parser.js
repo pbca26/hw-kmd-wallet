@@ -1,4 +1,4 @@
-import secondsToString from './time';
+import {secondsToString} from './time';
 import {sortTransactions} from './sort';
 import compose from './compose';
 

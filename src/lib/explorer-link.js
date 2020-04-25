@@ -1,4 +1,5 @@
 const explorers = {
+  KMD: 'https://kmd.explorer.dexstats.info/',
   AXO: 'https://axo.explorer.dexstats.info/',
   ETOMIC: 'https://etomic.explorer.dexstats.info/',
   KOIN: 'https://koin.explorer.dexstats.info/',

@@ -1,8 +1,15 @@
 import React from 'react';
 import './Modal.scss';
 
-const Modal = ({children, title, show, isCloseable, handleClose}) => (
-  <div className={`Modal modal ${show ? 'is-active' : ''}`}>
+const Modal = ({
+  children,
+  title,
+  show,
+  isCloseable,
+  handleClose,
+  className
+}) => (
+  <div className={`Modal modal ${show ? 'is-active' : ''}${className ? ' ' + className : ''}`}>
     <div onClick={() => isCloseable && handleClose && handleClose()}>
       <div className="modal-background"></div>
       <button className={`modal-close is-large ${!isCloseable ? 'is-invisible' : ''}`}></button>

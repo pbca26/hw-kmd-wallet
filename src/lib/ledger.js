@@ -101,7 +101,7 @@ const getAddress = async (derivationPath, verify) => {
   }
 };
 
-const createTransaction = async function(utxos, outputs) {
+const createTransaction = async function(utxos, outputs, isKMD) {
   if (vendor === 'ledger') {
     const ledger = await getDevice();
 
@@ -124,7 +124,7 @@ const createTransaction = async function(utxos, outputs) {
     const changePath = outputs.length === 2 ? outputs[1].derivationPath : undefined;
     const outputScript = buildOutputScript(outputs);
     const unixtime = Math.floor(Date.now() / 1000);
-    const lockTime = 0;
+    const lockTime = isKMD ? (unixtime - 777) : 0;
     const sigHashType = undefined;
     const segwit = undefined;
     const initialTimestamp = undefined;
@@ -160,7 +160,7 @@ const createTransaction = async function(utxos, outputs) {
       refTxs: [],
     };
 
-    tx.locktime = 0;
+    tx.locktime = isKMD ? Math.floor(Date.now() / 1000) - 777 : 0;
 
     for (let i = 0; i < utxos.length; i++) {
       const derivationPathPartials = utxos[i].derivationPath.replace(/'/g, '').split('/');

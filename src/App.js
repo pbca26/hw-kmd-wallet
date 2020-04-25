@@ -14,11 +14,12 @@ import './App.scss';
 import TrezorConnect from 'trezor-connect';
 import ledger from './lib/ledger';
 import {getLocalStorageVar, setLocalStorageVar} from './localstorage-util';
-import {LEDGER_FW_VERSIONS, voteCoin, testCoins} from './constants';
+import {INSIGHT_API_URL, LEDGER_FW_VERSIONS, voteCoin, testCoins, TX_FEE} from './constants';
 import {setExplorerUrl, getInfo} from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
 import apiEndpoints from './lib/insight-endpoints';
+import getKomodoRewards from './lib/get-komodo-rewards';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
 
@@ -34,7 +35,7 @@ class App extends React.Component {
       isFirstRun: true,
       ledgerDeviceType: null,
       ledgerFWVersion: 'default',
-      coin: 'RICK',
+      coin: 'KMD',
       theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
   }
@@ -89,7 +90,7 @@ class App extends React.Component {
 
   updateLedgerDeviceType(type) {
     this.setState({
-      'ledgerDeviceType': type,
+      ledgerDeviceType: type,
     });
   }
 
@@ -119,7 +120,9 @@ class App extends React.Component {
     console.warn('checkExplorerEndpoints', getInfoRes);
     
     for (let i = 0; i < 3; i++) {
-      if (getInfoRes[i] && getInfoRes[i].hasOwnProperty('info') && getInfoRes[i].info.hasOwnProperty('version')) {
+      if (getInfoRes[i] &&
+          getInfoRes[i].hasOwnProperty('info') &&
+          getInfoRes[i].info.hasOwnProperty('version')) {
         console.warn(`set api endpoint to ${endPoint}`);
         setExplorerUrl(endPoint);
         
@@ -149,7 +152,9 @@ class App extends React.Component {
 
       accounts.map(account => {
         account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
-    
+        account.rewards = account.utxos.reduce((rewards, utxo) => rewards + getKomodoRewards({tiptime, ...utxo}), 0);
+        account.claimableAmount = account.rewards - TX_FEE;
+
         return account;
       });
 
@@ -181,7 +186,10 @@ class App extends React.Component {
         <Header>
           <div className="navbar-brand">
             <div className="navbar-item">
-              <img src="favicon.png" className="KmdIcon" alt="Komodo logo" />
+              <img
+                src="favicon.png"
+                className="KmdIcon"
+                alt="Komodo logo" />
             </div>
             <h1 className="navbar-item">
               <strong>HW KMD {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
@@ -197,8 +205,16 @@ class App extends React.Component {
             <div className="vendor-selector">
               <h3>Choose your vendor</h3>
               <div className="vendor-selector-items">
-                <img className="vendor-ledger" src="ledger-logo.png" alt="Ledger" onClick={() => this.setVendor('ledger')} />
-                <img className="vendor-trezor" src="trezor-logo.png" alt="Trezor" onClick={() => this.setVendor('trezor')} />
+                <img
+                  className="vendor-ledger"
+                  src="ledger-logo.png"
+                  alt="Ledger"
+                  onClick={() => this.setVendor('ledger')} />
+                <img
+                  className="vendor-trezor"
+                  src="trezor-logo.png"
+                  alt="Trezor"
+                  onClick={() => this.setVendor('trezor')} />
               </div>
             </div>
           </React.Fragment>
@@ -219,11 +235,11 @@ class App extends React.Component {
           <div className="theme-selector">
             Theme
             <div
-              onClick={ () => this.setTheme('tdark') }
-              className={ 'item black' + (this.state.theme === 'tdark' ? ' active' : '') }></div>
+              onClick={() => this.setTheme('tdark')}
+              className={'item black' + (this.state.theme === 'tdark' ? ' active' : '')}></div>
             <div
-              onClick={ () => this.setTheme('tlight') }
-              className={ 'item light' + (this.state.theme === 'tlight' ? ' active' : '') }></div>
+              onClick={() => this.setTheme('tlight') }
+              className={'item light' + (this.state.theme === 'tlight' ? ' active' : '')}></div>
           </div>
         </Footer>
       </div>
@@ -239,7 +255,10 @@ class App extends React.Component {
           <Header>
             <div className="navbar-brand">
               <div className="navbar-item">
-                <img src="favicon.png" className="KmdIcon" alt="Komodo logo" />
+                <img
+                  src="favicon.png"
+                  className="KmdIcon"
+                  alt="Komodo logo" />
               </div>
               <h1 className="navbar-item">
                 {!this.state.vendor &&
@@ -279,7 +298,7 @@ class App extends React.Component {
                       className="coin-selector"
                       name="coin"
                       value={this.state.coin}
-                      onChange={ (event) => this.updateCoin(event) }>
+                      onChange={(event) => this.updateCoin(event)}>
                       <option
                         key="coins-none"
                         value=""
@@ -299,7 +318,10 @@ class App extends React.Component {
                         <strong>Check Balance</strong>
                       </CheckBalanceButton>
                     }
-                    <button className="button is-light" disabled={isEqual(this.state, this.initialState)} onClick={this.resetState}>
+                    <button
+                      className="button is-light"
+                      disabled={isEqual(this.state, this.initialState)}
+                      onClick={this.resetState}>
                       Reset
                     </button>
                   </div>
@@ -325,15 +347,24 @@ class App extends React.Component {
                   }
                   <p>Also, make sure that your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} is initialized prior using <strong>KMD {this.state.coin === voteCoin ? 'Notary Elections tool' : 'wallet'}</strong>.</p>
                 </div>
-                <img className="hw-graphic" src={`${this.state.vendor}-logo.png`} alt={this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} />
+                <img
+                  className="hw-graphic"
+                  src={`${this.state.vendor}-logo.png`}
+                  alt={this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} />
                 <div className="trezor-webusb-container"></div>
                 {this.state.vendor === 'ledger' && (!this.state.ledgerDeviceType || this.state.ledgerDeviceType === 's') &&
                   <div className="ledger-device-selector">
                     <div className="ledger-device-selector-buttons">
-                      <button className="button is-light" disabled={this.state.ledgerDeviceType} onClick={() => this.updateLedgerDeviceType('s')}>
+                      <button
+                        className="button is-light"
+                        disabled={this.state.ledgerDeviceType}
+                        onClick={() => this.updateLedgerDeviceType('s')}>
                         Nano S
                       </button>
-                      <button className="button is-light" disabled={this.state.ledgerDeviceType} onClick={() => this.updateLedgerDeviceType('x')}>
+                      <button
+                        className="button is-light"
+                        disabled={this.state.ledgerDeviceType}
+                        onClick={() => this.updateLedgerDeviceType('x')}>
                         Nano X
                       </button>
                     </div>
@@ -344,7 +375,7 @@ class App extends React.Component {
                           className="ledger-fw-selector"
                           name="ledgerFWVersion"
                           value={this.state.ledgerFWVersion}
-                          onChange={ (event) => this.updateLedgerFWVersion(event) }>
+                          onChange={(event) => this.updateLedgerFWVersion(event)}>
                           {Object.keys(LEDGER_FW_VERSIONS).map((val, index) => (
                             <option
                               key={`ledger-fw-selector-${val}`}
@@ -373,11 +404,11 @@ class App extends React.Component {
             <div className="theme-selector">
               Theme
               <div
-                onClick={ () => this.setTheme('tdark') }
-                className={ 'item black' + (this.state.theme === 'tdark' ? ' active' : '') }></div>
+                onClick={() => this.setTheme('tdark')}
+                className={'item black' + (this.state.theme === 'tdark' ? ' active' : '')}></div>
               <div
-                onClick={ () => this.setTheme('tlight') }
-                className={ 'item light' + (this.state.theme === 'tlight' ? ' active' : '') }></div>
+                onClick={() => this.setTheme('tlight') }
+                className={'item light' + (this.state.theme === 'tlight' ? ' active' : '')}></div>
             </div>
           </Footer>
         </div>

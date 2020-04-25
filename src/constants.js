@@ -15,3 +15,4 @@ export const LEDGER_FW_VERSIONS = {
   default: 'Nano S firmware v1.5',
   webusb: 'Nano S firmware v1.6', // nano s fw > 1.6 
 };
+export const KMD_REWARDS_MIN_THRESHOLD = TX_FEE * 2;

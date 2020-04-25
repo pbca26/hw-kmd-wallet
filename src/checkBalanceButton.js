@@ -91,11 +91,16 @@ class CheckBalanceButton extends React.Component {
   };
 
   render() {
-    const {isCheckingRewards, actions, error} = this.state;
+    const {
+      isCheckingRewards,
+      actions, error
+    } = this.state;
 
     return (
       <React.Fragment>
-        <button className="button is-primary" onClick={this.scanAddresses}>
+        <button
+          className="button is-primary"
+          onClick={this.scanAddresses}>
           {this.props.children}
         </button>
         <ActionListModal

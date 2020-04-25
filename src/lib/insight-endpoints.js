@@ -2,6 +2,10 @@
 import {sortObject} from './sort';
 
 const apiEndpoints = {
+  KMD: [
+    'https://explorer.komodoplatform.com:10000/kmd/api/',
+    'https://kmd.explorer.dexstats.info/insight-api-komodo/'
+  ],
   AXO: ['https://axo.explorer.dexstats.info/insight-api-komodo/'],
   ETOMIC: ['https://etomic.explorer.dexstats.info/insight-api-komodo/'],
   KOIN: ['https://koin.explorer.dexstats.info/insight-api-komodo/'],
@@ -38,9 +42,18 @@ const apiEndpoints = {
   RFOX: ['https://rfox.explorer.dexstats.info/insight-api-komodo/'],
   LABS: ['https://labs.explorer.dexstats.info/insight-api-komodo/'],
   VOTE2020: ['https://vote2020.explorer.dexstats.info/insight-api-komodo/'],
-  RICK: ['https://rick.kmd.dev/insight-api-komodo/', 'https://rick.explorer.dexstats.info/insight-api-komodo/'],
-  MORTY: ['https://morty.kmd.dev/insight-api-komodo/', 'https://morty.explorer.dexstats.info/insight-api-komodo/'],
-  VRSC: ['https://explorer.komodoplatform.com:10000/vrsc/api/', 'https://vrsc.explorer.dexstats.info/insight-api-komodo/']
+  RICK: [
+    'https://rick.kmd.dev/insight-api-komodo/',
+    'https://rick.explorer.dexstats.info/insight-api-komodo/'
+  ],
+  MORTY: [
+    'https://morty.kmd.dev/insight-api-komodo/',
+    'https://morty.explorer.dexstats.info/insight-api-komodo/'
+  ],
+  VRSC: [
+    'https://explorer.komodoplatform.com:10000/vrsc/api/',
+    'https://vrsc.explorer.dexstats.info/insight-api-komodo/'
+  ]
   // EQL: [],
   // DP: [],
   // PIZZA: [],

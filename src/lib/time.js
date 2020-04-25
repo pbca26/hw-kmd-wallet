@@ -1,5 +1,4 @@
 // ref: https://github.com/pbca26/agama-wallet-lib/blob/master/src/time.js#L1
-
 const secondsToString = (seconds, skipMultiply, showSeconds) => {
   const a = new Date(seconds * (skipMultiply ? 1 : 1000));
   const months = [
@@ -27,4 +26,14 @@ const secondsToString = (seconds, skipMultiply, showSeconds) => {
   return time;
 };
 
-module.exports = secondsToString;
+// ref: https://github.com/pbca26/agama-wallet-lib/blob/master/src/time.js#L28
+const checkTimestamp = (dateToCheck, currentEpochTime = Date.now() / 1000) => {
+  const secondsElapsed = Number(currentEpochTime) - Number(dateToCheck / 1000);
+
+  return Math.floor(secondsElapsed);
+};
+
+module.exports = {
+  secondsToString,
+  checkTimestamp
+};
