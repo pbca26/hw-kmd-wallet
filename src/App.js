@@ -220,8 +220,8 @@ class App extends React.Component {
           </React.Fragment>
         </section>
 
-        {/*<WarnU2fCompatibility />
-        <WarnBrowser />*/}
+        <WarnU2fCompatibility />
+        <WarnBrowser />
 
         <Footer>
           <p>
