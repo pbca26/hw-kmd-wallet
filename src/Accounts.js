@@ -144,7 +144,7 @@ class Account extends React.Component {
                   className="account-index-selector"
                   name="address"
                   value={this.state.address}
-                  onChange={ (event) => this.updateInput(event) }>
+                  onChange={(event) => this.updateInput(event)}>
                   <option
                     key="rewards-output-address-default"
                     value="">
@@ -175,8 +175,8 @@ class Account extends React.Component {
                     type="text"
                     className="form-control edit"
                     name="amount"
-                    onChange={ this.updateInput }
-                    value={ this.state.amount }
+                    onChange={this.updateInput}
+                    value={this.state.amount}
                     placeholder="Enter an amount"
                     autoComplete="off"
                     required />
@@ -192,8 +192,8 @@ class Account extends React.Component {
                     type="text"
                     className="form-control edit"
                     name="sendTo"
-                    onChange={ this.updateInput }
-                    value={ this.state.sendTo }
+                    onChange={this.updateInput}
+                    value={this.state.sendTo}
                     placeholder="Enter an address"
                     autoComplete="off"
                     required />
@@ -216,7 +216,7 @@ class Account extends React.Component {
                 <strong>Xpub:</strong> {xpub}
               </div>
             }
-            { balance > 0 &&
+            {balance > 0 &&
               <SendCoinButton
                 account={account}
                 handleRewardClaim={this.handleRewardClaim}
