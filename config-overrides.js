@@ -1,6 +1,6 @@
 const hotLoader = require('react-app-rewire-hot-loader');
 const rewireSass = require('react-app-rewire-scss');
-const { paths } = require('react-app-rewired');
+const {paths} = require('react-app-rewired');
 const path = require('path');
 
 module.exports = {

@@ -67,7 +67,7 @@ class App extends React.Component {
     }
 
     if (!getLocalStorageVar('settings')) {
-      setLocalStorageVar('settings', { theme: 'tdark' });
+      setLocalStorageVar('settings', {theme: 'tdark'});
       document.getElementById('body').className = 'tdark';
     } else {
       document.getElementById('body').className = getLocalStorageVar('settings').theme;
@@ -174,7 +174,7 @@ class App extends React.Component {
 
   setTheme(name) {
     document.getElementById('body').className = name;
-    setLocalStorageVar('settings', { theme: name });
+    setLocalStorageVar('settings', {theme: name});
     this.setState({
       theme: name,
     });
@@ -273,7 +273,7 @@ class App extends React.Component {
                     className="explorer-selector"
                     name="explorerEndpoint"
                     value={this.state.explorerEndpoint}
-                    onChange={ (event) => this.updateExplorerEndpoint(event) }>
+                    onChange={(event) => this.updateExplorerEndpoint(event)}>
                     <option
                       key="explorer-selector-disabled"
                       disabled>
