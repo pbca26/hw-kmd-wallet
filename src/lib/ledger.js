@@ -124,7 +124,7 @@ const createTransaction = async function(utxos, outputs, isKMD) {
     const changePath = outputs.length === 2 ? outputs[1].derivationPath : undefined;
     const outputScript = buildOutputScript(outputs);
     const unixtime = Math.floor(Date.now() / 1000);
-    const lockTime = isKMD ? (unixtime - 777) : 0;
+    const lockTime = isKMD ? unixtime - 777 : 0;
     const sigHashType = undefined;
     const segwit = undefined;
     const initialTimestamp = undefined;
