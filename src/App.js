@@ -92,6 +92,8 @@ class App extends React.Component {
     this.setState({
       ledgerDeviceType: type,
     });
+
+    if (type === 'x') ledger.setLedgerFWVersion('webusb');
   }
 
   updateLedgerFWVersion(e) {
