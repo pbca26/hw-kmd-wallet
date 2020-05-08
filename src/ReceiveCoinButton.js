@@ -4,7 +4,7 @@ import ledger from './lib/ledger';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
-import {TX_FEE} from './constants';
+import {TX_FEE, FAUCET_URL} from './constants';
 import ActionListModal from './ActionListModal';
 import getAddress from './lib/get-address';
 
@@ -80,6 +80,19 @@ class ReceiveCoinButton extends React.Component {
               'display': 'block'
             }}>
               This your new {this.props.coin} deposit address <strong>{unusedAddress}</strong>
+            {FAUCET_URL[this.props.coin] &&
+              <span style={{
+                'padding': '15px 0 0',
+                'display': 'block'
+              }}>
+                <strong>
+                  <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`${FAUCET_URL[this.props.coin]}${unusedAddress}`}>Get funds from a faucet</a>
+                </strong>
+              </span>
+            }
             </span>
           </React.Fragment>
       });
@@ -119,7 +132,6 @@ class ReceiveCoinButton extends React.Component {
       </React.Fragment>
     );
   }
-
 }
 
 export default ReceiveCoinButton;
