@@ -16,3 +16,7 @@ export const LEDGER_FW_VERSIONS = {
   webusb: 'Nano S firmware v1.6', // nano s fw > 1.6 
 };
 export const KMD_REWARDS_MIN_THRESHOLD = TX_FEE * 2;
+export const FAUCET_URL = {
+  RICK: 'https://www.atomicexplorer.com/#/faucet/rick/',
+  MORTY: 'https://www.atomicexplorer.com/#/faucet/morty/',
+};
