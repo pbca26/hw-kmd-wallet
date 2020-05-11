@@ -1,6 +1,6 @@
 {
   "name": "hw-kmd-wallet",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "Luke Childs <lukechilds123@gmail.com> (http://lukechilds.co.uk), Komodo Platform (https://komodoplatform.com)",
   "repository": "pbca26/hw-kmd-wallet",
   "homepage": "https://pbca26.github.io/hw-kmd-wallet",
@@ -41,7 +41,7 @@
     "react-dom": "^16.6.3",
     "satoshi-bitcoin": "^1.0.4",
     "scientific-to-decimal": "^1.1.1",
-    "trezor-connect": "^7.0.5",
+    "trezor-connect": "^8.1.3",
     "u2f-api": "^1.0.9"
   },
   "devDependencies": {
