@@ -9,6 +9,10 @@
   flex-direction: column;
   min-width: 600px;
 
+  .col-warning {
+    color: #ffc107;
+  }
+
   .main {
     flex: 1;
     padding-top: 5.4em;

@@ -80,6 +80,7 @@ class App extends React.Component {
     this.setState({
       accounts: [],
       tiptime: null,
+      explorerEndpoint: null,
       [e.target.name]: e.target.value,
     });
 
@@ -114,10 +115,10 @@ class App extends React.Component {
 
   checkExplorerEndpoints = async () => {
     const endPoint = apiEndpoints[this.state.coin][0];
-
     const getInfoRes = await Promise.all([
       getInfo(endPoint),
     ]);
+    let isExplorerEndpointSet = false;
 
     console.warn('checkExplorerEndpoints', getInfoRes);
     
@@ -127,6 +128,7 @@ class App extends React.Component {
           getInfoRes[i].info.hasOwnProperty('version')) {
         console.warn(`set api endpoint to ${endPoint}`);
         setExplorerUrl(endPoint);
+        isExplorerEndpointSet = true;
         
         this.setState({
           explorerEndpoint: endPoint,
@@ -134,6 +136,12 @@ class App extends React.Component {
 
         break;
       }
+    }
+
+    if (!isExplorerEndpointSet) {
+      this.setState({
+        explorerEndpoint: false,
+      });
     }
   };
 
@@ -316,6 +324,7 @@ class App extends React.Component {
                       ))}
                     </select>
                     {(this.state.vendor === 'trezor' || (this.state.vendor === 'ledger' && this.state.ledgerDeviceType)) &&
+                     this.state.explorerEndpoint &&
                       <CheckBalanceButton handleRewardData={this.handleRewardData} vendor={this.state.vendor}>
                         <strong>Check Balance</strong>
                       </CheckBalanceButton>
@@ -348,6 +357,11 @@ class App extends React.Component {
                     <p>Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the "Check Balance" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.</p>
                   }
                   <p>Also, make sure that your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} is initialized prior using <strong>KMD {this.state.coin === voteCoin ? 'Notary Elections tool' : 'wallet'}</strong>.</p>
+                  {this.state.explorerEndpoint === false &&
+                    <p className="text-center" style={{'paddingTop': '20px'}}>
+                      <strong className="col-warning">Unable to connect to API endpoint.<br />Please retry later.</strong>
+                    </p>
+                  }
                 </div>
                 <img
                   className="hw-graphic"
