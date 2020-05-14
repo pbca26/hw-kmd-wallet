@@ -1,5 +1,7 @@
 # Hardware Komodo wallet
 
+[![](/screenshot.png)](https://pbca26.github.io/hw-kmd-wallet/)
+
 ## Usage
 
 - Make sure the KMD app and firmware on your Ledger are up to date.
