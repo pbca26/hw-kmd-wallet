@@ -33,12 +33,7 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
     throw new Error('Wrong fee');
   }*/
 
-  const btcFee = fee.hasOwnProperty('perByte') ? fee.value : null; // TODO: coin non specific switch static/dynamic fee
   const inputValue = value;
-
-  if (btcFee) {
-    fee = 0;
-  }
 
   if (utxoList &&
       utxoList.length &&
@@ -93,10 +88,6 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
     let inputs = firstRun.inputs;
     let outputs = firstRun.outputs;
 
-    if (btcFee) {
-      fee = firstRun.fee;
-    }
-
     if (!outputs) {
       targets[0].value = targets[0].value - fee;
 
@@ -113,13 +104,8 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
       _change = outputs[1].value - fee;
     }
 
-    if (!btcFee &&
-        _change === 0) {
+    if (_change === 0) {
       outputs[0].value = outputs[0].value - fee;
-    }
-
-    if (btcFee) {
-      value = outputs[0].value;
     } else if (_change >= 0) {
       value = outputs[0].value - fee;
     }
