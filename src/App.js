@@ -20,6 +20,7 @@ import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
 import apiEndpoints from './lib/insight-endpoints';
 import getKomodoRewards from './lib/get-komodo-rewards';
+import {osName} from 'react-device-detect';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
 
@@ -94,7 +95,7 @@ class App extends React.Component {
       ledgerDeviceType: type,
     });
 
-    if (type === 'x') ledger.setLedgerFWVersion('webusb');
+    if (type === 'x' && osName !== 'Windows') ledger.setLedgerFWVersion('webusb');
   }
 
   updateLedgerFWVersion(e) {
