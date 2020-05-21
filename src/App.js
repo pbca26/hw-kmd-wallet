@@ -13,9 +13,21 @@ import {repository} from '../package.json';
 import './App.scss';
 import TrezorConnect from 'trezor-connect';
 import ledger from './lib/ledger';
-import {getLocalStorageVar, setLocalStorageVar} from './localstorage-util';
-import {INSIGHT_API_URL, LEDGER_FW_VERSIONS, voteCoin, testCoins, TX_FEE} from './constants';
-import {setExplorerUrl, getInfo} from './lib/blockchain';
+import {
+  getLocalStorageVar,
+  setLocalStorageVar,
+} from './localstorage-util';
+import {
+  INSIGHT_API_URL,
+  LEDGER_FW_VERSIONS,
+  voteCoin,
+  testCoins,
+  TX_FEE,
+} from './constants';
+import {
+  setExplorerUrl,
+  getInfo,
+} from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
 import apiEndpoints from './lib/insight-endpoints';

@@ -25,7 +25,7 @@ class WarnBrowser extends React.Component {
         handleClose={() => this.close()}
         isCloseable={true}>
         <p>You are using an unsupported browser.</p>
-        <p>For better compatibility please use Chrome.</p>
+        <p>For better compatibility please use Chrome, Brave or Chromium.</p>
       </Modal>
     );
   }
