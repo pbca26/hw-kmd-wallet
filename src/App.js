@@ -8,6 +8,7 @@ import CheckBalanceButton from './CheckBalanceButton';
 import Accounts from './Accounts';
 import WarnU2fCompatibility from './WarnU2fCompatibility';
 import WarnBrowser from './WarnBrowser';
+import ConnectionError from './ConnectionError';
 import Footer from './Footer';
 import {repository} from '../package.json';
 import './App.scss';
@@ -358,6 +359,10 @@ class App extends React.Component {
             <BetaWarning />
           }
 
+          {this.state.explorerEndpoint === false &&
+            <ConnectionError />
+          }
+
           <section className={`main${testCoins.indexOf(this.state.coin) === -1 ? ' beta-warning-fix' : ''}`}>
             {this.state.accounts.length === 0 ? (
               <React.Fragment>
@@ -370,11 +375,6 @@ class App extends React.Component {
                     <p>Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the "Check Balance" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.</p>
                   }
                   <p>Also, make sure that your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} is initialized prior using <strong>KMD {this.state.coin === voteCoin ? 'Notary Elections tool' : 'wallet'}</strong>.</p>
-                  {this.state.explorerEndpoint === false &&
-                    <p className="text-center" style={{'paddingTop': '20px'}}>
-                      <strong className="col-warning">Unable to connect to API endpoint.<br />Please retry later.</strong>
-                    </p>
-                  }
                 </div>
                 <img
                   className="hw-graphic"

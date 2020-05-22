@@ -1,0 +1,22 @@
+.Connection-error {
+  box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+  top: 52px !important;
+  min-height: 2rem !important;
+  text-align: center;
+  border-top: solid 1px #1A2939;
+  z-index: 20 !important;
+
+  .container {
+    min-height: 2rem !important;
+  
+    span {
+      margin: 0 auto;
+      position: relative;
+      top: 4px;
+
+      strong {
+        color: #ff5757;
+      }
+    }
+  }
+}
