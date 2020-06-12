@@ -24,7 +24,7 @@
   ],
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.6.0",
-    "@ledgerhq/hw-app-btc": "^4.77.0",
+    "@ledgerhq/hw-app-btc": "^5.16.0",
     "@ledgerhq/hw-transport-u2f": "^4.77.0",
     "@ledgerhq/hw-transport-webusb": "^4.77.0",
     "babel-polyfill": "^6.26.0",
