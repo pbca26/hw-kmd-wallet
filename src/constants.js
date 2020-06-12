@@ -5,6 +5,13 @@ export const KOMODO = {
     public: 0x0488B21E,
     private: 0x0488ADE4
   },
+  consensusBranchId: {
+    1: 0x00,
+    2: 0x00,
+    3: 0x5ba81b19,
+    4: 0x76b809bb,
+  },
+  versionGroupId: 0x892F2085,
   pubKeyHash: 0x3C,
   scriptHash: 0x55,
   wif: 0xBC
