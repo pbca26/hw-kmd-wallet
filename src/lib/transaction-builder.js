@@ -84,7 +84,7 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
     // default coin selection algo blackjack with fallback to accumulative
     // make a first run, calc approx tx fee
     // if ins and outs are empty reduce max spend by txfee
-    const firstRun = coinselect(utxoListFormatted, targets, btcFee || 0);
+    const firstRun = coinselect(utxoListFormatted, targets, 0);
     let inputs = firstRun.inputs;
     let outputs = firstRun.outputs;
 
