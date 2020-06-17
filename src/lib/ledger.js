@@ -211,7 +211,7 @@ const createTransaction = async function(utxos, outputs, isKMD) {
         bin_outputs: [],
         version: uniqueInputs[i].version,
         lock_time: uniqueInputs[i].locktime,
-        version_group_id: KOMODO.versionGroupId,
+        version_group_id: uniqueInputs[i].nVersionGroupId,
         branch_id: KOMODO.consensusBranchId[uniqueInputs[i].version],
         extra_data: '0000000000000000000000',
       });

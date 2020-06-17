@@ -93,7 +93,8 @@ const getAddressUtxos = async addresses => {
         locktime,
         vin,
         vout,
-        version
+        version,
+        nVersionGroupId
       }
     ] = await Promise.all([
       blockchain.getRawTransaction(utxo.txid),
@@ -108,7 +109,8 @@ const getAddressUtxos = async addresses => {
       rawtx,
       inputs: vin,
       outputs: vout,
-      version
+      version,
+      nVersionGroupId
     };
   }));
 };
@@ -201,6 +203,8 @@ const accountDiscovery = async () => {
     accounts.push(account);
     accountIndex++;
   }
+
+  console.warn('accounts', accounts);
 
   return accounts;
 };
