@@ -213,13 +213,15 @@ const createTransaction = async function(utxos, outputs, isKMD) {
         lock_time: uniqueInputs[i].locktime,
         version_group_id: uniqueInputs[i].nVersionGroupId,
         branch_id: KOMODO.consensusBranchId[uniqueInputs[i].version],
+        // how to get extra_data https://github.com/trezor/trezor-utxo-lib/blob/trezor/src/transaction.js#L1200
         extra_data: '0000000000000000000000',
+        expiry: uniqueInputs[i].nExpiryHeight || 0,
       });
 
       for (let j = 0; j < uniqueInputs[i].inputs.length; j++) {
         tx.refTxs[i].inputs.push({
           prev_hash: uniqueInputs[i].inputs[j].txid,
-          prev_index: uniqueInputs[i].inputs[j].n,
+          prev_index: uniqueInputs[i].inputs[j].vout,
           script_sig: uniqueInputs[i].inputs[j].scriptSig.hex,
           sequence: uniqueInputs[i].inputs[j].sequence,
         });

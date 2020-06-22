@@ -94,7 +94,8 @@ const getAddressUtxos = async addresses => {
         vin,
         vout,
         version,
-        nVersionGroupId
+        nVersionGroupId,
+        nExpiryHeight,
       }
     ] = await Promise.all([
       blockchain.getRawTransaction(utxo.txid),
@@ -110,7 +111,8 @@ const getAddressUtxos = async addresses => {
       inputs: vin,
       outputs: vout,
       version,
-      nVersionGroupId
+      nVersionGroupId,
+      nExpiryHeight,
     };
   }));
 };
