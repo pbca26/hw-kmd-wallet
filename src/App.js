@@ -374,6 +374,9 @@ class App extends React.Component {
                     <p>Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the "Check Balance" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.</p>
                   }
                   <p>Also, make sure that your {this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} is initialized prior using <strong>KMD {this.state.coin === voteCoin ? 'Notary Elections tool' : 'wallet'}</strong>.</p>
+                  {this.state.vendor === 'ledger' &&
+                    <p>Have trouble accessing your Ledger device? Read here about <a target="_blank" rel="noopener noreferrer" href="https://github.com/pbca26/hw-kmd-reward-claim/wiki/First-time-using-Ledger-Nano-S-(firmware-v1.6)---Nano-X">first time use</a>.</p>
+                  }
                 </div>
                 <img
                   className="hw-graphic"
