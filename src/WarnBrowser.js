@@ -1,14 +1,24 @@
 import React from 'react';
-import {isChrome} from 'react-device-detect';
+import {
+  isChrome,
+  isOpera,
+  isFirefox,
+} from 'react-device-detect';
 import Modal from './Modal';
 
 class WarnBrowser extends React.Component {
   state = {
-    isChrome: false
+    isChrome: false,
+    isOpera: false,
+    isFirefox,
   };
 
   componentDidMount() {
-    this.setState({isChrome,});
+    this.setState({
+      isChrome,
+      isOpera,
+      isFirefox,
+    });
   }
 
   close() {
@@ -21,7 +31,11 @@ class WarnBrowser extends React.Component {
     return (
       <Modal
         title="Warning: This Browser Is Not Supported"
-        show={this.state.isChrome === false}
+        show={
+          this.state.isChrome === false ||
+          this.state.isOpera === true ||
+          this.state.isFirefox === true
+        }
         handleClose={() => this.close()}
         isCloseable={true}>
         <p>You are using an unsupported browser.</p>
