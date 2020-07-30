@@ -106,12 +106,14 @@ class Account extends React.Component {
               coin={coin}>
               Receive
             </ReceiveCoinButton>
-            {coin === 'KMD' && balance > 0 &&
+            {coin === 'KMD' &&
+             balance > 0 &&
               <UtxosModal
                 utxos={utxos}
                 tiptime={tiptime} />
             }
-            {coin === 'KMD' && claimableAmount > 0 &&
+            {coin === 'KMD' &&
+             claimableAmount > 0 &&
               <ClaimRewardsButton
                 account={account}
                 handleRewardClaim={this.handleRewardClaim}
@@ -136,7 +138,8 @@ class Account extends React.Component {
                   coin={coin} />
               </React.Fragment>
             )}
-            {account.addresses && account.addresses.length > 0 &&
+            {account.addresses &&
+             account.addresses.length > 0 &&
               <div style={this.state.address ? {'padding': '10px 20px 20px 20px'} : {'padding': '10px 20px 30px 20px'}}>
                 Send change to
                 <select
