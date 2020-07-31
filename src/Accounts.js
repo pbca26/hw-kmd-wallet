@@ -2,7 +2,6 @@ import React from 'react';
 import Transactions from './Transactions';
 import SendCoinButton from './SendCoinButton';
 import ReceiveCoinButton from './ReceiveCoinButton';
-import TxidLink from './TxidLink';
 import {TX_FEE} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import UtxosModal from './UtxosModal';
@@ -72,19 +71,13 @@ class Account extends React.Component {
       utxos,
       history,
       balance,
-      rewards,
       claimableAmount,
-      serviceFee,
       xpub,
     } = account;
 
     console.warn('account', account);
 
-    const isClaimableAmount = (claimableAmount > 0);
-    const {
-      isClaimed,
-      claimTxid
-    } = this.state;
+    const {isClaimed} = this.state;
 
     console.warn('utxos', utxos);
     console.warn('history', history);
@@ -204,11 +197,11 @@ class Account extends React.Component {
               <button
                 className="button is-primary"
                 onClick={() => this.showXpub(accountIndex)}>
-                {this.state.showXpub >=0 && this.state.showXpub == accountIndex ? 'Hide Xpub' : 'Show Xpub'}
+                {this.state.showXpub >=0 && this.state.showXpub === accountIndex ? 'Hide Xpub' : 'Show Xpub'}
               </button>
             }
             {this.state.showXpub >=0 &&
-             this.state.showXpub == accountIndex &&
+             this.state.showXpub === accountIndex &&
               <div style={{
                 'padding': '20px',
                 'wordBreak': 'break-all'

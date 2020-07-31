@@ -19,7 +19,6 @@ import {
   setLocalStorageVar,
 } from './localstorage-util';
 import {
-  INSIGHT_API_URL,
   LEDGER_FW_VERSIONS,
   voteCoin,
   testCoins,

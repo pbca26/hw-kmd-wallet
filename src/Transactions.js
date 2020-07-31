@@ -1,5 +1,4 @@
 import React from 'react';
-import Boolean from './Boolean';
 import explorerLink from './lib/explorer-link';
 
 const headings = [
