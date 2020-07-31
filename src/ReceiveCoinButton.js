@@ -1,8 +1,5 @@
 import React from 'react';
-import getKomodoRewards from './lib/get-komodo-rewards';
 import ledger from './lib/ledger';
-import accountDiscovery from './lib/account-discovery';
-import blockchain from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
 import {
   TX_FEE,
@@ -91,9 +88,9 @@ class ReceiveCoinButton extends React.Component {
               }}>
                 <strong>
                   <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={`${FAUCET_URL[this.props.coin]}${unusedAddress}`}>Get funds from a faucet</a>
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`${FAUCET_URL[this.props.coin]}${unusedAddress}`}>Get funds from a faucet</a>
                 </strong>
               </span>
             }

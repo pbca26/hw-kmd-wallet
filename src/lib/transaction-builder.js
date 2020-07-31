@@ -1,5 +1,5 @@
 const coinselect = require('coinselect');
-const checkPublicAddress = require('./validate-address');
+//const checkPublicAddress = require('./validate-address');
 const {maxSpendBalance} = require('./math');
 
 // TODO: refactor
@@ -42,7 +42,6 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
     const utxoListFormatted = [];
     const interestClaimThreshold = 200;
     let totalInterest = 0;
-    let totalInterestUTXOCount = 0;
     let utxoVerified = true;
 
     for (let i = 0; i < utxoList.length; i++) {
@@ -84,7 +83,7 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
     // default coin selection algo blackjack with fallback to accumulative
     // make a first run, calc approx tx fee
     // if ins and outs are empty reduce max spend by txfee
-    const firstRun = coinselect(utxoListFormatted, targets, btcFee || 0);
+    const firstRun = coinselect(utxoListFormatted, targets, 0);
     let inputs = firstRun.inputs;
     let outputs = firstRun.outputs;
 
@@ -128,7 +127,6 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
       for (let i = 0; i < inputs.length; i++) {
         if (Number(inputs[i].interestSats) > interestClaimThreshold) {
           totalInterest += Number(inputs[i].interestSats);
-          totalInterestUTXOCount++;
         }
       }
     }

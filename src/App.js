@@ -19,7 +19,6 @@ import {
   setLocalStorageVar,
 } from './localstorage-util';
 import {
-  INSIGHT_API_URL,
   LEDGER_FW_VERSIONS,
   voteCoin,
   testCoins,
@@ -339,7 +338,9 @@ class App extends React.Component {
                     </select>
                     {(this.state.vendor === 'trezor' || (this.state.vendor === 'ledger' && this.state.ledgerDeviceType)) &&
                      this.state.explorerEndpoint &&
-                      <CheckBalanceButton handleRewardData={this.handleRewardData} vendor={this.state.vendor}>
+                      <CheckBalanceButton
+                        handleRewardData={this.handleRewardData}
+                        vendor={this.state.vendor}>
                         <strong>Check Balance</strong>
                       </CheckBalanceButton>
                     }
@@ -375,13 +376,17 @@ class App extends React.Component {
                     <p>Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the "Check Balance" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.</p>
                   }
                   <p>Also, make sure that your {VENDOR[this.state.vendor]} is initialized prior using <strong>KMD {this.state.coin === voteCoin ? 'Notary Elections tool' : 'wallet'}</strong>.</p>
+                  {this.state.vendor === 'ledger' &&
+                    <p>Have trouble accessing your Ledger device? Read here about <a target="_blank" rel="noopener noreferrer" href="https://github.com/pbca26/hw-kmd-reward-claim/wiki/First-time-using-Ledger-Nano-S-(firmware-v1.6)---Nano-X">first time use</a>.</p>
+                  }
                 </div>
                 <img
                   className="hw-graphic"
                   src={`${this.state.vendor}-logo.png`}
                   alt={VENDOR[this.state.vendor]} />
                 <div className="trezor-webusb-container"></div>
-                {this.state.vendor === 'ledger' && (!this.state.ledgerDeviceType || this.state.ledgerDeviceType === 's') &&
+                {this.state.vendor === 'ledger' &&
+                 (!this.state.ledgerDeviceType || this.state.ledgerDeviceType === 's') &&
                   <div className="ledger-device-selector">
                     <div className="ledger-device-selector-buttons">
                       <button
@@ -419,7 +424,9 @@ class App extends React.Component {
                 }
               </React.Fragment>
             ) : (
-              <Accounts {...this.state} syncData={this.syncData} />
+              <Accounts
+                {...this.state}
+                syncData={this.syncData} />
             )}
           </section>
 
