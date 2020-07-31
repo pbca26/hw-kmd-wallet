@@ -31,3 +31,7 @@ export const FAUCET_URL = {
   RICK: 'https://www.atomicexplorer.com/#/faucet/rick/',
   MORTY: 'https://www.atomicexplorer.com/#/faucet/morty/',
 };
+export const VENDOR = {
+  ledger: 'Ledger',
+  trezor: 'Trezor',
+};

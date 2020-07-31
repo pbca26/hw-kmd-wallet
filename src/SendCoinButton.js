@@ -13,7 +13,8 @@ import getKomodoRewards from './lib/get-komodo-rewards';
 import {
   TX_FEE,
   KMD_REWARDS_MIN_THRESHOLD,
-  KOMODO
+  KOMODO,
+  VENDOR,
 } from './constants';
 
 //const MAX_TIPTIME_TO_LOCALTIME_DIFF = 10 * 60;
@@ -154,7 +155,7 @@ class SendCoinButton extends React.Component {
         updateActionState(this, currentAction, 'loading');
         const ledgerIsAvailable = await ledger.isAvailable();
         if (!ledgerIsAvailable) {
-          throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ' device is unavailable!');
+          throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
         }
         updateActionState(this, currentAction, true);
 
@@ -208,7 +209,7 @@ class SendCoinButton extends React.Component {
         
           console.warn(ledgerUnusedAddress);
           if (ledgerUnusedAddress !== unusedAddress) {
-            throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ` derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
+            throw new Error(`${VENDOR[this.props.vendor]} derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
           }
           updateActionState(this, currentAction, true);
         }
@@ -273,7 +274,7 @@ class SendCoinButton extends React.Component {
 
         console.warn('rawtx', rawtx);
         if (!rawtx) {
-          throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ' failed to generate a valid transaction');
+          throw new Error(`${VENDOR[this.props.vendor]} failed to generate a valid transaction`);
         }
         updateActionState(this, currentAction, true);
         
