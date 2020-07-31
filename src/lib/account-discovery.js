@@ -127,7 +127,7 @@ const getAddressHistory = async addresses => {
   };
 };
 
-export const getAddressHistoryOld = async (addresses) => {
+export const getAddressHistoryOld = async addresses => {
   let addressCacheTemp = {};
   let allTxs = [];
   let addressHistory = [];
@@ -181,8 +181,8 @@ export const getAddressHistoryOld = async (addresses) => {
 
 const accountDiscovery = async () => {
   const accounts = [];
-
   let accountIndex = 0;
+
   while (true) {
     const account = await getAccountAddresses(accountIndex);
 

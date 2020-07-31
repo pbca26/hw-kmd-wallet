@@ -337,7 +337,9 @@ class App extends React.Component {
                     </select>
                     {(this.state.vendor === 'trezor' || (this.state.vendor === 'ledger' && this.state.ledgerDeviceType)) &&
                      this.state.explorerEndpoint &&
-                      <CheckBalanceButton handleRewardData={this.handleRewardData} vendor={this.state.vendor}>
+                      <CheckBalanceButton
+                        handleRewardData={this.handleRewardData}
+                        vendor={this.state.vendor}>
                         <strong>Check Balance</strong>
                       </CheckBalanceButton>
                     }
@@ -382,7 +384,8 @@ class App extends React.Component {
                   src={`${this.state.vendor}-logo.png`}
                   alt={this.state.vendor === 'ledger' ? 'Ledger' : 'Trezor'} />
                 <div className="trezor-webusb-container"></div>
-                {this.state.vendor === 'ledger' && (!this.state.ledgerDeviceType || this.state.ledgerDeviceType === 's') &&
+                {this.state.vendor === 'ledger' &&
+                 (!this.state.ledgerDeviceType || this.state.ledgerDeviceType === 's') &&
                   <div className="ledger-device-selector">
                     <div className="ledger-device-selector-buttons">
                       <button
@@ -420,7 +423,9 @@ class App extends React.Component {
                 }
               </React.Fragment>
             ) : (
-              <Accounts {...this.state} syncData={this.syncData} />
+              <Accounts
+                {...this.state}
+                syncData={this.syncData} />
             )}
           </section>
 
