@@ -93,7 +93,9 @@ const getAddressUtxos = async addresses => {
         locktime,
         vin,
         vout,
-        version
+        version,
+        nVersionGroupId,
+        nExpiryHeight,
       }
     ] = await Promise.all([
       blockchain.getRawTransaction(utxo.txid),
@@ -108,7 +110,9 @@ const getAddressUtxos = async addresses => {
       rawtx,
       inputs: vin,
       outputs: vout,
-      version
+      version,
+      nVersionGroupId,
+      nExpiryHeight,
     };
   }));
 };
@@ -123,7 +127,7 @@ const getAddressHistory = async addresses => {
   };
 };
 
-export const getAddressHistoryOld = async (addresses) => {
+export const getAddressHistoryOld = async addresses => {
   let addressCacheTemp = {};
   let allTxs = [];
   let addressHistory = [];
@@ -177,8 +181,8 @@ export const getAddressHistoryOld = async (addresses) => {
 
 const accountDiscovery = async () => {
   const accounts = [];
-
   let accountIndex = 0;
+
   while (true) {
     const account = await getAccountAddresses(accountIndex);
 
@@ -201,6 +205,8 @@ const accountDiscovery = async () => {
     accounts.push(account);
     accountIndex++;
   }
+
+  console.warn('accounts', accounts);
 
   return accounts;
 };

@@ -1,5 +1,4 @@
 import React from 'react';
-import Boolean from './Boolean';
 import explorerLink from './lib/explorer-link';
 
 const headings = [
@@ -25,7 +24,9 @@ const Transactions = ({transactions, coin}) => {
       </tfoot>
       <tbody>
         {transactions.map(tx => (
-          <tr key={tx.txid} className="utxo">
+          <tr
+            key={tx.txid}
+            className="utxo">
             <td className="cap--first">
               {Number(tx.height) === -1 || Number(tx.height) === 0 || Number(tx.confirmations) === 0 ? 'pending' : tx.type}
             </td>

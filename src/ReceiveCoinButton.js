@@ -1,10 +1,11 @@
 import React from 'react';
-import getKomodoRewards from './lib/get-komodo-rewards';
 import ledger from './lib/ledger';
-import accountDiscovery from './lib/account-discovery';
-import blockchain from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
-import {TX_FEE, FAUCET_URL} from './constants';
+import {
+  TX_FEE,
+  FAUCET_URL,
+  VENDOR,
+} from './constants';
 import ActionListModal from './ActionListModal';
 import getAddress from './lib/get-address';
 
@@ -54,7 +55,7 @@ class ReceiveCoinButton extends React.Component {
       updateActionState(this, currentAction, 'loading');
       const ledgerIsAvailable = await ledger.isAvailable();
       if (!ledgerIsAvailable) {
-        throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ' device is unavailable!');
+        throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
       }
       updateActionState(this, currentAction, true);
 
@@ -68,7 +69,7 @@ class ReceiveCoinButton extends React.Component {
       const verify = true;
       const ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, verify);
       if (ledgerUnusedAddress !== unusedAddress) {
-        throw new Error((this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor') + ` derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
+        throw new Error(`${VENDOR[this.props.vendor]} derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
       }
       updateActionState(this, currentAction, true);
 
@@ -87,9 +88,9 @@ class ReceiveCoinButton extends React.Component {
               }}>
                 <strong>
                   <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={`${FAUCET_URL[this.props.coin]}${unusedAddress}`}>Get funds from a faucet</a>
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`${FAUCET_URL[this.props.coin]}${unusedAddress}`}>Get funds from a faucet</a>
                 </strong>
               </span>
             }
@@ -126,7 +127,7 @@ class ReceiveCoinButton extends React.Component {
           handleClose={this.resetState}
           show={isExtractingNewAddress}>
           <p>
-            Exporting a public key from your {this.props.vendor === 'ledger' ? 'Ledger' : 'Trezor'} device. Please approve public key export request on your device.
+            Exporting a public key from your {VENDOR[this.props.vendor]} device. Please approve public key export request on your device.
           </p>
         </ActionListModal>
       </React.Fragment>

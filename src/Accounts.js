@@ -2,7 +2,6 @@ import React from 'react';
 import Transactions from './Transactions';
 import SendCoinButton from './SendCoinButton';
 import ReceiveCoinButton from './ReceiveCoinButton';
-import TxidLink from './TxidLink';
 import {TX_FEE} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import UtxosModal from './UtxosModal';
@@ -72,19 +71,13 @@ class Account extends React.Component {
       utxos,
       history,
       balance,
-      rewards,
       claimableAmount,
-      serviceFee,
       xpub,
     } = account;
 
     console.warn('account', account);
 
-    const isClaimableAmount = (claimableAmount > 0);
-    const {
-      isClaimed,
-      claimTxid
-    } = this.state;
+    const {isClaimed} = this.state;
 
     console.warn('utxos', utxos);
     console.warn('history', history);
@@ -106,12 +99,14 @@ class Account extends React.Component {
               coin={coin}>
               Receive
             </ReceiveCoinButton>
-            {coin === 'KMD' && balance > 0 &&
+            {coin === 'KMD' &&
+             balance > 0 &&
               <UtxosModal
                 utxos={utxos}
                 tiptime={tiptime} />
             }
-            {coin === 'KMD' && claimableAmount > 0 &&
+            {coin === 'KMD' &&
+             claimableAmount > 0 &&
               <ClaimRewardsButton
                 account={account}
                 handleRewardClaim={this.handleRewardClaim}
@@ -136,7 +131,8 @@ class Account extends React.Component {
                   coin={coin} />
               </React.Fragment>
             )}
-            {account.addresses && account.addresses.length > 0 &&
+            {account.addresses &&
+             account.addresses.length > 0 &&
               <div style={this.state.address ? {'padding': '10px 20px 20px 20px'} : {'padding': '10px 20px 30px 20px'}}>
                 Send change to
                 <select
@@ -204,11 +200,11 @@ class Account extends React.Component {
               <button
                 className="button is-primary"
                 onClick={() => this.showXpub(accountIndex)}>
-                {this.state.showXpub >=0 && this.state.showXpub == accountIndex ? 'Hide Xpub' : 'Show Xpub'}
+                {this.state.showXpub >=0 && this.state.showXpub === accountIndex ? 'Hide Xpub' : 'Show Xpub'}
               </button>
             }
             {this.state.showXpub >=0 &&
-             this.state.showXpub == accountIndex &&
+             this.state.showXpub === accountIndex &&
               <div style={{
                 'padding': '20px',
                 'wordBreak': 'break-all'

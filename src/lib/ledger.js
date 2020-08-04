@@ -4,8 +4,29 @@ import Btc from '@ledgerhq/hw-app-btc';
 import buildOutputScript from './build-output-script';
 import bip32Path from 'bip32-path';
 import createXpub from './create-xpub';
+import {KOMODO} from '../constants';
+
+// TODO: get ledger fw version programmatically
+//       https://github.com/LedgerHQ/ledger-live-common/blob/master/src/hw/getVersion.js
+//       https://github.com/LedgerHQ/ledgerjs/issues/365
 
 let ledgerFWVersion = 'default';
+
+const getUniqueInputs = (utxos) => {
+  let uniqueInputs = [];
+  let uniqueTxids = [];
+
+  for (let i = 0; i < utxos.length; i++) {
+    if (uniqueTxids.indexOf(utxos[i].txid) === -1) {
+      uniqueTxids.push(utxos[i].txid);
+      uniqueInputs.push(utxos[i]);
+    }
+  }
+
+  console.warn(`total utxos ${utxos.length} | unique utxos ${uniqueTxids.length}`);
+  
+  return uniqueInputs;
+};
 
 const setLedgerFWVersion = (name) => {
   ledgerFWVersion = name;
@@ -27,7 +48,6 @@ const getDevice = async () => {
 
 const isAvailable = async () => {
   const ledger = await getDevice();
-
   try {
     await ledger.getWalletPublicKey(`m/44'/0'/0'/0/0`);
     await ledger.close();
@@ -45,7 +65,7 @@ const getAddress = async (derivationPath, verify) => {
   return bitcoinAddress;
 };
 
-const createTransaction = async (utxos, outputs, isKMD) => {
+const createTransaction = async function(utxos, outputs, isKMD) {
   const ledger = await getDevice();
 
   const inputs = await Promise.all(utxos.map(async utxo => {
@@ -104,9 +124,7 @@ const getXpub = async derivationPath => {
     publicKey,
     chainCode
   });
-
   await ledger.close();
-  
   return xpub;
 };
 
