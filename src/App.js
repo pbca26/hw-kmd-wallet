@@ -13,7 +13,7 @@ import Footer from './Footer';
 import {repository} from '../package.json';
 import './App.scss';
 import TrezorConnect from 'trezor-connect';
-import ledger from './lib/ledger';
+import hw from './lib/hw';
 import {
   getLocalStorageVar,
   setLocalStorageVar,
@@ -108,7 +108,7 @@ class App extends React.Component {
       ledgerDeviceType: type,
     });
 
-    if (type === 'x' && osName !== 'Windows') ledger.setLedgerFWVersion('webusb');
+    if (type === 'x' && osName !== 'Windows') hw.ledger.setLedgerFWVersion('webusb');
   }
 
   updateLedgerFWVersion(e) {
@@ -116,7 +116,7 @@ class App extends React.Component {
       [e.target.name]: e.target.value,
     });
 
-    ledger.setLedgerFWVersion(e.target.value);
+    hw.ledger.setLedgerFWVersion(e.target.value);
   }
 
   updateExplorerEndpoint(e) {
@@ -159,7 +159,6 @@ class App extends React.Component {
   };
 
   resetState = () => {
-    ledger.setVendor();
     this.setVendor();
     this.setState(this.initialState);
   }

@@ -11,7 +11,7 @@ const ClaimRewardsButton = ({
   tiptime,
   handleRewardClaim,
   claimableAmount,
-  address
+  address,
 }) => (
   <SendCoinButton
     account={account}

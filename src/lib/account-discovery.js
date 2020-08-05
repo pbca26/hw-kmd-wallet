@@ -1,4 +1,4 @@
-import ledger from './ledger';
+import hw from './hw';
 import blockchain from './blockchain';
 import getAddress from './get-address';
 import bitcoin from 'bitcoinjs-lib';
@@ -43,9 +43,9 @@ const walkDerivationPath = async node => {
   return addresses.slice(0, addresses.length - consecutiveUnusedAddresses);
 };
 
-const getAccountAddresses = async account => {
+const getAccountAddresses = async (account, vendor) => {
   const derivationPath = `44'/141'/${account}'`;
-  const xpub = pubKeysCache[derivationPath] || await ledger.getXpub(derivationPath);
+  const xpub = pubKeysCache[derivationPath] || await hw[vendor].getXpub(derivationPath);
   const node = bitcoin.bip32.fromBase58(xpub);
   const externalNode = node.derive(0);
   const internalNode = node.derive(1);
@@ -179,12 +179,12 @@ export const getAddressHistoryOld = async addresses => {
   };
 };
 
-const accountDiscovery = async () => {
+const accountDiscovery = async vendor => {
   const accounts = [];
   let accountIndex = 0;
 
   while (true) {
-    const account = await getAccountAddresses(accountIndex);
+    const account = await getAccountAddresses(accountIndex, vendor);
 
     if (account.addresses.length === 0) {
       account.utxos = [];

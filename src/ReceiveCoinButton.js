@@ -1,5 +1,5 @@
 import React from 'react';
-import ledger from './lib/ledger';
+import hw from './lib/hw';
 import updateActionState from './lib/update-action-state';
 import {
   TX_FEE,
@@ -13,10 +13,6 @@ class ReceiveCoinButton extends React.Component {
   state = this.initialState;
 
   get initialState() {
-    if (this.props.vendor) {
-      ledger.setVendor(this.props.vendor);
-    }
-
     return {
       isExtractingNewAddress: false,
       error: false,
@@ -53,8 +49,8 @@ class ReceiveCoinButton extends React.Component {
     try {
       currentAction = 'connect';
       updateActionState(this, currentAction, 'loading');
-      const ledgerIsAvailable = await ledger.isAvailable();
-      if (!ledgerIsAvailable) {
+      const hwIsAvailable = await hw[this.props.vendor].isAvailable();
+      if (!hwIsAvailable) {
         throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
       }
       updateActionState(this, currentAction, true);
@@ -67,9 +63,9 @@ class ReceiveCoinButton extends React.Component {
       const unusedAddress = this.getUnusedAddress();
       const derivationPath = `44'/141'/${accountIndex}'/0/${this.getUnusedAddressIndex()}`;
       const verify = true;
-      const ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, verify);
-      if (ledgerUnusedAddress !== unusedAddress) {
-        throw new Error(`${VENDOR[this.props.vendor]} derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
+      const hwUnusedAddress = this.props.address.length ? this.props.address : await hw[this.props.vendor].getAddress(derivationPath, verify);
+      if (hwUnusedAddress !== unusedAddress) {
+        throw new Error(`${VENDOR[this.props.vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
       }
       updateActionState(this, currentAction, true);
 

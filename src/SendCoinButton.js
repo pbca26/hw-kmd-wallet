@@ -1,7 +1,7 @@
 import React from 'react';
 import ActionListModal from './ActionListModal';
 import TxidLink from './TxidLink';
-import ledger from './lib/ledger';
+import hw from './lib/hw';
 import blockchain from './lib/blockchain';
 import getAddress from './lib/get-address';
 import checkPublicAddress from './lib/validate-address';
@@ -153,8 +153,8 @@ class SendCoinButton extends React.Component {
       try {
         currentAction = 'connect';
         updateActionState(this, currentAction, 'loading');
-        const ledgerIsAvailable = await ledger.isAvailable();
-        if (!ledgerIsAvailable) {
+        const hwIsAvailable = await hw[this.props.vendor].isAvailable();
+        if (!hwIsAvailable) {
           throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
         }
         updateActionState(this, currentAction, true);
@@ -200,16 +200,16 @@ class SendCoinButton extends React.Component {
 
         console.warn('txDataPreflight', txDataPreflight);
 
-        let ledgerUnusedAddress;
+        let hwUnusedAddress;
         const unusedAddress = this.getUnusedAddressChange();
         const derivationPath = `44'/141'/${accountIndex}'/1/${this.getUnusedAddressIndexChange()}`;
 
         if (isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest) {
-          ledgerUnusedAddress = this.props.address.length ? this.props.address : await ledger.getAddress(derivationPath, isClaimRewardsOnly && this.props.vendor === 'trezor' ? true : false);
+          hwUnusedAddress = this.props.address.length ? this.props.address : await hw[this.props.vendor].getAddress(derivationPath, isClaimRewardsOnly && this.props.vendor === 'trezor' ? true : false);
         
-          console.warn(ledgerUnusedAddress);
-          if (ledgerUnusedAddress !== unusedAddress) {
-            throw new Error(`${VENDOR[this.props.vendor]} derived address "${ledgerUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
+          console.warn(hwUnusedAddress);
+          if (hwUnusedAddress !== unusedAddress) {
+            throw new Error(`${VENDOR[this.props.vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
           }
           updateActionState(this, currentAction, true);
         }
@@ -218,8 +218,8 @@ class SendCoinButton extends React.Component {
           coin === 'KMD' ? Object.assign({}, KOMODO, {kmdInterest: true}) : KOMODO,
           isClaimRewardsOnly ? this.props.balance - TX_FEE : toSats(this.props.amount),
           TX_FEE,
-          isClaimRewardsOnly ? ledgerUnusedAddress : this.props.sendTo,
-          isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest ? ledgerUnusedAddress : 'none',
+          isClaimRewardsOnly ? hwUnusedAddress : this.props.sendTo,
+          isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest ? hwUnusedAddress : 'none',
           formattedUtxos
         );
 
@@ -245,7 +245,7 @@ class SendCoinButton extends React.Component {
         let rawtx;
         
         if (this.props.isClaimRewardsOnly) {
-          rawtx = await ledger.createTransaction(
+          rawtx = await hw[this.props.vendor].createTransaction(
             filteredUtxos,
             [{
               address: txData.outputAddress,
@@ -254,7 +254,7 @@ class SendCoinButton extends React.Component {
             coin === 'KMD'
           );
         } else {
-          rawtx = await ledger.createTransaction(
+          rawtx = await hw[this.props.vendor].createTransaction(
             filteredUtxos, txData.change > 0 || txData.totalInterest ?
             [{
               address: txData.outputAddress,
