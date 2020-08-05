@@ -1,6 +1,6 @@
 import React from 'react';
 import getKomodoRewards from './lib/get-komodo-rewards';
-import ledger from './lib/ledger';
+import hw from './lib/hw';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
@@ -11,10 +11,6 @@ class CheckBalanceButton extends React.Component {
   state = this.initialState;
 
   get initialState() {
-    if (this.props.vendor) {
-      ledger.setVendor(this.props.vendor);
-    }
-
     return {
       isCheckingRewards: false,
       error: false,
@@ -58,8 +54,8 @@ class CheckBalanceButton extends React.Component {
     try {
       currentAction = 'connect';
       updateActionState(this, currentAction, 'loading');
-      const ledgerIsAvailable = await ledger.isAvailable();
-      if (!ledgerIsAvailable) {
+      const hwIsAvailable = await hw[this.props.vendor].isAvailable();
+      if (!hwIsAvailable) {
         throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
       }
       updateActionState(this, currentAction, true);
@@ -67,7 +63,7 @@ class CheckBalanceButton extends React.Component {
       currentAction = 'approve';
       updateActionState(this, currentAction, 'loading');
       let [accounts, tiptime] = await Promise.all([
-        accountDiscovery(),
+        accountDiscovery(this.props.vendor),
         blockchain.getTipTime()
       ]);
 
@@ -93,7 +89,8 @@ class CheckBalanceButton extends React.Component {
   render() {
     const {
       isCheckingRewards,
-      actions, error
+      actions,
+      error,
     } = this.state;
 
     return (
