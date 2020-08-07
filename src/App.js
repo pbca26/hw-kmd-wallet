@@ -36,6 +36,7 @@ import getKomodoRewards from './lib/get-komodo-rewards';
 import {osName} from 'react-device-detect';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
+const MAX_TIP_TIME_DIFF = 3600 * 24;
 
 class App extends React.Component {
   state = this.initialState;
@@ -88,6 +89,20 @@ class App extends React.Component {
     }
 
     this.checkExplorerEndpoints();
+  }
+
+  checkTipTime(tiptime) {
+    if (!tiptime || Number(tiptime) <= 0) return tiptime;
+
+    const currentTimestamp = Date.now() / 1000;
+    const secondsDiff = Math.floor(Number(currentTimestamp) - Number(tiptime));
+
+    if (Math.abs(secondsDiff) < MAX_TIP_TIME_DIFF) {      
+      return tiptime;
+    } else {
+      console.warn('tiptime vs local time is too big, use local time to calc rewards!');
+      return currentTimestamp;
+    }
   }
 
   updateCoin(e) {
@@ -172,6 +187,8 @@ class App extends React.Component {
         blockchain.getTipTime()
       ]);
 
+      tiptime = this.checkTipTime(tiptime);
+
       accounts.map(account => {
         account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
         account.rewards = account.utxos.reduce((rewards, utxo) => rewards + getKomodoRewards({tiptime, ...utxo}), 0);
@@ -187,6 +204,8 @@ class App extends React.Component {
   }
 
   handleRewardData = ({accounts, tiptime}) => {
+    tiptime = this.checkTipTime(tiptime);
+    
     this.setState({accounts, tiptime, isFirstRun: false});
   }
 
@@ -339,6 +358,7 @@ class App extends React.Component {
                      this.state.explorerEndpoint &&
                       <CheckBalanceButton
                         handleRewardData={this.handleRewardData}
+                        checkTipTime={this.checkTipTime}
                         vendor={this.state.vendor}>
                         <strong>Check Balance</strong>
                       </CheckBalanceButton>

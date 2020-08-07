@@ -87,7 +87,10 @@ class SendCoinButton extends React.Component {
       claimableAmount,
     } = this.props.account;
 
-    const outputs =  {address: this.getUnusedAddress(), value: (balance + claimableAmount)};
+    const outputs =  {
+      address: this.getUnusedAddress(),
+      value: (balance + claimableAmount),
+    };
 
     return outputs;
   };
@@ -103,7 +106,7 @@ class SendCoinButton extends React.Component {
     } else if (Number(amount) < humanReadableSatoshis(TX_FEE)) {
       error = `amount is too small, min is ${humanReadableSatoshis(TX_FEE)} ${coin}`;
     } else if (!Number(amount) || Number(amount) < 0) {
-      error = 'wrong amount format'
+      error = 'wrong amount format';
     }
 
     const validateAddress = checkPublicAddress(this.props.sendTo);
