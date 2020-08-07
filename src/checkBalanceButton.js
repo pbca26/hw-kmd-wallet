@@ -67,6 +67,8 @@ class CheckBalanceButton extends React.Component {
         blockchain.getTipTime()
       ]);
 
+      tiptime = this.props.checkTipTime(tiptime);
+
       accounts = this.calculateRewardData({accounts, tiptime});
       if (accounts.length === 0) {
         throw new Error('No account balances found.');
