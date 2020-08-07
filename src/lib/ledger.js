@@ -37,10 +37,11 @@ const getLedgerFWVersion = () => {
 };
 
 const getDevice = async () => {
-  const transport = window.location.href.indexOf('ledger-webusb') > -1 || ledgerFWVersion === 'webusb' ? await transport.webusb.create() : await transport.u2f.create();
-  const ledger = new Btc(transport);
+  console.warn(transport)
+  const newTransport = window.location.href.indexOf('ledger-webusb') > -1 || ledgerFWVersion === 'webusb' ? await transport.webusb.create() : await transport.u2f.create();
+  const ledger = new Btc(newTransport);
 
-  ledger.close = () => transport.close();
+  ledger.close = () => newTransport.close();
 
   return ledger;
 };
