@@ -23,7 +23,7 @@
     "electron-rebuild": "^1.8.4"
   },
   "dependencies": {
-    "@ledgerhq/hw-app-btc": "^4.38.6",
+    "@ledgerhq/hw-app-btc": "^5.16.0",
     "@ledgerhq/hw-transport-node-hid": "^4.38.6",
     "babel-polyfill": "^6.26.0"
   }
