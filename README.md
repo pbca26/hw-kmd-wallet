@@ -32,6 +32,8 @@ If you encounter any problems, be sure to check the FAQ below. If you still can'
 ### My Ledger Nano S (firmware v1.6) / Nano X is not detected in browser
 Exit Komodo app on your device, grant browser permission to access Ledger, open Komodo app again then try to interact with the page again. This usually happens when you're trying to link your device for the first time. After the authorization procedure is done browser should detect the device automatically next time you connect it.
 
+Also, make sure that you close Ledger Live or any other apps that might be using connection to your device before trying to use Komodo Hardware Wallet app.
+
 ### Ledger on Linux
 Add udev rules
 `wget -q -O - https://raw.githubusercontent.com/LedgerHQ/udev-rules/master/add_udev_rules.sh | sudo bash`
