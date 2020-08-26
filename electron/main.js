@@ -1,0 +1,111 @@
+// Modules to control application life and create native browser window
+require("babel-polyfill");
+const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
+const AppBtc = require("@ledgerhq/hw-app-btc").default;
+
+const { app, BrowserWindow, shell, ipcMain } = require("electron");
+const path = require('path');
+const url = require('url');
+
+// This a very basic example
+// Ideally you should not run this code in main thread
+// but run it in a dedicated node.js process
+function getBitcoinInfo(verify) {
+  return TransportNodeHid.open("")
+    .then(transport => {
+      transport.setDebugMode(true);
+      const appBtc = new AppBtc(transport);
+      return appBtc.getWalletPublicKey("44'/0'/0'/0/0", verify).then(r =>
+        transport
+          .close()
+          .catch(e => {})
+          .then(() => r)
+      );
+    })
+    .catch(e => {
+      console.warn(e);
+      // try again until success!
+      return new Promise(s => setTimeout(s, 1000)).then(() =>
+        getBitcoinInfo(verify)
+      );
+    });
+}
+
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected.
+let mainWindow;
+
+function createWindow() {
+  // Create the browser window.
+  mainWindow = new BrowserWindow({ width: 800, height: 600 });
+
+  // and load the index.html of the app.
+  mainWindow.loadFile("index.html");
+
+  // Open the DevTools.
+  // mainWindow.webContents.openDevTools()
+
+  // important: allow connect popup to open external links in default browser (wiki, wallet, bridge download...)
+  mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
+    if (url.indexOf('connect.trezor.io') > 0) {
+        event.preventDefault();
+        const connectPopup = new BrowserWindow(options);
+        event.newGuest = connectPopup;
+        // handle external links from trezor-connect popup
+        connectPopup.webContents.on('new-window', (event, url) => {
+            event.preventDefault();
+            shell.openExternal(url);
+        });
+    }
+  });
+
+  // Emitted when the window is closed.
+  mainWindow.on("closed", function() {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    mainWindow = null;
+  });
+
+  // ~~~ BASIC LEDGER EXAMPLE ~~~
+
+  ipcMain.on("requestBitcoinInfo", () => {
+    getBitcoinInfo(false).then(result => {
+      mainWindow.webContents.send("bitcoinInfo", result);
+    });
+  });
+
+  ipcMain.on("verifyBitcoinInfo", () => {
+    getBitcoinInfo(true);
+  });
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on("ready", createWindow);
+
+// Quit when all windows are closed.
+app.on("window-all-closed", function() {
+  // On macOS it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+app.on("activate", function() {
+  // On macOS it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (mainWindow === null) {
+    createWindow();
+  }
+});
+
+app.on('browser-window-focus', (event, win) => {
+  if (!win.isDevToolsOpened()) {
+      win.openDevTools();
+  }
+});
