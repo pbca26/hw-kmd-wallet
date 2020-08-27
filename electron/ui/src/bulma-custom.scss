@@ -1,0 +1,20 @@
+// Use Komodo brand colours
+$komodo-brand: #326464;
+$primary: $komodo-brand;
+
+// Helvetica primary font
+$family-primary: Helvetica, Arial, 'Lucida Grande', sans-serif;
+
+// Don't collapse navbar on small screens
+$navbar-breakpoint: 0;
+.navbar {
+  padding: 0 1.5em;
+}
+
+// We need to import this before using computed variables
+@import 'bulma/sass/utilities/_all.sass';
+
+// Cleaner box radiuses
+$box-radius: $radius-small;
+
+@import 'bulma/bulma.sass';

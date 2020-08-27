@@ -1,0 +1,80 @@
+@import './bulma-custom.scss';
+
+.App {
+  font-family: $family-primary;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  min-width: 600px;
+
+  .main {
+    flex: 1;
+    padding-top: 5.4em;
+
+    .hw-graphic {
+      height: 140px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+    
+    .vendor-ledger {
+      height: 60px;
+      margin-right: 100px;
+      cursor: pointer;
+    }
+    
+    .vendor-trezor {
+      height: 60px;
+      cursor: pointer;
+    }
+    
+    .vendor-selector h3 {
+      font-weight: bold;
+      font-size: 20px;
+      text-align: center;
+      padding: 40px 0;
+    }
+    
+    .vendor-selector-items {
+      text-align: center;
+    }
+    
+    .content {
+      padding: 0 20px;
+    }
+
+    .ledger-device-selector {
+      margin-top: 70px;
+      height: 35px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+
+      .ledger-device-selector-buttons {
+        .button {
+          background: #fff;
+
+          &:last-child {
+            margin-left: 40px;
+          }
+        }
+      }
+
+      .ledger-fw-version-selector-block {
+        margin-top: 20px;
+
+        .ledger-fw-selector {
+          margin-left: 10px;
+          position: relative;
+          top: -1px;
+        }
+      }
+    }
+  }
+}

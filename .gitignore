@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+/electron/node_modules
+/electron/ui/node_modules
 /.pnp
 .pnp.js
 

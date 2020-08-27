@@ -1,0 +1,44 @@
+@import './bulma-custom.scss';
+
+.Account.is-claimed > .box > .content > :not(.ActionListModal) {
+  opacity: 0.5;
+}
+
+.Account {
+  h2 {
+    .balance {
+      font-weight: $weight-normal;
+      font-size: 0.8em;
+      color: $grey;
+      margin-top: 0.2em;
+    }
+    small {
+      font-weight: $weight-normal;
+      font-size: 0.6em;
+      color: inherit;
+    }
+  }
+
+  table.breakdown {
+    width: auto;
+
+    td {
+      position: relative;
+      padding: 0 0 0 1em;
+
+      &:first-child:before {
+        content: '-';
+        position: absolute;
+        left: 0;
+      }
+    }
+    tr {
+      &:first-child td:first-child:before {
+        content: '';
+      }
+      &:last-child td:first-child:before {
+        content: '=';
+      }
+    }
+  }
+}
