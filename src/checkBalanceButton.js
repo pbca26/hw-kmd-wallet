@@ -34,7 +34,7 @@ class CheckBalanceButton extends React.Component {
   calculateRewardData = ({accounts, tiptime}) => accounts.map(account => {
     account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
     account.rewards = account.utxos.reduce((rewards, utxo) => rewards + getKomodoRewards({tiptime, ...utxo}), 0);
-    account.claimableAmount = account.rewards - TX_FEE;
+    account.claimableAmount = account.rewards - TX_FEE * 2;
 
     return account;
   });

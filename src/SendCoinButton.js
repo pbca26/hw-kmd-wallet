@@ -194,7 +194,7 @@ class SendCoinButton extends React.Component {
         
         const txDataPreflight = transactionBuilder(
           coin === 'KMD' ? Object.assign({}, KOMODO, {kmdInterest: true}) : KOMODO,
-          isClaimRewardsOnly ? this.props.balance - TX_FEE : toSats(this.props.amount),
+          isClaimRewardsOnly ? this.props.balance - TX_FEE * 2 : toSats(this.props.amount),
           TX_FEE,
           this.props.sendTo ? this.props.sendTo : this.getUnusedAddressChange(),
           this.getUnusedAddressChange(),
@@ -219,14 +219,14 @@ class SendCoinButton extends React.Component {
 
         const txData = transactionBuilder(
           coin === 'KMD' ? Object.assign({}, KOMODO, {kmdInterest: true}) : KOMODO,
-          isClaimRewardsOnly ? this.props.balance - TX_FEE : toSats(this.props.amount),
+          isClaimRewardsOnly ? this.props.balance - TX_FEE * 2 : toSats(this.props.amount),
           TX_FEE,
           isClaimRewardsOnly ? hwUnusedAddress : this.props.sendTo,
           isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest ? hwUnusedAddress : 'none',
           formattedUtxos
         );
 
-        console.warn('amount in', isClaimRewardsOnly ? this.props.balance - TX_FEE : toSats(this.props.amount));
+        console.warn('amount in', isClaimRewardsOnly ? this.props.balance - TX_FEE * 2 : toSats(this.props.amount));
         console.warn('txData', txData);
 
         const filteredUtxos = this.filterUtxos(txData.inputs, formattedUtxos);
