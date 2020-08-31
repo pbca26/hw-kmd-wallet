@@ -46,6 +46,14 @@ function createWindow() {
     },
   });
 
+  // and load the index.html of the app.
+  if (process.argv.indexOf('devmode') > -1) {
+    mainWindow.maximize();
+    mainWindow.loadURL('http://localhost:3000/');
+  } else {
+    mainWindow.loadFile('ui/build/index.html');
+  }
+
   // important: allow connect popup to open external links in default browser (wiki, wallet, bridge download...)
   mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
     if (url.indexOf('connect.trezor.io') > 0) {
