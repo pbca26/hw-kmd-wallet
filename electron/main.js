@@ -7,15 +7,12 @@ const { app, BrowserWindow, shell, ipcMain } = require("electron");
 const path = require('path');
 const url = require('url');
 
-// This a very basic example
-// Ideally you should not run this code in main thread
-// but run it in a dedicated node.js process
-function getBitcoinInfo(verify) {
-  return TransportNodeHid.open("")
+function getAddress(derivationPath, verify) {
+  return TransportNodeHid.open('')
     .then(transport => {
       transport.setDebugMode(true);
       const appBtc = new AppBtc(transport);
-      return appBtc.getWalletPublicKey("44'/0'/0'/0/0", verify).then(r =>
+      return appBtc.getWalletPublicKey(derivationPath, verify).then(r =>
         transport
           .close()
           .catch(e => {})
@@ -24,10 +21,7 @@ function getBitcoinInfo(verify) {
     })
     .catch(e => {
       console.warn(e);
-      // try again until success!
-      return new Promise(s => setTimeout(s, 1000)).then(() =>
-        getBitcoinInfo(verify)
-      );
+      return -777;
     });
 }
 

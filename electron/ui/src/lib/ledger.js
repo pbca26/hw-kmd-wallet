@@ -3,6 +3,7 @@ import buildOutputScript from './build-output-script';
 import bip32Path from 'bip32-path';
 import createXpub from './create-xpub';
 import transport from './ledger-transport';
+const { ipcRenderer } = window.require('electron');
 
 let ledgerFWVersion = 'default';
 export let ledgerTransport;
@@ -28,49 +29,39 @@ const resetTransport = () => {
   }
 };
 
+// wrap ledger methods using ipc renderer
 const getDevice = async () => {
-  let newTransport;
-  let transportType = 'u2f'; // default
-
-  if (window.location.href.indexOf('ledger-webusb') > -1 ||
-      ledgerFWVersion === 'webusb') {
-    transportType = 'webusb';
-  } else if (
-    window.location.href.indexOf('ledger-ble') > -1 ||
-    ledgerFWVersion === 'ble'
-  ) {
-    transportType = 'ble';
-  } else if (
-    window.location.href.indexOf('ledger-hid') > -1 ||
-    ledgerFWVersion === 'hid'
-  ) {
-    transportType = 'hid';
-  }
-
-  if (ledgerTransport) return ledgerTransport;
-
-  newTransport = await transport[transportType].create();
-  const ledger = new Btc(newTransport);
-
-  ledger.close = () => transportType !== 'ble' ? newTransport.close() : {};
-
-  if (transportType === 'ble') {
-    ledgerTransport = ledger;
-    ledgerTransport.closeConnection = () => newTransport.close();
-  }
-
-  return ledger;
+  return {
+    getWalletPublicKey: (derivationPath) => {
+      return new Promise((resolve, reject) => {
+        ipcRenderer.on('getAddress', (event, arg) => {
+          console.warn('getAddress arg', arg);
+          console.warn('arg.bitcoinAddress', arg.bitcoinAddress);
+          if (arg === -777) resolve(false);
+          resolve(arg);
+        });
+        ipcRenderer.send('getAddress', derivationPath);
+      });
+    },
+    close: () => {},
+  };
 };
 
 const isAvailable = async () => {
   const ledger = await getDevice();
 
   try {
-    await ledger.getWalletPublicKey(`m/44'/141'/0'/0/0`, {
+    const res = await ledger.getWalletPublicKey(`m/44'/141'/0'/0/0`, {
       verify: window.location.href.indexOf('ledger-ble') > -1 || ledgerFWVersion === 'ble',
     });
     await ledger.close();
-    return true;
+    if (res) {
+      console.warn('device available');
+      return true;
+    } else {
+      console.warn('device unavailable');
+      return false;
+    }
   } catch (error) {
     return false;
   }
