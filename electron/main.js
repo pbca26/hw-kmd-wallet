@@ -67,6 +67,36 @@ function createPaymentTransactionNew(txData) {
     });
 }
 
+function splitTransaction(txData) {
+  const {
+    transactionHex,
+    isSegwitSupported,
+    hasTimestamp,
+    hasExtraData,
+    additionals,
+  } = txData;
+
+  return TransportNodeHid.open('')
+    .then(transport => {
+      transport.setDebugMode(true);
+      const appBtc = new AppBtc(transport);
+      const txSplit = appBtc.splitTransaction(
+        transactionHex,
+        isSegwitSupported,
+        hasTimestamp,
+        hasExtraData,
+        additionals,
+      );
+      console.log(txSplit);
+      transport.close();
+      return txSplit;
+    })
+    .catch(e => {
+      console.warn(e);
+      return -777;
+    });
+}
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -128,6 +158,16 @@ function createWindow() {
     if (mainWindow) {
       createPaymentTransactionNew(txData).then(result => {
         mainWindow.webContents.send('createPaymentTransactionNew', result);
+      });
+    }
+  });
+
+  ipcMain.on('splitTransaction', (e, txData) => {
+    console.log(txData);
+
+    if (mainWindow) {
+      splitTransaction(txData).then(result => {
+        mainWindow.webContents.send('splitTransaction', result);
       });
     }
   });

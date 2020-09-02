@@ -75,6 +75,28 @@ const getDevice = async () => {
         });
       });
     },
+    splitTransaction: (
+      transactionHex,
+      isSegwitSupported,
+      hasTimestamp,
+      hasExtraData,
+      additionals,
+    ) => {
+      return new Promise((resolve, reject) => {
+        ipcRenderer.on('splitTransaction', (event, arg) => {
+          console.warn('splitTransaction arg', arg);
+          if (arg === -777) resolve(false);
+          resolve(arg);
+        });
+        ipcRenderer.send('splitTransaction', {
+          transactionHex,
+          isSegwitSupported,
+          hasTimestamp,
+          hasExtraData,
+          additionals,
+        });
+      });
+    },
     close: () => {},
   };
 };
