@@ -43,6 +43,38 @@ const getDevice = async () => {
         ipcRenderer.send('getAddress', derivationPath);
       });
     },
+    createPaymentTransactionNew: (
+      inputs,
+      associatedKeysets,
+      changePath,
+      outputScript,
+      lockTime,
+      sigHashType,
+      segwit,
+      initialTimestamp,
+      additionals,
+      expiryHeight,
+    ) => {
+      return new Promise((resolve, reject) => {
+        ipcRenderer.on('createPaymentTransactionNew', (event, arg) => {
+          console.warn('createPaymentTransactionNew arg', arg);
+          if (arg === -777) resolve(false);
+          resolve(arg);
+        });
+        ipcRenderer.send('createPaymentTransactionNew', {
+          inputs,
+          associatedKeysets,
+          changePath,
+          outputScript,
+          lockTime,
+          sigHashType,
+          segwit,
+          initialTimestamp,
+          additionals,
+          expiryHeight,
+        });
+      });
+    },
     close: () => {},
   };
 };

@@ -25,6 +25,48 @@ function getAddress(derivationPath, verify) {
     });
 }
 
+function createPaymentTransactionNew(txData) {
+  const {
+    inputs,
+    associatedKeysets,
+    changePath,
+    outputScript,
+    lockTime,
+    sigHashType,
+    segwit,
+    initialTimestamp,
+    additionals,
+    expiryHeight,
+  } = txData;
+
+  return TransportNodeHid.open('')
+    .then(transport => {
+      transport.setDebugMode(true);
+      const appBtc = new AppBtc(transport);
+      return appBtc.createPaymentTransactionNew(
+        inputs,
+        associatedKeysets,
+        changePath,
+        outputScript,
+        lockTime,
+        sigHashType,
+        segwit,
+        initialTimestamp,
+        additionals,
+        expiryHeight,
+      ).then(r =>
+        transport
+          .close()
+          .catch(e => {})
+          .then(() => r)
+      );
+    })
+    .catch(e => {
+      console.warn(e);
+      return -777;
+    });
+}
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -70,19 +112,25 @@ function createWindow() {
     mainWindow = null;
   });
 
-  // ~~~ BASIC LEDGER EXAMPLE ~~~
+  ipcMain.on('getAddress', (e, derivationPath) => {
+    console.log(derivationPath);
 
-  ipcMain.on("requestBitcoinInfo", () => {
-    getBitcoinInfo(false).then(result => {
-      mainWindow.webContents.send("bitcoinInfo", result);
-    });
+    if (mainWindow) {
+      getAddress(derivationPath, false).then(result => {
+        mainWindow.webContents.send('getAddress', result);
+      });
+    }
   });
 
-  ipcMain.on("verifyBitcoinInfo", () => {
-    getBitcoinInfo(true);
-  });
+  ipcMain.on('createPaymentTransactionNew', (e, txData) => {
+    console.log(txData);
 
-  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    if (mainWindow) {
+      createPaymentTransactionNew(txData).then(result => {
+        mainWindow.webContents.send('createPaymentTransactionNew', result);
+      });
+    }
+  });
 }
 
 // This method will be called when Electron has finished
