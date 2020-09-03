@@ -8,6 +8,7 @@
   "private": true,
   "scripts": {
     "start": "HTTPS=true react-app-rewired start",
+    "start-electron": "react-app-rewired start",
     "build": "PUBLIC_URL=https://pbca26.github.io/hw-kmd-reward-claim/ react-app-rewired build",
     "predeploy": "yarn build",
     "deploy": "gh-pages -d build",
