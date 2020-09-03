@@ -333,10 +333,12 @@ class App extends React.Component {
             </div>
           </Header>
 
-          <FirmwareCheckModal
-            vendor={this.state.vendor}
-            updateLedgerDeviceType={this.updateLedgerDeviceType}
-            updateLedgerFWVersion={this.updateLedgerFWVersion} />
+          {(!isElectron || (isElectron && !appData.noFWCheck)) &&
+            <FirmwareCheckModal
+              vendor={this.state.vendor}
+              updateLedgerDeviceType={this.updateLedgerDeviceType}
+              updateLedgerFWVersion={this.updateLedgerFWVersion} />
+          }
 
           <section className="main">
             {this.state.accounts.length === 0 ? (
