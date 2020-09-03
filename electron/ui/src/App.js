@@ -26,6 +26,10 @@ import {
   getInfo,
 } from './lib/blockchain';
 import {isMobile} from 'react-device-detect';
+import {
+  isElectron,
+  appData,
+} from './Electron';
 
 const MAX_TIP_TIME_DIFF = 3600 * 24;
 
@@ -175,7 +179,15 @@ class App extends React.Component {
   }
 
   setVendor = async (vendor) => {
-    this.setState({vendor});
+    if (!isElectron || (isElectron && vendor !== 'ledger')) {
+      this.setState({vendor});
+    } else if (vendor === 'ledger') {
+      this.setState({
+        vendor: 'ledger',
+        ledgerDeviceType: 's',
+        ledgerFWVersion: 'webusb',
+      });
+    }
   }
 
   setTheme(name) {
@@ -348,6 +360,7 @@ class App extends React.Component {
                   alt={VENDOR[this.state.vendor]} />
                 {!isMobile &&
                  this.state.vendor === 'ledger' &&
+                 !isElectron &&
                   <div className="ledger-device-selector">
                     <div className="ledger-device-selector-buttons">
                       <button
