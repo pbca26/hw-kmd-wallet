@@ -112,6 +112,11 @@ function createWindow() {
     },
   });
 
+  global.app = {
+    isDev: process.argv.indexOf('devmode') > -1,
+    noFWCheck: true,
+  };
+
   // and load the index.html of the app.
   if (process.argv.indexOf('devmode') > -1) {
     mainWindow.maximize();
