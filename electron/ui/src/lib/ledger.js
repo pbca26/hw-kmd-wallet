@@ -3,7 +3,8 @@ import buildOutputScript from './build-output-script';
 import bip32Path from 'bip32-path';
 import createXpub from './create-xpub';
 import transport from './ledger-transport';
-const { ipcRenderer } = window.require('electron');
+import {isElectron} from '../Electron';
+import ledgerIpcWrapper from './ledger-ipc-wrapper';
 
 let ledgerFWVersion = 'default';
 export let ledgerTransport;
@@ -29,97 +30,60 @@ const resetTransport = () => {
   }
 };
 
-// wrap ledger methods using ipc renderer
-const getDevice = async () => {
-  return {
-    getWalletPublicKey: (derivationPath) => {
-      return new Promise((resolve, reject) => {
-        ipcRenderer.on('getAddress', (event, arg) => {
-          console.warn('getAddress arg', arg);
-          console.warn('arg.bitcoinAddress', arg.bitcoinAddress);
-          if (arg === -777) resolve(false);
-          resolve(arg);
-        });
-        ipcRenderer.send('getAddress', derivationPath);
-      });
-    },
-    createPaymentTransactionNew: (
-      inputs,
-      associatedKeysets,
-      changePath,
-      outputScript,
-      lockTime,
-      sigHashType,
-      segwit,
-      initialTimestamp,
-      additionals,
-      expiryHeight,
-    ) => {
-      return new Promise((resolve, reject) => {
-        ipcRenderer.on('createPaymentTransactionNew', (event, arg) => {
-          console.warn('createPaymentTransactionNew arg', arg);
-          if (arg === -777) resolve(false);
-          resolve(arg);
-        });
-        ipcRenderer.send('createPaymentTransactionNew', {
-          inputs,
-          associatedKeysets,
-          changePath,
-          outputScript,
-          lockTime,
-          sigHashType,
-          segwit,
-          initialTimestamp,
-          additionals,
-          expiryHeight,
-        });
-      });
-    },
-    splitTransaction: (
-      transactionHex,
-      isSegwitSupported,
-      hasTimestamp,
-      hasExtraData,
-      additionals,
-    ) => {
-      return new Promise((resolve, reject) => {
-        ipcRenderer.on('splitTransaction', (event, arg) => {
-          console.warn('splitTransaction arg', arg);
-          if (arg === -777) resolve(false);
-          resolve(arg);
-        });
-        ipcRenderer.send('splitTransaction', {
-          transactionHex,
-          isSegwitSupported,
-          hasTimestamp,
-          hasExtraData,
-          additionals,
-        });
-      });
-    },
-    close: () => {},
-  };
+let getDevice = async () => {
+  let newTransport;
+  let transportType = 'u2f'; // default
+
+  if (window.location.href.indexOf('ledger-webusb') > -1 ||
+      ledgerFWVersion === 'webusb') {
+    transportType = 'webusb';
+  } else if (
+    window.location.href.indexOf('ledger-ble') > -1 ||
+    ledgerFWVersion === 'ble'
+  ) {
+    transportType = 'ble';
+  } else if (
+    window.location.href.indexOf('ledger-hid') > -1 ||
+    ledgerFWVersion === 'hid'
+  ) {
+    transportType = 'hid';
+  }
+
+  if (ledgerTransport) return ledgerTransport;
+
+  newTransport = await transport[transportType].create();
+  const ledger = new Btc(newTransport);
+
+  ledger.close = () => transportType !== 'ble' ? newTransport.close() : {};
+
+  if (transportType === 'ble') {
+    ledgerTransport = ledger;
+    ledgerTransport.closeConnection = () => newTransport.close();
+  }
+
+  return ledger;
 };
 
-const isAvailable = async () => {
+let isAvailable = async () => {
   const ledger = await getDevice();
 
   try {
-    const res = await ledger.getWalletPublicKey(`m/44'/141'/0'/0/0`, {
+    await ledger.getWalletPublicKey(`m/44'/141'/0'/0/0`, {
       verify: window.location.href.indexOf('ledger-ble') > -1 || ledgerFWVersion === 'ble',
     });
     await ledger.close();
-    if (res) {
-      console.warn('device available');
-      return true;
-    } else {
-      console.warn('device unavailable');
-      return false;
-    }
+    return true;
   } catch (error) {
+    if (window.location.href.indexOf('devmode') > -1) console.warn('hw.ledger error', error);
     return false;
   }
 };
+
+// override methods if electron app is used
+if (isElectron) {
+  isAvailable = ledgerIpcWrapper.isAvailable;
+  getDevice = ledgerIpcWrapper.getDevice;
+}
 
 const getAddress = async (derivationPath, verify) => {
   const ledger = await getDevice();
