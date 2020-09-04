@@ -16,25 +16,16 @@ jobs:
         node-version: '12'
         check-latest: true
 
-    - name: Install UI deps
+    - name: Build GUI
       run: |
         cd electron/ui
         npm install
-
-    - name: build GUI
-      run: |
         npm run build-electron
-        cd ../
 
-    - name: Install Electron deps
+    - name: Build Electron App
       run: |
+        cd electron
         npm install
-
-    - name: Install Electron build tools
-      run: npm install -g electron-builder
-
-    - name: Build
-      run: |
         npm run dist
         tar -czvf hw-kmd-rewards-claim-desktop-osx.tar.gz dist
 
@@ -42,7 +33,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: hw-kmd-rewards-claim-desktop-osx
-        path: ./hw-kmd-rewards-claim-desktop-osx.tar.gz
+        path: ./electron/hw-kmd-rewards-claim-desktop-osx.tar.gz
 
   job-linux-build:
     name: Build (Linux)
@@ -67,7 +58,6 @@ jobs:
         npm install
         npm run dist
         tar -czvf hw-kmd-rewards-claim-desktop-linux.tar.gz dist
-        ls -l
 
     - name: Upload hw-kmd-rewards-claim-desktop-linux.tar.gz as artifact
       uses: actions/upload-artifact@v1
@@ -86,27 +76,21 @@ jobs:
         node-version: '12'
         check-latest: true
 
-    - name: Install UI deps
+    - name: Build GUI
       run: |
         cd electron/ui
         npm install
-
-    - name: build GUI
-      run: |
         npm run build-electron
-        cd ../
 
-    - name: Install Electron deps
+    - name: Build Electron App
       run: |
+        cd electron
         npm install
-
-    - name: Build
-      run: |
-        npm run dist-win
+        npm run dist
         tar -czvf hw-kmd-rewards-claim-desktop-win.tar.gz dist
 
     - name: Upload hw-kmd-rewards-claim-desktop-win.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
         name: hw-kmd-rewards-claim-desktop-win
-        path: ./hw-kmd-rewards-claim-desktop-win.tar.gz
+        path: ./electron/hw-kmd-rewards-claim-desktop-win.tar.gz
