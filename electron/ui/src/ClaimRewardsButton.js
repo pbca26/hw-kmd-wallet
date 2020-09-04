@@ -7,6 +7,10 @@ import getAddress from './lib/get-address';
 import updateActionState from './lib/update-action-state';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import {VENDOR} from './constants';
+import {
+  isElectron,
+  appData,
+} from './Electron';
 
 class ClaimRewardsButton extends React.Component {
   state = this.initialState;
@@ -15,7 +19,7 @@ class ClaimRewardsButton extends React.Component {
     this.setSkipBroadcast = this.setSkipBroadcast.bind(this);
 
     return {
-      isDebug: window.location.href.indexOf('enable-verify') > -1,
+      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('enable-verify') > -1,
       isClaimingRewards: false,
       error: false,
       success: false,

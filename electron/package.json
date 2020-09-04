@@ -17,7 +17,8 @@
     "Komodo",
     "Ledger",
     "Trezor",
-    "Hardware wallet"
+    "Hardware wallet",
+    "Komodo Rewards"
   ],
   "author": "Komodo Platform",
   "license": "MIT",

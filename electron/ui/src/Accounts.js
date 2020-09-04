@@ -6,6 +6,10 @@ import {TX_FEE} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import './Accounts.scss';
 import './Account.scss';
+import {
+  isElectron,
+  appData,
+} from './Electron';
 
 class Account extends React.Component {
   state = this.initialState;
@@ -17,7 +21,7 @@ class Account extends React.Component {
       address: '',
       // debug options
       showXpub: null,
-      isDebug: window.location.href.indexOf('enable-verify') > -1,
+      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('enable-verify') > -1,
     };
   }
 
