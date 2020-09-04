@@ -16,7 +16,7 @@ module.exports = {
       path.resolve(paths.appNodeModules, 'tiny-secp256k1'),
       path.resolve(paths.appNodeModules, 'bip32'),
       path.resolve(paths.appNodeModules, 'typeforce'),
-      path.resolve(paths.appNodeModules, '@ledgerhq/hw-app-btc')
+      path.resolve(paths.appNodeModules, '@ledgerhq/hw-app-btc'),
     ];
 
     config = hotLoader(config, env);
