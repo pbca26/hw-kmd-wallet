@@ -10,7 +10,7 @@
     "start": "HTTPS=true react-app-rewired start",
     "start-electron": "react-app-rewired start",
     "build": "PUBLIC_URL=https://pbca26.github.io/hw-kmd-reward-claim/ react-app-rewired build",
-    "build-electron": "react-app-rewired build && node ./electron-post-build",
+    "build-electron": "CI=false react-app-rewired build && node ./electron-post-build",
     "predeploy": "yarn build",
     "deploy": "gh-pages -d build",
     "test": "react-app-rewired test",
