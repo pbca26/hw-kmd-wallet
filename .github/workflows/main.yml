@@ -60,10 +60,10 @@ jobs:
         cd electron/ui
         npm install
         npm run build-electron
-        cd ../
 
     - name: Build Electron App
       run: |
+        cd electron
         npm install
         npm run dist
         tar -czvf hw-kmd-rewards-claim-desktop-linux.tar.gz dist
