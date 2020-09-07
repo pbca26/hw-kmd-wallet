@@ -3,7 +3,9 @@ name: HWKMDElectronCI
 on: 
   pull_request:
     types: [opened, reopened]
-
+    branches:
+      - master
+      - dev
 jobs:
   job-macos-build:
     name: Build (MacOS)
@@ -25,17 +27,21 @@ jobs:
         npm run build-electron
 
     - name: Build Electron App
+      env:
+        BASE_BRANCH: ${{ github.base_ref }}
       run: |
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-osx.tar.gz dist
+        tar -czvf hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz dist
 
-    - name: Upload hw-kmd-rewards-claim-desktop-osx.tar.gz as artifact
+    - name: Upload hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz as artifact
+      env:
+        BASE_BRANCH: ${{ github.base_ref }}
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-osx
-        path: ./electron/hw-kmd-rewards-claim-desktop-osx.tar.gz
+        name: hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}
+        path: ./electron/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz
 
   job-linux-build:
     name: Build (Linux)
@@ -57,17 +63,21 @@ jobs:
         npm run build-electron
 
     - name: Build Electron App
+      env:
+        BASE_BRANCH: ${{ github.base_ref }}
       run: |
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-linux.tar.gz dist
+        tar -czvf hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}.tar.gz dist
 
-    - name: Upload hw-kmd-rewards-claim-desktop-linux.tar.gz as artifact
+    - name: Upload hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}.tar.gz as artifact
+      env:
+        BASE_BRANCH: ${{ github.base_ref }}
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-linux
-        path: ./electron/hw-kmd-rewards-claim-desktop-linux.tar.gz
+        name: hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}
+        path: ./electron/hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}.tar.gz
 
   job-win-build:
     name: Build (Windows)
@@ -89,14 +99,18 @@ jobs:
         npm run build-electron
 
     - name: Build Electron App
+      env:
+        BASE_BRANCH: ${{ github.base_ref }}
       run: |
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-win.tar.gz dist
+        tar -czvf hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}.tar.gz dist
 
-    - name: Upload hw-kmd-rewards-claim-desktop-win.tar.gz as artifact
+    - name: Upload hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}.tar.gz as artifact
+      env:
+        BASE_BRANCH: ${{ github.base_ref }}
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-win
-        path: ./electron/hw-kmd-rewards-claim-desktop-win.tar.gz
+        name: hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}
+        path: ./electron/hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}.tar.gz
