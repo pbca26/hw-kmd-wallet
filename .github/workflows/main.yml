@@ -3,7 +3,9 @@ name: HWKMDElectronCI
 on: 
   pull_request:
     types: [opened, reopened]
-
+    branches:
+      - master
+      - dev
 jobs:
   job-macos-build:
     name: Build (MacOS)
@@ -29,13 +31,13 @@ jobs:
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-osx.tar.gz dist
+        tar -czvf hw-kmd-rewards-claim-desktop-osx-${{ env.GITHUB_REF_SLUG }}.tar.gz dist
 
-    - name: Upload hw-kmd-rewards-claim-desktop-osx.tar.gz as artifact
+    - name: Upload hw-kmd-rewards-claim-desktop-osx-${{ env.GITHUB_REF_SLUG }}.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-osx
-        path: ./electron/hw-kmd-rewards-claim-desktop-osx.tar.gz
+        name: hw-kmd-rewards-claim-desktop-osx-${{ env.GITHUB_REF_SLUG }}
+        path: ./electron/hw-kmd-rewards-claim-desktop-osx-${{ env.GITHUB_REF_SLUG }}.tar.gz
 
   job-linux-build:
     name: Build (Linux)
@@ -61,13 +63,13 @@ jobs:
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-linux.tar.gz dist
+        tar -czvf hw-kmd-rewards-claim-desktop-linux-${{ env.GITHUB_REF_SLUG }}.tar.gz dist
 
-    - name: Upload hw-kmd-rewards-claim-desktop-linux.tar.gz as artifact
+    - name: Upload hw-kmd-rewards-claim-desktop-linux-${{ env.GITHUB_REF_SLUG }}.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-linux
-        path: ./electron/hw-kmd-rewards-claim-desktop-linux.tar.gz
+        name: hw-kmd-rewards-claim-desktop-linux-${{ env.GITHUB_REF_SLUG }}
+        path: ./electron/hw-kmd-rewards-claim-desktop-linux-${{ env.GITHUB_REF_SLUG }}.tar.gz
 
   job-win-build:
     name: Build (Windows)
@@ -93,10 +95,10 @@ jobs:
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-win.tar.gz dist
+        tar -czvf hw-kmd-rewards-claim-desktop-win-${{ env.GITHUB_REF_SLUG }}.tar.gz dist
 
-    - name: Upload hw-kmd-rewards-claim-desktop-win.tar.gz as artifact
+    - name: Upload hw-kmd-rewards-claim-desktop-win-${{ env.GITHUB_REF_SLUG }}.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-win
-        path: ./electron/hw-kmd-rewards-claim-desktop-win.tar.gz
+        name: hw-kmd-rewards-claim-desktop-win-${{ env.GITHUB_REF_SLUG }}
+        path: ./electron/hw-kmd-rewards-claim-desktop-win-${{ env.GITHUB_REF_SLUG }}.tar.gz
