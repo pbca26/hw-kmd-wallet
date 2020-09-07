@@ -3,7 +3,9 @@ name: HWKMDElectronCI
 on: 
   pull_request:
     types: [opened, reopened]
-
+    branches:
+      - master
+      - dev
 jobs:
   job-macos-build:
     name: Build (MacOS)
@@ -29,13 +31,13 @@ jobs:
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-osx.tar.gz dist
+        tar -czvf hw-kmd-rewards-claim-desktop-osx-${ GITHUB_REF##*/ }.tar.gz dist
 
-    - name: Upload hw-kmd-rewards-claim-desktop-osx.tar.gz as artifact
+    - name: Upload hw-kmd-rewards-claim-desktop-osx-${ GITHUB_REF##*/ }.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-osx
-        path: ./electron/hw-kmd-rewards-claim-desktop-osx.tar.gz
+        name: hw-kmd-rewards-claim-desktop-osx-${ GITHUB_REF##*/ }
+        path: ./electron/hw-kmd-rewards-claim-desktop-osx-${ GITHUB_REF##*/ }.tar.gz
 
   job-linux-build:
     name: Build (Linux)
@@ -44,6 +46,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1
+    - uses: FranzDiebold/github-env-vars-action@v1.2.0
       with:
         node-version: '12'
         check-latest: true
@@ -61,13 +64,13 @@ jobs:
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-linux.tar.gz dist
+        tar -czvf hw-kmd-rewards-claim-desktop-linux-$GITHUB_REF_NAME_SLUG.tar.gz dist
 
-    - name: Upload hw-kmd-rewards-claim-desktop-linux.tar.gz as artifact
+    - name: Upload hw-kmd-rewards-claim-desktop-linux-$GITHUB_REF_NAME_SLUG.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-linux
-        path: ./electron/hw-kmd-rewards-claim-desktop-linux.tar.gz
+        name: hw-kmd-rewards-claim-desktop-linux-$GITHUB_REF_NAME_SLUG
+        path: ./electron/hw-kmd-rewards-claim-desktop-linux-$GITHUB_REF_NAME_SLUG.tar.gz
 
   job-win-build:
     name: Build (Windows)
@@ -93,10 +96,10 @@ jobs:
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-win.tar.gz dist
+        tar -czvf hw-kmd-rewards-claim-desktop-win-${ GITHUB_REF##*/ }.tar.gz dist
 
-    - name: Upload hw-kmd-rewards-claim-desktop-win.tar.gz as artifact
+    - name: Upload hw-kmd-rewards-claim-desktop-win-${ GITHUB_REF##*/ }.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-win
-        path: ./electron/hw-kmd-rewards-claim-desktop-win.tar.gz
+        name: hw-kmd-rewards-claim-desktop-win-${ GITHUB_REF##*/ }
+        path: ./electron/hw-kmd-rewards-claim-desktop-win-${ GITHUB_REF##*/ }.tar.gz
