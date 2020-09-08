@@ -147,6 +147,16 @@ jobs:
           mv hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}/hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}.tar.gz .
           mv hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz .
 
+      - name: VirusTotal Scan
+        uses: crazy-max/ghaction-virustotal@v2.2.0
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          github_token: ${{ github.token }}
+          files: |
+            ./hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}.tar.gz
+            ./hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz
+            ./hw-kmd-rewards-claim-desktop-wind-${{ env.BASE_BRANCH }}.tar.gz
+
       - name: Generate build number  # gen ${{ steps.buildnumber.outputs.build_number }} for release name
         id: buildnumber
         uses: einaregilsson/build-number@v1 
