@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: VirusTotal Scan
-        uses: crazy-max/ghaction-virustotal@v2
+        uses: pbca26/ghaction-virustotal@v2.2.1
         with:
           vt_api_key: ${{ secrets.VT_API_KEY }}
           github_token: ${{ github.token }}
           update_release_body: true
           files: |
-            hw-kmd-rewards-claim-desktop-linux-dev.tar.gz
-            hw-kmd-rewards-claim-desktop-osx-dev.tar.gz
-            hw-kmd-rewards-claim-desktop-osx-win.tar.gz
+            hw-kmd-rewards-claim-desktop-linux-*.tar.gz
+            hw-kmd-rewards-claim-desktop-osx-*.tar.gz
+            hw-kmd-rewards-claim-desktop-wind-*.tar.gz
