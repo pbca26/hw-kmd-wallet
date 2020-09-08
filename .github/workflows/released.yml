@@ -2,7 +2,7 @@ name: released
 
 on:
   release:
-    types: [prereleased, released, published]
+    types: [created, unpublished, prereleased, released, published]
 
 jobs:
   virustotal:
@@ -15,4 +15,6 @@ jobs:
           github_token: ${{ github.token }}
           update_release_body: true
           files: |
-            *.gz
+            hw-kmd-rewards-claim-desktop-linux-dev.tar.gz
+            hw-kmd-rewards-claim-desktop-osx-dev.tar.gz
+            hw-kmd-rewards-claim-desktop-osx-win.tar.gz
