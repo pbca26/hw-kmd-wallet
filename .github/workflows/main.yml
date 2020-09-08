@@ -200,3 +200,15 @@ jobs:
           asset_path: ./hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz
           asset_name: hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz
           asset_content_type: application/tar+gzip
+
+    job-virustotal:
+      needs: job-release
+      runs-on: ubuntu-latest
+      steps:
+        - name: VirusTotal Scan
+          uses: crazy-max/ghaction-virustotal@v2
+          with:
+            vt_api_key: ${{ secrets.VT_API_KEY }}
+            github_token: ${{ github.token }}
+            files: |
+              *.tar.gz
