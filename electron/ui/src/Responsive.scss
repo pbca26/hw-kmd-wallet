@@ -1,0 +1,186 @@
+// TODO: refactor !important
+
+@media only screen and (max-width: 1000px) {
+  .App {
+    min-width: 320px !important;
+
+    .main {
+      .container {
+        &.content {
+          padding-top: 60px !important;
+
+          &.text-center {
+            padding-top: 20px !important;
+          }
+        }
+      }
+    }
+
+    .navbar-menu {
+      position: absolute;
+      top: 44px;
+      width: 100%;
+
+      .navbar-end {
+        margin: 0 auto;
+      }
+
+      .button {
+        &.is-primary {
+          margin-right: 45px !important;
+        }
+      }
+    }
+
+    h2,
+    h4 {
+      font-size: 1rem !important;
+    }
+
+    .vendor-selector {
+      .vendor-selector-items {
+        img {
+          height: 40px;
+          padding: 6px 15px;
+        }
+        .vendor-ledger {
+          margin-right: 10px;
+        }
+      }
+
+      h3 {
+        padding: 20px 0 !important;
+        font-size: 1rem;
+      }
+    }
+
+    .hw-graphic {
+      height: 55px !important;
+      padding: 10px 30px !important;
+      position: inherit !important;
+      transform: inherit !important;
+      display: inherit;
+      margin: 0 auto;
+    }
+
+    .Footer {
+      display: none;
+    }
+
+    .Modal {
+      &.is-visible {
+        display: block !important;
+      }
+
+      .modal-close {
+        position: absolute;
+        z-index: 100;
+        top: 7px;
+      }
+      .modal-content,
+      .modal-card {
+        margin: 0;
+        height: 100vh;
+        max-height: 100vh;
+      }
+      .card {
+        height: 100vh;
+        max-height: 100vh;
+      }
+      .card-content {
+        padding: 0.5rem;
+
+        p,
+        .panel {
+          padding-left: 0.5rem !important;
+        }
+
+        .notification {
+          padding: 0.75rem;
+        }
+      }
+    }
+
+    .Accounts {
+      padding: 0;
+      margin-top: 38px;
+
+      .box .content > * {
+        padding-left: 0.4rem;
+      }
+
+      .balance {
+        font-size: 1rem;
+      }
+
+      small {
+        font-size: 0.9rem;
+        padding-top: 0.5rem;
+        display: block;
+      }
+
+      .receive-btn {
+        margin-top: -60px;
+      }
+
+      .content {
+        h4 {
+          padding-top: 25px !important;
+        }
+
+        .table-scroll-wrapper {
+          overflow-x: auto;
+        }
+
+        .table.is-striped {
+          th:first-child,
+          tr td:first-child {
+            padding-left: 0.5rem;
+          }
+          th:nth-child(3),
+          tr td:nth-child(3),
+          th:nth-child(5),
+          tr td:nth-child(5) {
+            display: none;
+          }
+          tbody th {
+            word-break: break-all;
+          }
+        }
+      }
+    }
+
+    .Header {
+      &.utxo-view {
+        .container {
+          display: block;
+          min-height: 6.5rem;
+        }
+      }
+    }
+
+    .account-index-selector {
+      display: block;
+      margin-left: 0;
+      margin-top: 7px;
+    }
+
+    .switch {
+      margin: 7px 0 25px 9px;
+    }
+
+    .notification.is-success {
+      word-break: break-word;
+    }
+
+    .ledger-device-selector {
+      margin-top: 20px !important;
+      transform: none !important;
+      position: inherit !important;
+    
+      .ledger-device-selector-buttons {
+        text-align: center;
+      }    
+    }
+  }
+}
