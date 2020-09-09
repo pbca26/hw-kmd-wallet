@@ -219,6 +219,10 @@ jobs:
           mv hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup/hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz .
           mv hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz .
           mv hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz .
+      - name: Prepare Checksum file
+        env:
+          BASE_BRANCH: ${{ github.base_ref }}
+        run: |
           md5sum hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz >> checksum.txt
           md5sum hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz >> checksum.txt
           md5sum hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz >> checksum.txt
