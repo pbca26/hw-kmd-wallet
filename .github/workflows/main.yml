@@ -29,8 +29,10 @@ jobs:
     - name: Build Electron App
       env:
         BASE_BRANCH: ${{ github.base_ref }}
+        VERSION: $( node -pe "require('./package.json').version" )
       run: |
         cd electron
+        echo "package.json version = ${{ env.VERSION}}"
         npm install
         npm run dist
         tar -czvf hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz dist
@@ -147,7 +149,7 @@ jobs:
           mv hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}/hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}.tar.gz .
           mv hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz .
 
-      # currently VT is limited to 32 mb files only
+      # currently VT is limited to 32 mb files only, 4 requests per minute
       # - name: VirusTotal Scan
       #  env:
       #    BASE_BRANCH: ${{ github.base_ref }}
