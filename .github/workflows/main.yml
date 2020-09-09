@@ -219,6 +219,13 @@ jobs:
           mv hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup/hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz .
           mv hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz .
           mv hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz .
+          md5sum hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz >> checksum.txt
+          md5sum hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz >> checksum.txt
+          md5sum hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz >> checksum.txt
+          md5sum hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz >> checksum.txt
+          md5sum hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz >> checksum.txt
+          md5sum hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz >> checksum.txt
+          md5sum hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz >> checksum.txt
 
       # currently VT is limited to 32 mb files only, 4 requests per minute
       # - name: VirusTotal Scan
@@ -333,3 +340,15 @@ jobs:
           asset_path: ./hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz
           asset_name: hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz
           asset_content_type: application/tar+gzip
+
+      - name: Upload Checksum File
+        id: upload-release-asset-checksum
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_BRANCH: ${{ github.base_ref }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./checksum.txt
+          asset_name: checksum.txt
+          asset_content_type: text/plain
