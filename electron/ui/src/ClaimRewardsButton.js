@@ -181,6 +181,9 @@ class ClaimRewardsButton extends React.Component {
           <p>
             You should receive a total of <strong>{humanReadableSatoshis(userOutput.value)} KMD</strong> to {!this.props.address.length && 'the new unused'}address: <strong>{userOutput.address}</strong><br />
           </p>
+          {this.props.vendor === 'trezor' &&
+            <p>There will be an additional message on the latest firmware versions <strong>"Warning! Locktime is set but will have no effect. Continue?"</strong>. You need to approve it in order to claim interest.</p>
+          }
           {this.state.isDebug &&
             <label
               className="switch"
