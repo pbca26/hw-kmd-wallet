@@ -1,6 +1,29 @@
 import TrezorConnect from 'trezor-connect';
 import {KOMODO} from '../constants';
 
+const init = () => {
+  // this will work only on localhost
+  if (window.location.href.indexOf('devmode') > -1) {
+    TrezorConnect.init({
+      webusb: true,
+      popup: false,
+      manifest: {
+        email: 'developer@xyz.com',
+        appUrl: 'http://your.application.com',
+      },
+    })
+    .then((res) => {
+      // note: mount point must exist before calling renderWebUSBButton method
+      TrezorConnect.renderWebUSBButton('.trezor-webusb-container');
+    });
+  } else {
+    TrezorConnect.manifest({
+      email: 'developer@xyz.com',
+      appUrl: 'http://your.application.com',
+    });
+  }
+};
+
 const getUniqueInputs = utxos => {
   let uniqueInputs = [];
   let uniqueTxids = [];
@@ -152,6 +175,7 @@ const trezor = {
   getAddress,
   createTransaction,
   getXpub,
+  init,
 };
 
 export default trezor;
