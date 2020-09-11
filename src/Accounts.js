@@ -41,7 +41,7 @@ class Account extends React.Component {
 
   setSendToMaxAmount(balance) {
     this.setState({
-      amount: humanReadableSatoshis(balance - TX_FEE) > 0 ? humanReadableSatoshis(balance - TX_FEE) : humanReadableSatoshis(balance - Math.floor(TX_FEE / 2)),
+      amount: humanReadableSatoshis(balance),
     });
   }
 
