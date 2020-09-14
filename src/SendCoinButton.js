@@ -17,7 +17,7 @@ import {
   VENDOR,
 } from './constants';
 
-//const MAX_TIPTIME_TO_LOCALTIME_DIFF = 10 * 60;
+// TODO: refactor transaction builder, make math more easier to understand and read
 
 class SendCoinButton extends React.Component {
   state = this.initialState;
@@ -101,7 +101,7 @@ class SendCoinButton extends React.Component {
     const {coin} = this.props;
     let error;
 
-    if (humanReadableSatoshis(balance + TX_FEE) > balance) {
+    if (Number(amount) > balance) {
       error = 'insufficient balance';
     } else if (Number(amount) < humanReadableSatoshis(TX_FEE)) {
       error = `amount is too small, min is ${humanReadableSatoshis(TX_FEE)} ${coin}`;
@@ -194,7 +194,7 @@ class SendCoinButton extends React.Component {
         
         const txDataPreflight = transactionBuilder(
           coin === 'KMD' ? Object.assign({}, KOMODO, {kmdInterest: true}) : KOMODO,
-          isClaimRewardsOnly ? this.props.balance - TX_FEE * 2 : toSats(this.props.amount),
+          isClaimRewardsOnly ? this.props.balance - TX_FEE * 2 : this.props.amount < humanReadableSatoshis(this.props.balance) ? toSats(this.props.amount) + TX_FEE : toSats(this.props.amount),
           TX_FEE,
           this.props.sendTo ? this.props.sendTo : this.getUnusedAddressChange(),
           this.getUnusedAddressChange(),
@@ -217,9 +217,9 @@ class SendCoinButton extends React.Component {
           updateActionState(this, currentAction, true);
         }
 
-        const txData = transactionBuilder(
+        let txData = transactionBuilder(
           coin === 'KMD' ? Object.assign({}, KOMODO, {kmdInterest: true}) : KOMODO,
-          isClaimRewardsOnly ? this.props.balance - TX_FEE * 2 : toSats(this.props.amount),
+          isClaimRewardsOnly ? this.props.balance - TX_FEE * 2 : this.props.amount < humanReadableSatoshis(this.props.balance) ? toSats(this.props.amount) + TX_FEE : toSats(this.props.amount),
           TX_FEE,
           isClaimRewardsOnly ? hwUnusedAddress : this.props.sendTo,
           isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest ? hwUnusedAddress : 'none',
@@ -234,9 +234,13 @@ class SendCoinButton extends React.Component {
         currentAction = 'approveTransaction';
         updateActionState(this, currentAction, 'loading');
 
+        if (!this.props.isClaimRewardsOnly && !txData.totalInterest && txData.change) {
+          txData.change += TX_FEE;
+        }
+
         this.setState({
           isClaimingRewards: true,
-          amount: txData.value,
+          amount: !this.props.isClaimRewardsOnly && txData.totalInterest && txData.outputAddress === txData.changeAddress ? txData.value - TX_FEE : this.props.amount < humanReadableSatoshis(this.props.balance) ? txData.value - TX_FEE : txData.value,
           sendTo: txData.outputAddress,
           changeTo: txData.changeAddress,
           change: txData.change,
@@ -258,16 +262,16 @@ class SendCoinButton extends React.Component {
           );
         } else {
           rawtx = await hw[this.props.vendor].createTransaction(
-            filteredUtxos, txData.change > 0 || txData.totalInterest ?
+            filteredUtxos, txData.change > 0 || txData.totalInterest && txData.outputAddress !== txData.changeAddress ?
             [{
               address: txData.outputAddress,
-              value: txData.value
+              value: txData.value - TX_FEE
             },
             {
               address: txData.changeAddress,
-              value: txData.change === 0 && txData.totalInterest > 0 ? txData.change + txData.totalInterest - TX_FEE : txData.change,
+              value: txData.change === 0 && txData.totalInterest > 0 ? txData.change + txData.totalInterest - TX_FEE : txData.totalInterest > 0 ? txData.change - TX_FEE * 2 : txData.change,
               derivationPath
-            }] : [{address: txData.outputAddress, value: txData.value}],
+            }] : [{address: txData.outputAddress, value: txData.value - TX_FEE}],
             coin === 'KMD'
           );
         }
