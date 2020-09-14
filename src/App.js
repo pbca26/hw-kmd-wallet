@@ -118,20 +118,20 @@ class App extends React.Component {
     }, 50);
   }
 
-  updateLedgerDeviceType(type) {
+  updateLedgerDeviceType = (type) => {
     this.setState({
-      ledgerDeviceType: type,
+      'ledgerDeviceType': type,
     });
 
-    if (type === 'x' && osName !== 'Windows') hw.ledger.setLedgerFWVersion('webusb');
+    if (type === 'x') hw.ledger.setLedgerFWVersion('webusb');
   }
 
-  updateLedgerFWVersion(e) {
+  updateLedgerFWVersion = (e) => {
     this.setState({
-      [e.target.name]: e.target.value,
+      'ledgerFWVersion': e.hasOwnProperty('target') ? e.target.value : e,
     });
 
-    hw.ledger.setLedgerFWVersion(e.target.value);
+    hw.ledger.setLedgerFWVersion(e.hasOwnProperty('target') ? e.target.value : e);
   }
 
   updateExplorerEndpoint(e) {
