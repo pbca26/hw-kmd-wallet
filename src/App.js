@@ -139,6 +139,8 @@ class App extends React.Component {
       [e.target.name]: e.target.value,
     });
 
+    console.warn('set api endpoint to ' + e.target.value);
+
     setExplorerUrl(e.target.value);
   }
 
@@ -308,27 +310,29 @@ class App extends React.Component {
                 {this.state.vendor &&
                   <strong>{VENDOR[this.state.vendor]} KMD HW {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
                 }
-                {/*<span className="explorer-selector-block">
-                  <i className="fa fa-cog"></i>
-                  <select
-                    className="explorer-selector"
-                    name="explorerEndpoint"
-                    value={this.state.explorerEndpoint}
-                    onChange={(event) => this.updateExplorerEndpoint(event)}>
-                    <option
-                      key="explorer-selector-disabled"
-                      disabled>
-                      Select API endpoint
-                    </option>
-                    {Object.keys(INSIGHT_API_URL).map((val, index) => (
+                { apiEndpoints[this.state.coin].length > 1 &&
+                  <span className="explorer-selector-block">
+                    <i className="fa fa-cog"></i>
+                    <select
+                      className="explorer-selector"
+                      name="explorerEndpoint"
+                      value={this.state.explorerEndpoint}
+                      onChange={(event) => this.updateExplorerEndpoint(event)}>
                       <option
-                        key={`explorer-selector-${val}`}
-                        value={val}>
-                        {val}
+                        key="explorer-selector-disabled"
+                        disabled>
+                        Select API endpoint
                       </option>
-                    ))}
-                  </select>
-                  </span>*/}
+                      {apiEndpoints[this.state.coin].map((val, index) => (
+                        <option
+                          key={`explorer-selector-${val}`}
+                          value={val}>
+                          {val}
+                        </option>
+                      ))}
+                    </select>
+                  </span>
+                }
               </h1>
             </div>
             <div className="navbar-menu">
