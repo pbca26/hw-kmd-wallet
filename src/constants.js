@@ -23,8 +23,14 @@ export const testCoins = [
   'VOTE2020'
 ];
 export const LEDGER_FW_VERSIONS = {
-  default: 'Nano S firmware v1.5',
-  webusb: 'Nano S firmware v1.6', // nano s fw > 1.6 
+  nano_s: {
+    default: 'Nano S firmware v1.5',
+    webusb: 'Nano S firmware v1.6 / WebUSB', // nano s fw > 1.6, nano x
+  },
+  nano_x: {
+    webusb: 'WebUSB (default)',
+    ble: 'Bluetooth (experimental)',
+  },
 };
 export const KMD_REWARDS_MIN_THRESHOLD = TX_FEE * 2;
 export const FAUCET_URL = {
