@@ -61,25 +61,7 @@ class App extends React.Component {
       this.syncData();
     }, 300 * 1000);
 
-    // this will work only on localhost
-    if (window.location.href.indexOf('devmode') > -1) {
-      TrezorConnect.init({
-        webusb: true,
-        popup: false,
-        manifest: {
-          email: 'developer@xyz.com',
-          appUrl: 'http://your.application.com',
-        },
-      })
-      .then((res) => {
-        TrezorConnect.renderWebUSBButton('.trezor-webusb-container');
-      });
-    } else {
-      TrezorConnect.manifest({
-        email: 'developer@xyz.com',
-        appUrl: 'http://your.application.com',
-      });
-    }
+    hw.trezor.init();
 
     if (!getLocalStorageVar('settings')) {
       setLocalStorageVar('settings', {theme: 'tdark'});
