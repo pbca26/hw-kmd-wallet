@@ -79,7 +79,7 @@ const isAvailable = async () => {
 const getAddress = async (derivationPath, verify) => {
   const ledger = await getDevice();
   const {bitcoinAddress} = await ledger.getWalletPublicKey(derivationPath, {
-    verify: window.location.href.indexOf('ledger-ble') > -1 || ledgerFWVersion === 'ble' ? true : verify,
+    verify,
   });
   await ledger.close();
 
