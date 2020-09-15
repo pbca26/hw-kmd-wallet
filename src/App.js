@@ -178,6 +178,8 @@ class App extends React.Component {
   resetState = () => {
     this.setVendor();
     this.setState(this.initialState);
+    // TODO: auto-close connection after idle time
+    hw.ledger.resetTransport();
   }
 
   syncData = async () => {
@@ -409,7 +411,6 @@ class App extends React.Component {
                   alt={VENDOR[this.state.vendor]} />
                 <div className="trezor-webusb-container"></div>
                 {this.state.vendor === 'ledger' &&
-                 (!this.state.ledgerDeviceType || this.state.ledgerDeviceType === 's') &&
                   <div className="ledger-device-selector">
                     <div className="ledger-device-selector-buttons">
                       <button
@@ -425,7 +426,7 @@ class App extends React.Component {
                         Nano X
                       </button>
                     </div>
-                    {this.state.ledgerDeviceType === 's' &&
+                    {this.state.ledgerDeviceType &&
                       <div className="ledger-fw-version-selector-block">
                         Mode
                         <select
@@ -433,11 +434,11 @@ class App extends React.Component {
                           name="ledgerFWVersion"
                           value={this.state.ledgerFWVersion}
                           onChange={(event) => this.updateLedgerFWVersion(event)}>
-                          {Object.keys(LEDGER_FW_VERSIONS).map((val, index) => (
+                          {Object.keys(LEDGER_FW_VERSIONS[`nano_${this.state.ledgerDeviceType}`]).map((val, index) => (
                             <option
-                              key={`ledger-fw-selector-${val}`}
+                              key={`ledger-fw-selector-${val}-${this.state.ledgerDeviceType}`}
                               value={val}>
-                              {LEDGER_FW_VERSIONS[val]}
+                              {LEDGER_FW_VERSIONS[`nano_${this.state.ledgerDeviceType}`][val]}
                             </option>
                           ))}
                         </select>
