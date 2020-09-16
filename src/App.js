@@ -10,7 +10,10 @@ import WarnU2fCompatibility from './WarnU2fCompatibility';
 import WarnBrowser from './WarnBrowser';
 import ConnectionError from './ConnectionError';
 import Footer from './Footer';
-import {repository} from '../package.json';
+import {
+  repository,
+  version,
+} from '../package.json';
 import './App.scss';
 import TrezorConnect from 'trezor-connect';
 import hw from './lib/hw';
@@ -56,6 +59,7 @@ class App extends React.Component {
   }
 
   componentWillMount() {
+    document.title = `Hardware wallet KMD Rewards Claim (v${version})`;
     setInterval(() => {
       console.warn('auto sync called');
       this.syncData();
