@@ -15,7 +15,6 @@ import {
   version,
 } from '../package.json';
 import './App.scss';
-import TrezorConnect from 'trezor-connect';
 import hw from './lib/hw';
 import {
   getLocalStorageVar,
