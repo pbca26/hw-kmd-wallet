@@ -10,6 +10,7 @@ import WarnU2fCompatibility from './WarnU2fCompatibility';
 import WarnBrowser from './WarnBrowser';
 import ConnectionError from './ConnectionError';
 import Footer from './Footer';
+import FirmwareCheckModal from './FirmwareCheckModal';
 import {
   repository,
   version,
@@ -373,6 +374,11 @@ class App extends React.Component {
           {this.state.explorerEndpoint === false &&
             <ConnectionError />
           }
+
+          <FirmwareCheckModal
+            vendor={this.state.vendor}
+            updateLedgerDeviceType={this.updateLedgerDeviceType}
+            updateLedgerFWVersion={this.updateLedgerFWVersion} />
 
           <section className={`main${testCoins.indexOf(this.state.coin) === -1 ? ' beta-warning-fix' : ''}`}>
             {this.state.accounts.length === 0 ? (
