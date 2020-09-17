@@ -1,0 +1,20 @@
+<svg width="206" height="394" xmlns="http://www.w3.org/2000/svg">
+  <g fill-rule="nonzero" stroke="#C9C9CB" fill="none">
+    <g transform="translate(3 3)">
+      <rect stroke-width="5" stroke-linejoin="round" width="64" height="388" rx="5"/>
+      <rect stroke-width="5" stroke-linejoin="round" x="64" y="25" width="3" height="23" rx=".5"/>
+      <rect stroke-width="5" stroke-linejoin="round" x="64" y="116" width="3" height="23" rx=".5"/>
+      <rect stroke-width="2" stroke-linejoin="round" x="16" y="32" width="32" height="100" rx="3"/>
+      <circle stroke-width="2" cx="32" cy="187" r="17"/>
+      <path d="M64 187c0-17.673112-14.326888-32-32-32S0 169.326888 0 187" stroke-width="5"/>
+    </g>
+    <g transform="translate(136 158)">
+      <path d="M67 32.051169V228.10818c0 2.761423-2.2385763 5-5 5H8c-2.76142375 0-5-2.238577-5-5V32" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M3 32.675936V5.0000002c0-2.7614237 2.2385763-5 5-5h26.1864419m.5876409 0H62c2.76142375 0 5 2.2385763 5 5v26.07389054" stroke-width="5" stroke-linejoin="round"/>
+      <rect stroke-width="5" stroke-linejoin="round" y="80" width="3" height="23" rx=".5"/>
+      <rect stroke-width="5" stroke-linejoin="round" y="171" width="3" height="23" rx=".5"/>
+      <circle stroke-width="2" cx="35" cy="32" r="17"/>
+      <path d="M67 32C67 14.326888 52.673112 0 35 0S3 14.326888 3 32" stroke-width="5"/>
+    </g>
+  </g>
+</svg>
