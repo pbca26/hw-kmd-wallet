@@ -3,6 +3,8 @@ import buildOutputScript from './build-output-script';
 import bip32Path from 'bip32-path';
 import createXpub from './create-xpub';
 import transport from './ledger-transport';
+import {isElectron} from '../Electron';
+import ledgerIpcWrapper from './ledger-ipc-wrapper';
 
 let ledgerFWVersion = 'default';
 export let ledgerTransport;
@@ -28,7 +30,7 @@ const resetTransport = () => {
   }
 };
 
-const getDevice = async () => {
+let getDevice = async () => {
   let newTransport;
   let transportType = 'u2f'; // default
 
@@ -62,7 +64,7 @@ const getDevice = async () => {
   return ledger;
 };
 
-const isAvailable = async () => {
+let isAvailable = async () => {
   const ledger = await getDevice();
 
   try {
@@ -75,6 +77,12 @@ const isAvailable = async () => {
     return false;
   }
 };
+
+// override methods if electron app is used
+if (isElectron) {
+  isAvailable = ledgerIpcWrapper.isAvailable;
+  getDevice = ledgerIpcWrapper.getDevice;
+}
 
 const getAddress = async (derivationPath, verify) => {
   const ledger = await getDevice();
