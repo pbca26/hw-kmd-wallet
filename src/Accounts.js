@@ -8,6 +8,10 @@ import UtxosModal from './UtxosModal';
 import ClaimRewardsButton from './ClaimRewardsButton';
 import './Accounts.scss';
 import './Account.scss';
+import {
+  isElectron,
+  appData,
+} from './Electron';
 
 class Account extends React.Component {
   state = this.initialState;
@@ -23,7 +27,7 @@ class Account extends React.Component {
       sendTo: '',
       // debug options
       showXpub: null,
-      isDebug: window.location.href.indexOf('#enable-verify') > -1,
+      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('enable-verify') > -1,
     };
   }
 

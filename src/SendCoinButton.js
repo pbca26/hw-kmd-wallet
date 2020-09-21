@@ -16,6 +16,10 @@ import {
   KOMODO,
   VENDOR,
 } from './constants';
+import {
+  isElectron,
+  appData,
+} from './Electron';
 
 // TODO: refactor transaction builder, make math more easier to understand and read
 
@@ -26,7 +30,7 @@ class SendCoinButton extends React.Component {
     this.setSkipBroadcast = this.setSkipBroadcast.bind(this);
 
     return {
-      isDebug: window.location.href.indexOf('enable-verify') > -1,
+      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('enable-verify') > -1,
       isClaimingRewards: false,
       error: false,
       success: false,

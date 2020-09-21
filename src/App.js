@@ -37,6 +37,10 @@ import blockchain from './lib/blockchain';
 import apiEndpoints from './lib/insight-endpoints';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import {osName} from 'react-device-detect';
+import {
+  isElectron,
+  appData,
+} from './Electron';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
 const MAX_TIP_TIME_DIFF = 3600 * 24;
@@ -59,7 +63,7 @@ class App extends React.Component {
   }
 
   componentWillMount() {
-    document.title = `Hardware wallet KMD Rewards Claim (v${version})`;
+    document.title = `Komodo Hardware Wallet (v${version})`;
     setInterval(() => {
       console.warn('auto sync called');
       this.syncData();
@@ -199,8 +203,16 @@ class App extends React.Component {
     this.setState({accounts, tiptime, isFirstRun: false});
   }
 
-  setVendor = (vendor) => {
-    this.setState({vendor});
+  setVendor = async (vendor) => {
+    if (!isElectron || (isElectron && vendor !== 'ledger')) {
+      this.setState({vendor});
+    } else if (vendor === 'ledger') {
+      this.setState({
+        vendor: 'ledger',
+        ledgerDeviceType: 's',
+        ledgerFWVersion: 'webusb',
+      });
+    }
   }
 
   setTheme(name) {
@@ -251,8 +263,13 @@ class App extends React.Component {
           </React.Fragment>
         </section>
 
-        <WarnU2fCompatibility />
-        <WarnBrowser />
+        {!isElectron &&
+          process.env.HTTPS &&
+          <WarnU2fCompatibility />
+        }
+        {!isElectron &&
+          <WarnBrowser />
+        }
 
         <Footer>
           <p>
@@ -375,10 +392,12 @@ class App extends React.Component {
             <ConnectionError />
           }
 
-          <FirmwareCheckModal
-            vendor={this.state.vendor}
-            updateLedgerDeviceType={this.updateLedgerDeviceType}
-            updateLedgerFWVersion={this.updateLedgerFWVersion} />
+          {(!isElectron || (isElectron && !appData.noFWCheck)) &&
+            <FirmwareCheckModal
+              vendor={this.state.vendor}
+              updateLedgerDeviceType={this.updateLedgerDeviceType}
+              updateLedgerFWVersion={this.updateLedgerFWVersion} />
+          }
 
           <section className={`main${testCoins.indexOf(this.state.coin) === -1 ? ' beta-warning-fix' : ''}`}>
             {this.state.accounts.length === 0 ? (
@@ -402,6 +421,7 @@ class App extends React.Component {
                   alt={VENDOR[this.state.vendor]} />
                 <div className="trezor-webusb-container"></div>
                 {this.state.vendor === 'ledger' &&
+                 !isElectron &&
                   <div className="ledger-device-selector">
                     <div className="ledger-device-selector-buttons">
                       <button
