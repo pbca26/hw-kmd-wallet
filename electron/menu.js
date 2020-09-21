@@ -59,6 +59,23 @@ const template = [
         type: 'separator'
       },
       {
+        label: 'Reward Claim UI',
+        click (item, focusedWindow) {
+          if (focusedWindow)
+            focusedWindow.loadFile('ui/build/index.html');
+        }
+      },
+      {
+        label: 'Komodo Harware Wallet UI (smart chains support)',
+        click (item, focusedWindow) {
+          if (focusedWindow)
+            focusedWindow.loadFile('ui2/build/index.html');
+        }
+      },
+      {
+        type: 'separator'
+      },
+      {
         role: 'resetzoom'
       },
       {
