@@ -1,9 +1,15 @@
 // Modules to control application life and create native browser window
-require("babel-polyfill");
-const TransportNodeHid = require("@ledgerhq/hw-transport-node-hid").default;
-const AppBtc = require("@ledgerhq/hw-app-btc").default;
+require('babel-polyfill');
+const TransportNodeHid = require('@ledgerhq/hw-transport-node-hid').default;
+const AppBtc = require('@ledgerhq/hw-app-btc').default;
 
-const { app, BrowserWindow, shell, ipcMain } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  Menu,
+} = require('electron');
 const path = require('path');
 const url = require('url');
 
@@ -112,6 +118,25 @@ function createWindow() {
     },
   });
 
+  require(path.join(__dirname, 'menu'));
+
+  const staticMenu = Menu.buildFromTemplate([ // if static
+    { role: 'copy' },
+    { type: 'separator' },
+    { role: 'selectall' },
+  ]);
+
+  const editMenu = Menu.buildFromTemplate([ // if editable
+    { role: 'undo' },
+    { role: 'redo' },
+    { type: 'separator' },
+    { role: 'cut' },
+    { role: 'copy' },
+    { role: 'paste' },
+    { type: 'separator' },
+    { role: 'selectall' },
+  ]);
+
   global.app = {
     isDev: process.argv.indexOf('devmode') > -1,
     noFWCheck: true,
@@ -128,19 +153,19 @@ function createWindow() {
   // important: allow connect popup to open external links in default browser (wiki, wallet, bridge download...)
   mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
     if (url.indexOf('connect.trezor.io') > 0) {
+      event.preventDefault();
+      const connectPopup = new BrowserWindow(options);
+      event.newGuest = connectPopup;
+      // handle external links from trezor-connect popup
+      connectPopup.webContents.on('new-window', (event, url) => {
         event.preventDefault();
-        const connectPopup = new BrowserWindow(options);
-        event.newGuest = connectPopup;
-        // handle external links from trezor-connect popup
-        connectPopup.webContents.on('new-window', (event, url) => {
-            event.preventDefault();
-            shell.openExternal(url);
-        });
+        shell.openExternal(url);
+      });
     }
   });
 
   // Emitted when the window is closed.
-  mainWindow.on("closed", function() {
+  mainWindow.on('closed', function() {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
