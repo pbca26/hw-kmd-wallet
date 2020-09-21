@@ -18,13 +18,22 @@ jobs:
         node-version: '12'
         check-latest: true
 
-    - name: Build GUI
+    - name: Build GUI Rewards Claim
       env:
         CI: ""
       run: |
         cd electron/ui
         npm install
         npm run build-electron
+
+    - name: Build GUI HW Wallet
+      env:
+        CI: ""
+      run: |
+        npm install
+        npm run build-electron
+        mkdir electron/ui/ui2
+        cp -R build electron/ui/ui2
 
     - name: Build Electron App
       env:
@@ -65,13 +74,25 @@ jobs:
         node-version: '12'
         check-latest: true
 
-    - name: Build GUI
+    - name: Build GUI Rewards Claim
       env:
         CI: ""
       run: |
         cd electron/ui
         npm install
         npm run build-electron
+
+    - name: Install Yarn
+      run: npm install -g yarn
+
+    - name: Build GUI HW Wallet
+      env:
+        CI: ""
+      run: |
+        yarn install --network-timeout 1000000
+        yarn run build-electron
+        mkdir electron/ui/ui2
+        cp -R build electron/ui/ui2
 
     - name: Build Electron App
       env:
@@ -123,13 +144,22 @@ jobs:
         node-version: '12'
         check-latest: true
 
-    - name: Build GUI
+    - name: Build GUI Rewards Claim
       env:
         CI: ""
       run: |
         cd electron/ui
         npm install
         npm run build-electron
+
+    - name: Build GUI HW Wallet
+      env:
+        CI: ""
+      run: |
+        npm install
+        npm run build-electron
+        mkdir electron/ui/ui2
+        cp -R build electron/ui/ui2
 
     - name: Build Electron App
       env:
