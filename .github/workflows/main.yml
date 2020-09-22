@@ -34,8 +34,8 @@ jobs:
       run: |
         npm install
         npm run build-electron
-        mkdir electron/ui/ui2
-        cp -R build electron/ui2
+        mkdir electron/ui2
+        cp -R build electron/ui2/build
         tar -czvf gui.tar.gz electron
 
     - name: Upload gui.tar.gz as artifact
