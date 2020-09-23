@@ -7,8 +7,8 @@ on:
       - master
       - dev
 jobs:
-  job-macos-build:
-    name: Build (MacOS)
+  job-gui-build:
+    name: Build GUI (MacOS)
     runs-on: macos-latest
 
     steps:
@@ -18,13 +18,55 @@ jobs:
         node-version: '12'
         check-latest: true
 
-    - name: Build GUI
+    - name: Build GUI Rewards Claim
       env:
         CI: ""
       run: |
         cd electron/ui
         npm install
         npm run build-electron
+        rm -rf node_modules
+        rm -rf src
+
+    - name: Build GUI HW Wallet
+      env:
+        CI: ""
+      run: |
+        npm install
+        npm run build-electron
+        mkdir electron/ui2
+        cp -R build electron/ui2/build
+        tar -czvf gui.tar.gz electron
+
+    - name: Upload gui.tar.gz as artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: gui
+        path: ./gui.tar.gz
+
+  job-macos-build:
+    name: Build (MacOS)
+    runs-on: macos-latest
+    needs: job-gui-build
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Download pre-built GUI
+      uses: actions/download-artifact@v1
+      with:
+        name: gui
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12'
+        check-latest: true
+
+    - name: Unpack GUI
+      env:
+        CI: ""
+      run: |
+        mv gui/gui.tar.gz .
+        tar xvzf gui.tar.gz
+        rm gui.tar.gz
 
     - name: Build Electron App
       env:
@@ -57,21 +99,27 @@ jobs:
   job-linux-build:
     name: Build (Linux)
     runs-on: ubuntu-latest
+    needs: job-gui-build
 
     steps:
     - uses: actions/checkout@v1
+    - name: Download pre-built GUI
+      uses: actions/download-artifact@v1
+      with:
+        name: gui
     - uses: actions/setup-node@v1
       with:
         node-version: '12'
         check-latest: true
 
-    - name: Build GUI
+    - name: Unpack GUI
       env:
         CI: ""
       run: |
-        cd electron/ui
-        npm install
-        npm run build-electron
+        mv gui/gui.tar.gz .
+        tar xvzf gui.tar.gz
+        rm gui.tar.gz
+
 
     - name: Build Electron App
       env:
@@ -115,21 +163,26 @@ jobs:
   job-win-build:
     name: Build (Windows)
     runs-on: windows-latest
+    needs: job-gui-build
 
     steps:
     - uses: actions/checkout@v1
+    - name: Download pre-built GUI
+      uses: actions/download-artifact@v1
+      with:
+        name: gui
     - uses: actions/setup-node@v1
       with:
         node-version: '12'
         check-latest: true
 
-    - name: Build GUI
+    - name: Unpack GUI
       env:
         CI: ""
       run: |
-        cd electron/ui
-        npm install
-        npm run build-electron
+        mv gui/gui.tar.gz .
+        tar xvzf gui.tar.gz
+        rm gui.tar.gz
 
     - name: Build Electron App
       env:
