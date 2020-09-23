@@ -8,6 +8,10 @@ import {
 } from './constants';
 import ActionListModal from './ActionListModal';
 import getAddress from './lib/get-address';
+import {
+  isElectron,
+  shell,
+} from './Electron';
 
 class ReceiveCoinButton extends React.Component {
   state = this.initialState;
@@ -83,10 +87,17 @@ class ReceiveCoinButton extends React.Component {
                 'display': 'block'
               }}>
                 <strong>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={`${FAUCET_URL[this.props.coin]}${unusedAddress}`}>Get funds from a faucet</a>
+                  {!isElectron &&
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={`${FAUCET_URL[this.props.coin]}${unusedAddress}`}>Get funds from a faucet</a>
+                  }
+                  {isElectron &&
+                    <a
+                      href="#"
+                      onClick={() => shell.openExternal(`${FAUCET_URL[this.props.coin]}${unusedAddress}`)}>Get funds from a faucet</a>
+                  }
                 </strong>
               </span>
             }
