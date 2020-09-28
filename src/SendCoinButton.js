@@ -81,9 +81,9 @@ class SendCoinButton extends React.Component {
 
   getUnusedAddress = () => this.props.address.length ? this.props.address : getAddress(this.props.account.externalNode.derive(this.getUnusedAddressIndex()).publicKey);
 
-  getUnusedAddressIndexChange = () => this.props.account.addresses.filter(address => address.isChange).length;
+  getUnusedAddressIndexChange = () => this.props.account.addresses.filter(address => this.props.isClaimRewardsOnly ? !address.isChange : address.isChange).length;
   
-  getUnusedAddressChange = () => this.props.address.length ? this.props.address : getAddress(this.props.account.internalNode.derive(this.getUnusedAddressIndexChange()).publicKey);
+  getUnusedAddressChange = () => this.props.address.length ? this.props.address : getAddress(this.props.account[this.props.isClaimRewardsOnly ? 'externalNode' : 'internalNode'].derive(this.getUnusedAddressIndexChange()).publicKey);
   
   getOutputs = () => {
     const {
@@ -209,12 +209,14 @@ class SendCoinButton extends React.Component {
 
         let hwUnusedAddress;
         const unusedAddress = this.getUnusedAddressChange();
-        const derivationPath = `44'/141'/${accountIndex}'/1/${this.getUnusedAddressIndexChange()}`;
-
+        const derivationPath = `44'/141'/${accountIndex}'/${this.props.isClaimRewardsOnly ? 0 : 1}/${this.getUnusedAddressIndexChange()}`;
+        
+        console.warn('derivationPath', derivationPath);
+        
         if (isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest) {
           hwUnusedAddress = this.props.address.length ? this.props.address : await hw[this.props.vendor].getAddress(derivationPath, isClaimRewardsOnly && this.props.vendor === 'trezor' ? true : false);
         
-          console.warn(hwUnusedAddress);
+          console.warn('hwUnusedAddress', hwUnusedAddress);
           if (hwUnusedAddress !== unusedAddress) {
             throw new Error(`${VENDOR[this.props.vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
           }
@@ -396,7 +398,8 @@ class SendCoinButton extends React.Component {
               }
             </React.Fragment>
           }
-          {this.props.vendor === 'trezor' &&
+          {this.props.coin === 'KMD' &&
+           this.props.vendor === 'trezor' &&
            (isClaimingRewards || this.state.rewards > 0) &&
             <p>There will be an additional message on the latest firmware versions <strong>"Warning! Locktime is set but will have no effect. Continue?"</strong>. You need to approve it in order to claim interest.</p>
           }
