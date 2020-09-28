@@ -66,25 +66,25 @@ jobs:
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz dist/mac
-        tar -czvf hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz dist/hw-kmd-wallet-electron-${{ env.APP_VERSION }}.dmg
+        tar -czvf hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz dist/mac
+        tar -czvf hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz dist/hw-kmd-wallet-electron-${{ env.APP_VERSION }}.dmg
 
-    - name: Upload hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz as artifact
+    - name: Upload hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz as artifact
       env:
         BASE_BRANCH: ${{ github.base_ref }}
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg
-        path: ./electron/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz
+        name: hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-dmg
+        path: ./electron/hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz
 
-    - name: Upload hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz as artifact
+    - name: Upload hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz as artifact
       env:
         BASE_BRANCH: ${{ github.base_ref }}
         APP_VERSION: $( node -pe "require('./electron/package.json').version" )
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable
-        path: ./electron/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz
+        name: hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-portable
+        path: ./electron/hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz
 
   job-linux-build:
     name: Build (Linux)
@@ -119,36 +119,36 @@ jobs:
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz dist/linux-unpacked
-        tar -czvf hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz dist/hw-kmd-wallet-electron-${{ env.APP_VERSION }}.AppImage
-        tar -czvf hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz dist/hw-kmd-wallet-electron_${{ env.APP_VERSION }}_amd64.snap
+        tar -czvf hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz dist/linux-unpacked
+        tar -czvf hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz dist/hw-kmd-wallet-electron-${{ env.APP_VERSION }}.AppImage
+        tar -czvf hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz dist/hw-kmd-wallet-electron_${{ env.APP_VERSION }}_amd64.snap
 
-    - name: Upload hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}-portable.tar.gz as artifact
+    - name: Upload hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-portable.tar.gz as artifact
       env:
         BASE_BRANCH: ${{ github.base_ref }}
         APP_VERSION: $( node -pe "require('./electron/package.json').version" )
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}-portable
-        path: ./electron/hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}-portable.tar.gz
+        name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-portable
+        path: ./electron/hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-portable.tar.gz
 
-    - name: Upload hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}-appimage.tar.gz as artifact
+    - name: Upload hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-appimage.tar.gz as artifact
       env:
         BASE_BRANCH: ${{ github.base_ref }}
         APP_VERSION: $( node -pe "require('./electron/package.json').version" )
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}-appimage
-        path: ./electron/hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}-appimage.tar.gz
+        name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-appimage
+        path: ./electron/hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-appimage.tar.gz
 
-    - name: Upload hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}-snap.tar.gz as artifact
+    - name: Upload hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-snap.tar.gz as artifact
       env:
         BASE_BRANCH: ${{ github.base_ref }}
         APP_VERSION: $( node -pe "require('./electron/package.json').version" )
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}-snap
-        path: ./electron/hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH  }}-snap.tar.gz
+        name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-snap
+        path: ./electron/hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-snap.tar.gz
 
   job-win-build:
     name: Build (Windows)
@@ -182,26 +182,26 @@ jobs:
         cd electron
         npm install
         npm run dist
-        tar -czvf hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz dist/win-unpacked
-        tar -czvf hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz dist/hw-kmd-wallet-electron" Setup "${{ env.APP_VERSION }}.exe
+        tar -czvf hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz dist/win-unpacked
+        tar -czvf hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz dist/hw-kmd-wallet-electron" Setup "${{ env.APP_VERSION }}.exe
 
-    - name: Upload hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz as artifact
+    - name: Upload hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz as artifact
       env:
         BASE_BRANCH: ${{ github.base_ref }}
         APP_VERSION: $( node -pe "require('./electron/package.json').version" )
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable
-        path: ./electron/hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz
+        name: hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable
+        path: ./electron/hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz
 
-    - name: Upload hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz as artifact
+    - name: Upload hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz as artifact
       env:
         BASE_BRANCH: ${{ github.base_ref }}
         APP_VERSION: $( node -pe "require('./electron/package.json').version" )
       uses: actions/upload-artifact@v1
       with:
-        name: hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup
-        path: ./electron/hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz
+        name: hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup
+        path: ./electron/hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz
 
   job-release:
     name: Release
@@ -214,65 +214,65 @@ jobs:
           BASE_BRANCH: ${{ github.base_ref }}
         uses: actions/download-artifact@v1
         with:
-          name: hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-portable
+          name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-portable
       - name: Download Artifacts App Image (Linux)
         env:
           BASE_BRANCH: ${{ github.base_ref }}
         uses: actions/download-artifact@v1
         with:
-          name: hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-appimage
+          name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-appimage
       - name: Download Artifacts Snap (Linux)
         env:
           BASE_BRANCH: ${{ github.base_ref }}
         uses: actions/download-artifact@v1
         with:
-          name: hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-snap
+          name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-snap
       - name: Download Artifacts Portable (Win)
         env:
           BASE_BRANCH: ${{ github.base_ref }}
         uses: actions/download-artifact@v1
         with:
-          name: hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable
+          name: hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable
       - name: Download Artifacts Setup (Win)
         env:
           BASE_BRANCH: ${{ github.base_ref }}
         uses: actions/download-artifact@v1
         with:
-          name: hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup
+          name: hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup
       - name: Download Artifacts Portable (MacOS)
         env:
           BASE_BRANCH: ${{ github.base_ref }}
         uses: actions/download-artifact@v1
         with:
-          name: hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable
+          name: hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-portable
       - name: Download Artifacts DMG (MacOS)
         env:
           BASE_BRANCH: ${{ github.base_ref }}
         uses: actions/download-artifact@v1
         with:
-          name: hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg
+          name: hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-dmg
       - name: Prepare Archives
         env:
           BASE_BRANCH: ${{ github.base_ref }}
         run: |
-          mv hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-portable/hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz .
-          mv hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-appimage/hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz .
-          mv hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-snap/hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz .
-          mv hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable/hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz .
-          mv hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup/hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz .
-          mv hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz .
-          mv hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg/hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz .
+          mv hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-portable/hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz .
+          mv hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-appimage/hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz .
+          mv hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-snap/hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz .
+          mv hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable/hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz .
+          mv hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup/hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz .
+          mv hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-portable/hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz .
+          mv hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-dmg/hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz .
       - name: Prepare Checksum file
         env:
           BASE_BRANCH: ${{ github.base_ref }}
         run: |
-          md5sum hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz >> checksum.txt
-          md5sum hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz >> checksum.txt
-          md5sum hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz >> checksum.txt
-          md5sum hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz >> checksum.txt
-          md5sum hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz >> checksum.txt
-          md5sum hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz >> checksum.txt
-          md5sum hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz >> checksum.txt
+          md5sum hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz >> checksum.txt
+          md5sum hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz >> checksum.txt
+          md5sum hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz >> checksum.txt
+          md5sum hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz >> checksum.txt
+          md5sum hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz >> checksum.txt
+          md5sum hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz >> checksum.txt
+          md5sum hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz >> checksum.txt
 
       # currently VT is limited to 32 mb files only, 4 requests per minute
       # - name: VirusTotal Scan
@@ -282,9 +282,9 @@ jobs:
       #  with:
       #    vt_api_key: ${{ secrets.VT_API_KEY }}
       #    files: |
-      #      ./hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}.tar.gz
-      #      ./hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz
-      #      ./hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}.tar.gz
+      #      ./hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}.tar.gz
+      #      ./hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}.tar.gz
+      #      ./hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}.tar.gz
 
       - name: Generate build number  # gen ${{ steps.buildnumber.outputs.build_number }} for release name
         id: buildnumber
@@ -312,8 +312,8 @@ jobs:
           BASE_BRANCH: ${{ github.base_ref }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz
-          asset_name: hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz
+          asset_path: ./hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz
+          asset_name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-portable.tar.gz
           asset_content_type: application/tar+gzip
 
       - name: Upload Release Asset App Image (Linux)
@@ -324,8 +324,8 @@ jobs:
           BASE_BRANCH: ${{ github.base_ref }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz
-          asset_name: hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz
+          asset_path: ./hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz
+          asset_name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-appimage.tar.gz
           asset_content_type: application/tar+gzip
 
       - name: Upload Release Asset Snap (Linux)
@@ -336,8 +336,8 @@ jobs:
           BASE_BRANCH: ${{ github.base_ref }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz
-          asset_name: hw-kmd-rewards-claim-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz
+          asset_path: ./hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz
+          asset_name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz
           asset_content_type: application/tar+gzip
 
       - name: Upload Release Asset Portable (Win)
@@ -348,8 +348,8 @@ jobs:
           BASE_BRANCH: ${{ github.base_ref }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz
-          asset_name: hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz
+          asset_path: ./hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz
+          asset_name: hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz
           asset_content_type: application/tar+gzip
 
       - name: Upload Release Asset Setup (Win)
@@ -360,8 +360,8 @@ jobs:
           BASE_BRANCH: ${{ github.base_ref }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz
-          asset_name: hw-kmd-rewards-claim-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz
+          asset_path: ./hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz
+          asset_name: hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz
           asset_content_type: application/tar+gzip
 
       - name: Upload Release Asset Portable (MacOS)
@@ -372,8 +372,8 @@ jobs:
           BASE_BRANCH: ${{ github.base_ref }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz
-          asset_name: hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz
+          asset_path: ./hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz
+          asset_name: hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-portable.tar.gz
           asset_content_type: application/tar+gzip
 
       - name: Upload Release Asset DMG (MacOS)
@@ -384,8 +384,8 @@ jobs:
           BASE_BRANCH: ${{ github.base_ref }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz
-          asset_name: hw-kmd-rewards-claim-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz
+          asset_path: ./hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz
+          asset_name: hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-dmg.tar.gz
           asset_content_type: application/tar+gzip
 
       - name: Upload Checksum File
