@@ -158,11 +158,13 @@ class App extends React.Component {
       }
     }
 
-    if (!isExplorerEndpointSet) {
-      this.setState({
-        explorerEndpoint: false,
-      });
-    }
+    setTimeout(() => {
+      if (!isExplorerEndpointSet) {
+        this.setState({
+          explorerEndpoint: false,
+        });
+      }
+    }, 50);
   };
 
   resetState = () => {
