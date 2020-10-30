@@ -173,6 +173,7 @@ const coins = {
     api: [
       'https://explorer.komodoplatform.com:10000/vrsc/api/',
       'https://vrsc.explorer.dexstats.info/insight-api-komodo/',
+      'https://insight.vrsc.0x03.services/insight-api-komodo/',
     ],
   },
   // DP: '',
