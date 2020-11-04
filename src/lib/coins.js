@@ -155,8 +155,9 @@ const coins = {
   RICK: {
     explorer: 'https://rick.kmd.dev/',
     api: [
-      'https://rick.kmd.dev/insight-api-komodo/',
+      'https://explorer.komodoplatform.com:10000/rick/api/',
       'https://rick.explorer.dexstats.info/insight-api-komodo/',
+      'https://rick.kmd.dev/insight-api-komodo/',
     ],
   },
   MORTY: {
@@ -164,6 +165,7 @@ const coins = {
     api: [
       'https://morty.kmd.dev/insight-api-komodo/',
       'https://morty.explorer.dexstats.info/insight-api-komodo/',
+      'https://explorer.komodoplatform.com:10000/morty/api/',
     ],
   },
   VRSC: {
@@ -171,6 +173,7 @@ const coins = {
     api: [
       'https://explorer.komodoplatform.com:10000/vrsc/api/',
       'https://vrsc.explorer.dexstats.info/insight-api-komodo/',
+      'https://insight.vrsc.0x03.services/insight-api-komodo/',
     ],
   },
   // DP: '',

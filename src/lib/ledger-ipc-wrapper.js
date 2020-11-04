@@ -1,17 +1,70 @@
-import {ipcRenderer} from '../Electron';
+import {
+  ipcRenderer,
+  isElectron,
+} from '../Electron';
+
+let data = {};
+let ruid = 0;
+let intervals = {};
+let pendingCalls = {};
+
+// return data only when it was sent over from ipc main proc
+const getData = (ruid, payload) => {
+  return new Promise((resolve, reject) => {
+    if (!data[ruid]) {
+      console.warn(`ledger data ruid ${ruid} not available yet, set interval`, ruid);
+
+      intervals[ruid] = setInterval((ruid) => {
+        if (data[ruid]) {
+          console.warn(`ledger data ruid ${ruid} available, clear interval`, data[ruid]);
+          clearInterval(intervals[ruid]);
+          delete pendingCalls[ruid];
+          resolve(data[ruid] === 'false' ? false : data[ruid]);
+        } else {
+          pendingCalls[ruid] = payload;
+        }
+      }, 100, ruid);
+    } else {
+      console.warn(`ledger data ruid ${ruid} available`, data[ruid]);
+      delete pendingCalls[ruid];
+      resolve(data[ruid] === 'false' ? false : data[ruid]);
+    }
+  });
+};
+
+if (isElectron) {
+  ipcRenderer.on('getAddress', (event, arg) => {
+    console.warn('getAddress arg', arg);
+    console.warn('arg.bitcoinAddress', arg);
+    if (arg === -777) data[arg.ruid] = 'false';
+    else data[arg.ruid] = arg.result;
+  });
+
+  ipcRenderer.on('createPaymentTransactionNew', (event, arg) => {
+    console.warn('createPaymentTransactionNew arg', arg);
+    if (arg === -777) data[arg.ruid] = 'false';
+    else data[arg.ruid] = arg.result;
+  });
+
+  ipcRenderer.on('splitTransaction', (event, arg) => {
+    console.warn('splitTransaction arg', arg);
+    if (arg === -777) data[arg.ruid] = 'false';
+    else data[arg.ruid] = arg.result;
+  });
+}
 
 // wrap ledger methods using ipc renderer
 const getDevice = async () => {
   return {
     getWalletPublicKey: (derivationPath) => {
-      return new Promise((resolve, reject) => {
-        ipcRenderer.on('getAddress', (event, arg) => {
-          console.warn('getAddress arg', arg);
-          console.warn('arg.bitcoinAddress', arg.bitcoinAddress);
-          if (arg === -777) resolve(false);
-          resolve(arg);
-        });
-        ipcRenderer.send('getAddress', derivationPath);
+      console.warn(`ledger getWalletPublicKey`);
+      ruid++;
+      ipcRenderer.send('getAddress', {derivationPath, ruid});
+      
+      return new Promise(async(resolve, reject) => {
+        const _data = await getData(ruid);
+        console.warn('ledger getAddress ready', _data);
+        resolve(_data);
       });
     },
     createPaymentTransactionNew: (
@@ -26,24 +79,25 @@ const getDevice = async () => {
       additionals,
       expiryHeight,
     ) => {
-      return new Promise((resolve, reject) => {
-        ipcRenderer.on('createPaymentTransactionNew', (event, arg) => {
-          console.warn('createPaymentTransactionNew arg', arg);
-          if (arg === -777) resolve(false);
-          resolve(arg);
-        });
-        ipcRenderer.send('createPaymentTransactionNew', {
-          inputs,
-          associatedKeysets,
-          changePath,
-          outputScript,
-          lockTime,
-          sigHashType,
-          segwit,
-          initialTimestamp,
-          additionals,
-          expiryHeight,
-        });
+      console.warn(`ledger createPaymentTransactionNew`);
+      ruid++;
+      ipcRenderer.send('createPaymentTransactionNew', {txData: {
+        inputs,
+        associatedKeysets,
+        changePath,
+        outputScript,
+        lockTime,
+        sigHashType,
+        segwit,
+        initialTimestamp,
+        additionals,
+        expiryHeight,
+      }, ruid});
+
+      return new Promise(async(resolve, reject) => {
+        const _data = await getData(ruid);
+        console.warn('ledger createPaymentTransactionNew ready', _data);
+        resolve(_data);
       });
     },
     splitTransaction: (
@@ -53,19 +107,20 @@ const getDevice = async () => {
       hasExtraData,
       additionals,
     ) => {
-      return new Promise((resolve, reject) => {
-        ipcRenderer.on('splitTransaction', (event, arg) => {
-          console.warn('splitTransaction arg', arg);
-          if (arg === -777) resolve(false);
-          resolve(arg);
-        });
-        ipcRenderer.send('splitTransaction', {
-          transactionHex,
-          isSegwitSupported,
-          hasTimestamp,
-          hasExtraData,
-          additionals,
-        });
+      console.warn(`ledger splitTransaction`);
+      ruid++;
+      ipcRenderer.send('splitTransaction', {txData: {
+        transactionHex,
+        isSegwitSupported,
+        hasTimestamp,
+        hasExtraData,
+        additionals,
+      }, ruid});
+
+      return new Promise(async(resolve, reject) => {
+        const _data = await getData(ruid);
+        console.warn('ledger splitTransaction ready', _data);
+        resolve(_data);
       });
     },
     close: () => {},
