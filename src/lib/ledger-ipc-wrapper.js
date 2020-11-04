@@ -35,7 +35,7 @@ const getData = (ruid, payload) => {
 if (isElectron) {
   ipcRenderer.on('getAddress', (event, arg) => {
     console.warn('getAddress arg', arg);
-    console.warn('arg.bitcoinAddress', arg.bitcoinAddress);
+    console.warn('arg.bitcoinAddress', arg);
     if (arg === -777) data[arg.ruid] = 'false';
     else data[arg.ruid] = arg.result;
   });
