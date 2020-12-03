@@ -38,6 +38,9 @@ Also, make sure that you close Ledger Live or any other apps that might be using
 Add udev rules
 `wget -q -O - https://raw.githubusercontent.com/LedgerHQ/udev-rules/master/add_udev_rules.sh | sudo bash`
 
+### Ledger on Latest Chrome browser
+Open the following url chrome://flags#new-usb-backend in Chrome browser and disable it. Alternatively you can try Chromium or Brave browsers.
+
 ## Build/compile issues
 If you are experiencing build issues that lead to minify errors add required modules to [config-overrides.js](https://github.com/pbca26/hw-kmd-wallet/blob/master/config-overrides.js#L19) file.
 
