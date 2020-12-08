@@ -34,7 +34,7 @@ import {
 } from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain from './lib/blockchain';
-import apiEndpoints from './lib/insight-endpoints';
+import apiEndpoints from './lib/coins';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import {osName} from 'react-device-detect';
 import {
@@ -135,34 +135,36 @@ class App extends React.Component {
   }
 
   checkExplorerEndpoints = async () => {
-    const getInfoRes =  await Promise.all(apiEndpoints[this.state.coin].map((value, index) => {
+    const getInfoRes =  await Promise.all(apiEndpoints[this.state.coin].api.map((value, index) => {
       return getInfo(value);
     }));
     let isExplorerEndpointSet = false;
 
     console.warn('checkExplorerEndpoints', getInfoRes);
     
-    for (let i = 0; i < apiEndpoints[this.state.coin].length; i++) {
+    for (let i = 0; i < apiEndpoints[this.state.coin].api.length; i++) {
       if (getInfoRes[i] &&
           getInfoRes[i].hasOwnProperty('info') &&
           getInfoRes[i].info.hasOwnProperty('version')) {
-        console.warn('set api endpoint to ' + apiEndpoints[this.state.coin][i]);
-        setExplorerUrl(apiEndpoints[this.state.coin][i]);
+        console.warn('set api endpoint to ' + apiEndpoints[this.state.coin].api[i]);
+        setExplorerUrl(apiEndpoints[this.state.coin].api[i]);
         isExplorerEndpointSet = true;
         
         this.setState({
-          explorerEndpoint: apiEndpoints[this.state.coin][i],
+          explorerEndpoint: apiEndpoints[this.state.coin].api[i],
         });
 
         break;
       }
     }
 
-    if (!isExplorerEndpointSet) {
-      this.setState({
-        explorerEndpoint: false,
-      });
-    }
+    setTimeout(() => {
+      if (!isExplorerEndpointSet) {
+        this.setState({
+          explorerEndpoint: false,
+        });
+      }
+    }, 50);
   };
 
   resetState = () => {

@@ -172,32 +172,32 @@ function createWindow() {
     mainWindow = null;
   });
 
-  ipcMain.on('getAddress', (e, derivationPath) => {
+  ipcMain.on('getAddress', (e, {ruid, derivationPath}) => {
     console.log(derivationPath);
 
     if (mainWindow) {
       getAddress(derivationPath, false).then(result => {
-        mainWindow.webContents.send('getAddress', result);
+        mainWindow.webContents.send('getAddress', {ruid, result});
       });
     }
   });
 
-  ipcMain.on('createPaymentTransactionNew', (e, txData) => {
+  ipcMain.on('createPaymentTransactionNew', (e, {ruid, txData}) => {
     console.log(txData);
 
     if (mainWindow) {
       createPaymentTransactionNew(txData).then(result => {
-        mainWindow.webContents.send('createPaymentTransactionNew', result);
+        mainWindow.webContents.send('createPaymentTransactionNew', {ruid, result});
       });
     }
   });
 
-  ipcMain.on('splitTransaction', (e, txData) => {
+  ipcMain.on('splitTransaction', (e, {ruid, txData}) => {
     console.log(txData);
 
     if (mainWindow) {
       splitTransaction(txData).then(result => {
-        mainWindow.webContents.send('splitTransaction', result);
+        mainWindow.webContents.send('splitTransaction', {ruid, result});
       });
     }
   });
