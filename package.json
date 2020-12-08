@@ -14,7 +14,8 @@
     "predeploy": "yarn build",
     "deploy": "gh-pages -d build",
     "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject"
+    "eject": "react-app-rewired eject",
+    "postinstall": "cp -R node_modules/@ledgerhq/devices node_modules/@ledgerhq/hw-transport-webusb/node_modules/@ledgerhq && cp -R node_modules/@ledgerhq/devices node_modules/@ledgerhq/hw-transport/node_modules/@ledgerhq && cp -R node_modules/@ledgerhq/devices node_modules/@ledgerhq/hw-transport-webhid/node_modules/@ledgerhq && cp -R node_modules/@ledgerhq/devices node_modules/@ledgerhq/hw-transport-u2f/node_modules/@ledgerhq && cp -R node_modules/@ledgerhq/logs node_modules/@ledgerhq/hw-transport-u2f/node_modules/@ledgerhq && cp -R node_modules/@ledgerhq/logs node_modules/@ledgerhq/hw-transport-webusb/node_modules/@ledgerhq && cp -R node_modules/@ledgerhq/logs node_modules/@ledgerhq/hw-transport-webhid/node_modules/@ledgerhq"    
   },
   "eslintConfig": {
     "extends": "react-app"
