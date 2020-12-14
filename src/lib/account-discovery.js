@@ -9,10 +9,17 @@ let pubKeysCache = {};
 
 const walkDerivationPath = async node => {
   const addresses = [];
-  const addressConcurrency = 10;
-  const gapLimit = 20;
+  let addressConcurrency = 10;
+  let gapLimit = 20;
   let consecutiveUnusedAddresses = 0;
   let addressIndex = 0;
+
+  if (window.location.href.indexOf('extgap=s') > -1 ) gapLimit = 30;
+  if (window.location.href.indexOf('extgap=m') > -1 ) gapLimit = 40;
+  if (window.location.href.indexOf('extgap=l') > -1 ) gapLimit = 50;
+
+  if (window.location.href.indexOf('timeout=s') > -1 ) addressConcurrency = 2;
+  if (window.location.href.indexOf('timeout=m') > -1 ) addressConcurrency = 5;
 
   while (consecutiveUnusedAddresses < gapLimit) {
     const addressApiRequests = [];
