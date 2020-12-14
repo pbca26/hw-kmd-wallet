@@ -3,19 +3,14 @@ import blockchain from './blockchain';
 import getAddress from './get-address';
 import bitcoin from 'bitcoinjs-lib';
 import parseHistory from './history-parser';
+import asyncForEach from './async';
 
 let pubKeysCache = {};
 
-async function asyncForEach(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-}
-
 const walkDerivationPath = async node => {
+  const addresses = [];
   const addressConcurrency = 10;
   const gapLimit = 20;
-  const addresses = [];
   let consecutiveUnusedAddresses = 0;
   let addressIndex = 0;
 
