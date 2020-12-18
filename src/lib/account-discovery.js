@@ -213,4 +213,8 @@ const accountDiscovery = async vendor => {
   return accounts;
 };
 
+export const clearPubkeysCache = () => {
+  pubKeysCache = {};
+};
+
 export default accountDiscovery;

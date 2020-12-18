@@ -1,7 +1,7 @@
 import React from 'react';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import hw from './lib/hw';
-import accountDiscovery from './lib/account-discovery';
+import accountDiscovery, {clearPubkeysCache} from './lib/account-discovery';
 import blockchain, {setExplorerUrl, getInfo} from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
 import {TX_FEE, VENDOR} from './constants';
