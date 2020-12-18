@@ -7,6 +7,7 @@ import updateActionState from './lib/update-action-state';
 import {TX_FEE, VENDOR} from './constants';
 import ActionListModal from './ActionListModal';
 import asyncForEach from './lib/async';
+import coins from './lib/coins';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 
 class CheckAllBalancesButton extends React.Component {
@@ -16,6 +17,8 @@ class CheckAllBalancesButton extends React.Component {
     return {
       isCheckingRewards: false,
       error: false,
+      coin: '',
+      balances: [],
       actions: {
         connect: {
           icon: 'fab fa-usb',
@@ -32,6 +35,7 @@ class CheckAllBalancesButton extends React.Component {
   }
 
   resetState = () => {
+    cancel = true;
     this.setState(this.initialState);
   }
 
@@ -42,6 +46,64 @@ class CheckAllBalancesButton extends React.Component {
 
     return account;
   });
+
+  scanAddresses = async () => {
+    const coinTickers = Object.keys(coins);
+    let balances = [];
+    cancel = false;
+    
+    await asyncForEach(coinTickers, async (coin, index) => {
+      setExplorerUrl(coins[coin].api[0]);
+      this.setState({
+        ...this.initialState,
+        isCheckingRewards: true,
+        coin,
+        balances,
+      });
+
+      let currentAction;
+      try {
+        currentAction = 'connect';
+        updateActionState(this, currentAction, 'loading');
+        const hwIsAvailable = await hw[this.props.vendor].isAvailable();
+        if (!hwIsAvailable) {
+          throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
+        }
+        updateActionState(this, currentAction, true);
+
+        currentAction = 'approve';
+        updateActionState(this, currentAction, 'loading');
+        let [accounts, tiptime] = await Promise.all([
+          accountDiscovery(this.props.vendor),
+          blockchain.getTipTime()
+        ]);
+
+        tiptime = this.props.checkTipTime(tiptime);
+
+        accounts = this.calculateRewardData({accounts, tiptime});
+        updateActionState(this, currentAction, true);
+
+        let balanceSum = 0;
+
+        for (let i = 0; i < accounts.length; i++) {
+          balanceSum += accounts[i].balance;
+        }
+
+        if (balanceSum) {
+          balances.push({
+            coin,
+            balance: balanceSum,
+          });
+        }
+
+        //this.setState({...this.initialState});
+      } catch (error) {
+        console.warn(error);
+        updateActionState(this, currentAction, false);
+        this.setState({error: error.message});
+      }
+    });
+  };
 
   render() {
     const {
@@ -58,7 +120,7 @@ class CheckAllBalancesButton extends React.Component {
           {this.props.children}
         </button>
         <ActionListModal
-          title={`Scanning Blockchain`}
+          title={`Scanning Blockchain ${this.state.coin}`}
           isCloseable={true}
           actions={actions}
           error={error}
