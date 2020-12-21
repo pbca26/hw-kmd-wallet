@@ -103,6 +103,22 @@ class CheckAllBalancesButton extends React.Component {
         this.setState({error: error.message});
       }
     });
+
+    if (!this.state.error || (this.state.error && this.state.error.indexOf('Failed to fetch') > -1)) {
+      updateActionState(this, 'approve', true);
+      updateActionState(this, 'finished', true);
+    }
+
+    clearPubkeysCache();
+
+    this.setState({
+      error: false,
+      progress: '',
+      coin: '',
+      isCheckingRewards: true,
+    });
+    
+    setExplorerUrl(this.props.explorerEndpoint);
   };
 
   renderCoinBalances() {
