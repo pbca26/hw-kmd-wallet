@@ -15,6 +15,8 @@ const headings = [
   'Balance',
 ];
 
+let cancel = false;
+
 class CheckAllBalancesButton extends React.Component {
   state = this.initialState;
   
@@ -64,91 +66,95 @@ class CheckAllBalancesButton extends React.Component {
     cancel = false;
     
     await asyncForEach(coinTickers, async (coin, index) => {
-      const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
-        return getInfo(value);
-      }));
-      let isExplorerEndpointSet = false;
-  
-      console.warn('checkExplorerEndpoints', getInfoRes);
-      
-      for (let i = 0; i < coins[coin].api.length; i++) {
-        if (getInfoRes[i] &&
-            getInfoRes[i].hasOwnProperty('info') &&
-            getInfoRes[i].info.hasOwnProperty('version')) {
-          console.warn(`${coin} set api endpoint to ${coins[coin].api[i]}`);
-          setExplorerUrl(coins[coin].api[i]);
-          isExplorerEndpointSet = true;
-  
-          break;
+      if (!cancel) {
+        const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
+          return getInfo(value);
+        }));
+        let isExplorerEndpointSet = false;
+    
+        console.warn('checkExplorerEndpoints', getInfoRes);
+        
+        for (let i = 0; i < coins[coin].api.length; i++) {
+          if (getInfoRes[i] &&
+              getInfoRes[i].hasOwnProperty('info') &&
+              getInfoRes[i].info.hasOwnProperty('version')) {
+            console.warn(`${coin} set api endpoint to ${coins[coin].api[i]}`);
+            setExplorerUrl(coins[coin].api[i]);
+            isExplorerEndpointSet = true;
+    
+            break;
+          }
         }
-      }
 
-      if (isExplorerEndpointSet) {
-        this.setState({
-          ...this.initialState,
-          isCheckingRewards: true,
-          coin,
-          progress: ` (${index + 1}/${coinTickers.length})`,
-          balances,
-        });
+        if (isExplorerEndpointSet) {
+          this.setState({
+            ...this.initialState,
+            isCheckingRewards: true,
+            coin,
+            progress: ` (${index + 1}/${coinTickers.length})`,
+            balances,
+          });
 
-        let currentAction;
-        try {
-          currentAction = 'connect';
-          updateActionState(this, currentAction, 'loading');
-          const hwIsAvailable = await hw[this.props.vendor].isAvailable();
-          if (!hwIsAvailable) {
-            throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
+          let currentAction;
+          try {
+            currentAction = 'connect';
+            updateActionState(this, currentAction, 'loading');
+            const hwIsAvailable = await hw[this.props.vendor].isAvailable();
+            if (!hwIsAvailable) {
+              throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
+            }
+            updateActionState(this, currentAction, true);
+
+            currentAction = 'approve';
+            updateActionState(this, currentAction, 'loading');
+            let [accounts, tiptime] = await Promise.all([
+              accountDiscovery(this.props.vendor),
+              blockchain.getTipTime()
+            ]);
+
+            tiptime = this.props.checkTipTime(tiptime);
+
+            accounts = this.calculateRewardData({accounts, tiptime});
+            updateActionState(this, currentAction, true);
+
+            let balanceSum = 0;
+
+            for (let i = 0; i < accounts.length; i++) {
+              balanceSum += accounts[i].balance;
+            }
+
+            if (balanceSum) {
+              balances.push({
+                coin,
+                balance: balanceSum,
+              });
+            }
+
+            //this.setState({...this.initialState});
+          } catch (error) {
+            console.warn(error);
+            updateActionState(this, currentAction, false);
+            this.setState({error: error.message});
           }
-          updateActionState(this, currentAction, true);
-
-          currentAction = 'approve';
-          updateActionState(this, currentAction, 'loading');
-          let [accounts, tiptime] = await Promise.all([
-            accountDiscovery(this.props.vendor),
-            blockchain.getTipTime()
-          ]);
-
-          tiptime = this.props.checkTipTime(tiptime);
-
-          accounts = this.calculateRewardData({accounts, tiptime});
-          updateActionState(this, currentAction, true);
-
-          let balanceSum = 0;
-
-          for (let i = 0; i < accounts.length; i++) {
-            balanceSum += accounts[i].balance;
-          }
-
-          if (balanceSum) {
-            balances.push({
-              coin,
-              balance: balanceSum,
-            });
-          }
-
-          //this.setState({...this.initialState});
-        } catch (error) {
-          console.warn(error);
-          updateActionState(this, currentAction, false);
-          this.setState({error: error.message});
         }
       }
     });
     
-    if (!this.state.error || (this.state.error && this.state.error.indexOf('Failed to fetch') > -1)) {
-      updateActionState(this, 'approve', true);
-      updateActionState(this, 'finished', true);
+    if (!cancel) {
+      if (!this.state.error || (this.state.error && this.state.error.indexOf('Failed to fetch') > -1)) {
+        updateActionState(this, 'approve', true);
+        updateActionState(this, 'finished', true);
+      }
+
+      clearPubkeysCache();
+
+      this.setState({
+        error: false,
+        progress: '',
+        coin: '',
+        isCheckingRewards: true,
+      });
     }
-
-    clearPubkeysCache();
-
-    this.setState({
-      error: false,
-      progress: '',
-      coin: '',
-      isCheckingRewards: true,
-    });
     
     setExplorerUrl(this.props.explorerEndpoint);
   };
