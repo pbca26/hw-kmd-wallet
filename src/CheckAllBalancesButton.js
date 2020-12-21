@@ -105,6 +105,35 @@ class CheckAllBalancesButton extends React.Component {
     });
   };
 
+  renderCoinBalances() {
+    const balances = this.state.balances;
+    
+    return (
+      <table className="table is-striped">
+        <thead>
+          <tr>
+            {headings.map(heading => <th key={heading}>{heading}</th>)}
+          </tr>
+        </thead>
+        {balances.length > 10 &&
+          <tfoot>
+            <tr>
+              {headings.map(heading => <th key={heading}>{heading}</th>)}
+            </tr>
+          </tfoot>
+        }
+        <tbody>
+          {balances.map(item => (
+            <tr key={item.coin}>
+              <th>{item.coin}</th>
+              <td>{humanReadableSatoshis(item.balance)}{item.rewards ? ` (${humanReadableSatoshis(item.rewards)})` : ''}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
   render() {
     const {
       isCheckingRewards,
@@ -129,6 +158,10 @@ class CheckAllBalancesButton extends React.Component {
           <p>
             Exporting public keys from your {VENDOR[this.props.vendor]} device, scanning the blockchain for funds, and calculating any claimable rewards. Please approve any public key export requests on your device.
           </p>
+          {this.state.balances &&
+           this.state.balances.length > 0 &&
+            <React.Fragment>{this.renderCoinBalances()}</React.Fragment>
+          }
         </ActionListModal>
       </React.Fragment>
     );
