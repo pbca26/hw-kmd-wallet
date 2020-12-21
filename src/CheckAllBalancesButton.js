@@ -10,6 +10,11 @@ import asyncForEach from './lib/async';
 import coins from './lib/coins';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 
+const headings = [
+  'Coin',
+  'Balance',
+];
+
 class CheckAllBalancesButton extends React.Component {
   state = this.initialState;
   
@@ -19,6 +24,7 @@ class CheckAllBalancesButton extends React.Component {
       error: false,
       coin: '',
       balances: [],
+      progress: '',
       actions: {
         connect: {
           icon: 'fab fa-usb',
@@ -28,6 +34,11 @@ class CheckAllBalancesButton extends React.Component {
         approve: {
           icon: 'fas fa-microchip',
           description: <div>Approve all public key export requests on your device. <strong>There will be multiple requests</strong>.</div>,
+          state: null
+        },
+        finished: {
+          icon: 'fas fa-check',
+          description: <div>All coin balances are checked.</div>,
           state: null
         },
       }
@@ -53,57 +64,78 @@ class CheckAllBalancesButton extends React.Component {
     cancel = false;
     
     await asyncForEach(coinTickers, async (coin, index) => {
-      setExplorerUrl(coins[coin].api[0]);
-      this.setState({
-        ...this.initialState,
-        isCheckingRewards: true,
-        coin,
-        balances,
-      });
-
-      let currentAction;
-      try {
-        currentAction = 'connect';
-        updateActionState(this, currentAction, 'loading');
-        const hwIsAvailable = await hw[this.props.vendor].isAvailable();
-        if (!hwIsAvailable) {
-          throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
+      const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
+        return getInfo(value);
+      }));
+      let isExplorerEndpointSet = false;
+  
+      console.warn('checkExplorerEndpoints', getInfoRes);
+      
+      for (let i = 0; i < coins[coin].api.length; i++) {
+        if (getInfoRes[i] &&
+            getInfoRes[i].hasOwnProperty('info') &&
+            getInfoRes[i].info.hasOwnProperty('version')) {
+          console.warn(`${coin} set api endpoint to ${coins[coin].api[i]}`);
+          setExplorerUrl(coins[coin].api[i]);
+          isExplorerEndpointSet = true;
+  
+          break;
         }
-        updateActionState(this, currentAction, true);
+      }
 
-        currentAction = 'approve';
-        updateActionState(this, currentAction, 'loading');
-        let [accounts, tiptime] = await Promise.all([
-          accountDiscovery(this.props.vendor),
-          blockchain.getTipTime()
-        ]);
+      if (isExplorerEndpointSet) {
+        this.setState({
+          ...this.initialState,
+          isCheckingRewards: true,
+          coin,
+          progress: ` (${index + 1}/${coinTickers.length})`,
+          balances,
+        });
 
-        tiptime = this.props.checkTipTime(tiptime);
+        let currentAction;
+        try {
+          currentAction = 'connect';
+          updateActionState(this, currentAction, 'loading');
+          const hwIsAvailable = await hw[this.props.vendor].isAvailable();
+          if (!hwIsAvailable) {
+            throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
+          }
+          updateActionState(this, currentAction, true);
 
-        accounts = this.calculateRewardData({accounts, tiptime});
-        updateActionState(this, currentAction, true);
+          currentAction = 'approve';
+          updateActionState(this, currentAction, 'loading');
+          let [accounts, tiptime] = await Promise.all([
+            accountDiscovery(this.props.vendor),
+            blockchain.getTipTime()
+          ]);
 
-        let balanceSum = 0;
+          tiptime = this.props.checkTipTime(tiptime);
 
-        for (let i = 0; i < accounts.length; i++) {
-          balanceSum += accounts[i].balance;
+          accounts = this.calculateRewardData({accounts, tiptime});
+          updateActionState(this, currentAction, true);
+
+          let balanceSum = 0;
+
+          for (let i = 0; i < accounts.length; i++) {
+            balanceSum += accounts[i].balance;
+          }
+
+          if (balanceSum) {
+            balances.push({
+              coin,
+              balance: balanceSum,
+            });
+          }
+
+          //this.setState({...this.initialState});
+        } catch (error) {
+          console.warn(error);
+          updateActionState(this, currentAction, false);
+          this.setState({error: error.message});
         }
-
-        if (balanceSum) {
-          balances.push({
-            coin,
-            balance: balanceSum,
-          });
-        }
-
-        //this.setState({...this.initialState});
-      } catch (error) {
-        console.warn(error);
-        updateActionState(this, currentAction, false);
-        this.setState({error: error.message});
       }
     });
-
+    
     if (!this.state.error || (this.state.error && this.state.error.indexOf('Failed to fetch') > -1)) {
       updateActionState(this, 'approve', true);
       updateActionState(this, 'finished', true);
@@ -131,18 +163,16 @@ class CheckAllBalancesButton extends React.Component {
             {headings.map(heading => <th key={heading}>{heading}</th>)}
           </tr>
         </thead>
-        {balances.length > 10 &&
-          <tfoot>
-            <tr>
-              {headings.map(heading => <th key={heading}>{heading}</th>)}
-            </tr>
-          </tfoot>
-        }
+        <tfoot>
+          <tr>
+            {headings.map(heading => <th key={heading}>{heading}</th>)}
+          </tr>
+        </tfoot>
         <tbody>
           {balances.map(item => (
             <tr key={item.coin}>
               <th>{item.coin}</th>
-              <td>{humanReadableSatoshis(item.balance)}{item.rewards ? ` (${humanReadableSatoshis(item.rewards)})` : ''}</td>
+              <td>{humanReadableSatoshis(item.balance)}</td>
             </tr>
           ))}
         </tbody>
@@ -165,7 +195,7 @@ class CheckAllBalancesButton extends React.Component {
           {this.props.children}
         </button>
         <ActionListModal
-          title={`Scanning Blockchain ${this.state.coin}`}
+          title={`Scanning Blockchain ${this.state.coin}${this.state.progress}`}
           isCloseable={true}
           actions={actions}
           error={error}
