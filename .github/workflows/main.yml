@@ -209,6 +209,9 @@ jobs:
     needs: [job-macos-build, job-linux-build, job-win-build]
 
     steps:
+      - name: ACTIONS_ALLOW_UNSECURE_COMMANDS
+        id: ACTIONS_ALLOW_UNSECURE_COMMANDS
+        run: echo 'ACTIONS_ALLOW_UNSECURE_COMMANDS=true' >> $GITHUB_ENV
       - name: Download Artifacts Portable (Linux)
         env:
           BASE_BRANCH: ${{ github.base_ref }}
