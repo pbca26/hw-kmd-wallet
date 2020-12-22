@@ -3,21 +3,23 @@ import blockchain from './blockchain';
 import getAddress from './get-address';
 import bitcoin from 'bitcoinjs-lib';
 import parseHistory from './history-parser';
+import asyncForEach from './async';
 
 let pubKeysCache = {};
 
-async function asyncForEach(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-}
-
 const walkDerivationPath = async node => {
-  const addressConcurrency = 10;
-  const gapLimit = 20;
   const addresses = [];
+  let addressConcurrency = 10;
+  let gapLimit = 20;
   let consecutiveUnusedAddresses = 0;
   let addressIndex = 0;
+
+  if (window.location.href.indexOf('extgap=s') > -1) gapLimit = 30;
+  if (window.location.href.indexOf('extgap=m') > -1) gapLimit = 40;
+  if (window.location.href.indexOf('extgap=l') > -1) gapLimit = 50;
+
+  if (window.location.href.indexOf('timeout=s') > -1) addressConcurrency = 2;
+  if (window.location.href.indexOf('timeout=m') > -1) addressConcurrency = 5;
 
   while (consecutiveUnusedAddresses < gapLimit) {
     const addressApiRequests = [];
@@ -209,6 +211,10 @@ const accountDiscovery = async vendor => {
   console.warn('accounts', accounts);
 
   return accounts;
+};
+
+export const clearPubkeysCache = () => {
+  pubKeysCache = {};
 };
 
 export default accountDiscovery;

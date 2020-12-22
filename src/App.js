@@ -5,6 +5,7 @@ import {isEqual} from 'lodash';
 import Header from './Header';
 import BetaWarning from './BetaWarning';
 import CheckBalanceButton from './CheckBalanceButton';
+import CheckAllBalancesButton from './CheckAllBalancesButton';
 import Accounts from './Accounts';
 import WarnU2fCompatibility from './WarnU2fCompatibility';
 import WarnBrowser from './WarnBrowser';
@@ -367,12 +368,21 @@ class App extends React.Component {
                     </select>
                     {(this.state.vendor === 'trezor' || (this.state.vendor === 'ledger' && this.state.ledgerDeviceType)) &&
                      this.state.explorerEndpoint &&
-                      <CheckBalanceButton
-                        handleRewardData={this.handleRewardData}
-                        checkTipTime={this.checkTipTime}
-                        vendor={this.state.vendor}>
-                        <strong>Check Balance</strong>
-                      </CheckBalanceButton>
+                      <React.Fragment>
+                        <CheckBalanceButton
+                          handleRewardData={this.handleRewardData}
+                          checkTipTime={this.checkTipTime}
+                          vendor={this.state.vendor}>
+                          <strong>Check Balance</strong>
+                        </CheckBalanceButton>
+                        <CheckAllBalancesButton
+                          handleRewardData={this.handleRewardData}
+                          checkTipTime={this.checkTipTime}
+                          vendor={this.state.vendor}
+                          explorerEndpoint={this.state.explorerEndpoint}>
+                          <strong>Check All</strong>
+                        </CheckAllBalancesButton>
+                      </React.Fragment>
                     }
                     <button
                       className="button is-light"
