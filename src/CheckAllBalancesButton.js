@@ -9,10 +9,19 @@ import ActionListModal from './ActionListModal';
 import asyncForEach from './lib/async';
 import coins from './lib/coins';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
+import {
+  isElectron,
+  appData,
+} from './Electron';
 
 const headings = [
   'Coin',
   'Balance',
+];
+const coinsToCheckDev = [
+  'RICK',
+  'MORTY',
+  'KMD',
 ];
 
 let cancel = false;
@@ -44,7 +53,8 @@ class CheckAllBalancesButton extends React.Component {
           description: <div>All coin balances are checked.</div>,
           state: null
         },
-      }
+      },
+      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('devmode') > -1,
     };
   }
 
@@ -67,7 +77,7 @@ class CheckAllBalancesButton extends React.Component {
     cancel = false;
     
     await asyncForEach(coinTickers, async (coin, index) => {
-      if (!cancel && (coin === 'RICK' || coin === 'MORTY' || coin === 'KMD')) {
+      if (!cancel && (!this.state.isDebug || (this.state.isDebug && coinsToCheckDev.indexOf(coin) > -1))) {
         const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
           return getInfo(value);
         }));
