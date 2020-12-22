@@ -17,6 +17,7 @@ module.exports = {
       path.resolve(paths.appNodeModules, 'bip32'),
       path.resolve(paths.appNodeModules, 'typeforce'),
       path.resolve(paths.appNodeModules, 'semver'),
+      path.resolve(paths.appNodeModules, 'lru-cache'),
       path.resolve(paths.appNodeModules, '@ledgerhq/hw-app-btc'),
       path.resolve(paths.appNodeModules, '@ledgerhq/hw-transport/lib-es'),
       path.resolve(paths.appNodeModules, '@ledgerhq/hw-transport-webusb/lib-es'),
