@@ -27,6 +27,7 @@ class CheckAllBalancesButton extends React.Component {
       coin: '',
       balances: [],
       progress: '',
+      emptyBalances: false,
       actions: {
         connect: {
           icon: 'fab fa-usb',
@@ -66,7 +67,7 @@ class CheckAllBalancesButton extends React.Component {
     cancel = false;
     
     await asyncForEach(coinTickers, async (coin, index) => {
-      if (!cancel) {
+      if (!cancel && (coin === 'RICK' || coin === 'MORTY' || coin === 'KMD')) {
         const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
           return getInfo(value);
         }));
@@ -118,18 +119,24 @@ class CheckAllBalancesButton extends React.Component {
             updateActionState(this, currentAction, true);
 
             let balanceSum = 0;
+            let rewardsSum = 0;
 
             for (let i = 0; i < accounts.length; i++) {
               balanceSum += accounts[i].balance;
+              rewardsSum += accounts[i].rewards; 
             }
 
             if (balanceSum) {
               balances.push({
                 coin,
                 balance: balanceSum,
+                rewards: rewardsSum,
               });
             }
 
+            this.setState({
+              balances,
+            });            
             //this.setState({...this.initialState});
           } catch (error) {
             console.warn(error);
@@ -153,6 +160,7 @@ class CheckAllBalancesButton extends React.Component {
         progress: '',
         coin: '',
         isCheckingRewards: true,
+        emptyBalances: !this.state.balances.length,
       });
     }
     
@@ -169,16 +177,18 @@ class CheckAllBalancesButton extends React.Component {
             {headings.map(heading => <th key={heading}>{heading}</th>)}
           </tr>
         </thead>
-        <tfoot>
-          <tr>
-            {headings.map(heading => <th key={heading}>{heading}</th>)}
-          </tr>
-        </tfoot>
+        {balances.length > 10 &&
+          <tfoot>
+            <tr>
+              {headings.map(heading => <th key={heading}>{heading}</th>)}
+            </tr>
+          </tfoot>
+        }
         <tbody>
           {balances.map(item => (
             <tr key={item.coin}>
               <th>{item.coin}</th>
-              <td>{humanReadableSatoshis(item.balance)}</td>
+              <td>{humanReadableSatoshis(item.balance)}{item.rewards ? ` (${humanReadableSatoshis(item.rewards)})` : ''}</td>
             </tr>
           ))}
         </tbody>
@@ -213,6 +223,11 @@ class CheckAllBalancesButton extends React.Component {
           {this.state.balances &&
            this.state.balances.length > 0 &&
             <React.Fragment>{this.renderCoinBalances()}</React.Fragment>
+          }
+          {this.state.emptyBalances &&
+            <p>
+              <strong>No active balances are found</strong>
+            </p>
           }
         </ActionListModal>
       </React.Fragment>
