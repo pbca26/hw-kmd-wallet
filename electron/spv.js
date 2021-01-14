@@ -1,10 +1,12 @@
 const network = require('./networks');
 const bitcoin = require('bitgo-utxo-lib');
+const async = require('async');
 
 const electrumServersList = require('./electrum-servers');
 const electrumJSCore = require('./electrumjs.core');
 const transactionDecoder = require('./transaction-decoder');
 const {ipcMain} = require('electron');
+const cacheUtil = require('./cache');
 
 let mainWindow;
 let cache = {};
@@ -58,6 +60,108 @@ const getProtocolVersion = (_ecl) => {
       resolve(protocolVersion);
     });
   });
+};
+
+const eclManagerClear = (coin) => {
+  if (coin) delete electrumServers[coin];
+  electrumServers = {};
+};
+
+const getServer = async(coin, customServer) => {
+  if (customServer && process.argv.indexOf('spv-debug') > -1) console.log(`custom server ${customServer.ip}:${customServer.port}:${customServer.proto}`, 'ecl.manager');
+  if ((customServer && !electrumServers[coin][`${customServer.ip}:${customServer.port}:${customServer.proto}`]) ||
+      !electrumServers[coin] ||
+      (electrumServers[coin] && !Object.keys(electrumServers[coin]).length)) {
+    let serverStr = '';
+
+    if (!customServer) {
+      const randomServerDefault = electrumServersList[coin][getRandomIntInclusive(0, electrumServersList[coin].length - 1)].split(':');
+      console.log('randomServerDefault', randomServerDefault);
+      serverStr = [
+        randomServerDefault[0],
+        randomServerDefault[1],
+        randomServerDefault[2]
+      ];
+    } else {
+      serverStr = [
+        customServer.ip,
+        customServer.port,
+        customServer.proto
+      ];
+    }
+
+    if (process.argv.indexOf('spv-debug') > -1) console.log('ecl server doesnt exist yet, lets add', 'ecl.manager')
+
+    const ecl = new electrumJSCore(serverStr[1], serverStr[0], serverStr[2]);
+    if (process.argv.indexOf('spv-debug') > -1) console.log(`ecl conn ${serverStr}`, 'ecl.manager');
+    ecl.connect();
+    if (process.argv.indexOf('spv-debug') > -1) console.log(`ecl req protocol ${serverStr}`, 'ecl.manager');
+    const eclProtocolVersion = await getProtocolVersion(ecl);
+    
+    if (!electrumServers[coin]) {
+      electrumServers[coin] = {};
+    }
+
+    electrumServers[coin][serverStr.join(':')] = {
+      server: ecl,
+      lastReq: Date.now(),
+      lastPing: Date.now(),
+    };
+
+    return electrumServers[coin][serverStr.join(':')].server;
+  } else {
+    if (customServer) {
+      if (process.argv.indexOf('spv-debug') > -1) console.log(`ecl ${coin} server exists, custom server param provided`, 'ecl.manager');
+      let ecl = electrumServers[coin][`${customServer.ip}:${customServer.port}:${customServer.proto}`];
+      ecl.lastReq = Date.now();
+      return ecl.server;
+    } else {
+      if (process.argv.indexOf('spv-debug') > -1) console.log(`ecl ${coin} server exists`, 'ecl.manager');
+      let ecl = Object.keys(electrumServers[coin]) > 1 ? electrumServers[coin][Object.keys(electrumServers[coin])[getRandomIntInclusive(0, Object.keys(electrumServers[coin]).length)]] : electrumServers[coin][Object.keys(electrumServers[coin])[0]];
+      console.log('ecl server returned', coin);
+      ecl.lastReq = Date.now();
+      return ecl.server;
+    }
+  }
+};
+
+const initElectrumManager = () => {
+  setInterval(() => {
+    for (let coin in electrumServers) {
+      if (process.argv.indexOf('spv-debug') > -1) console.log(`ecl check coin ${coin}`, 'ecl.manager');
+
+      for (let serverStr in electrumServers[coin]) {
+        const pingSecPassed = checkTimestamp(electrumServers[coin][serverStr].lastPing);
+        if (process.argv.indexOf('spv-debug') > -1) console.log(`ping sec passed ${pingSecPassed}`, 'ecl.manager');
+        
+        if (pingSecPassed > PING_TIME) {
+          if (process.argv.indexOf('spv-debug') > -1) console.log(`ecl ${coin} ${serverStr} ping limit passed, send ping`, 'ecl.manager');
+
+          getProtocolVersion(electrumServers[coin][serverStr].server)
+          .then((eclProtocolVersion) => {
+            if (eclProtocolVersion === 'sent') {
+              if (process.argv.indexOf('spv-debug') > -1) console.log(`ecl ${coin} ${serverStr} ping success`, 'ecl.manager');
+              electrumServers[coin][serverStr].lastPing = Date.now();
+            } else {
+              if (process.argv.indexOf('spv-debug') > -1) console.log(`ecl ${coin} ${serverStr} ping fail, remove server`, 'ecl.manager');
+              delete electrumServers[coin][serverStr];
+            }
+          });
+        }
+
+        const reqSecPassed = checkTimestamp(electrumServers[coin][serverStr].lastReq);
+        if (process.argv.indexOf('spv-debug') > -1) console.log(`req sec passed ${reqSecPassed}`, 'ecl.manager');
+        
+        if (reqSecPassed > MAX_IDLE_TIME) {
+          if (process.argv.indexOf('spv-debug') > -1) console.log(`ecl ${coin} ${serverStr} req limit passed, disconnect server`, 'ecl.manager');
+          electrumServers[coin][serverStr].server.close();
+          delete electrumServers[coin][serverStr];
+        }
+      }
+    }
+
+    //api.checkOpenElectrumConnections();
+  }, CHECK_INTERVAL);
 };
 
 module.exports = {
