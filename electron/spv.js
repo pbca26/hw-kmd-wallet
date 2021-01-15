@@ -7,6 +7,14 @@ const electrumJSCore = require('./electrumjs.core');
 const transactionDecoder = require('./transaction-decoder');
 const {ipcMain} = require('electron');
 const cacheUtil = require('./cache');
+const {
+  asyncForEach,
+  getRandomIntInclusive,
+  checkTimestamp,
+  pubToElectrumScriptHashHex,
+  parseBlock,
+  parseBlockToJSON
+} = require('./spv-utils');
 
 let mainWindow;
 let cache = {};
