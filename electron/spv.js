@@ -177,6 +177,18 @@ const getCurrentBlock = (coin) => {
   });
 };
 
+const getCurrentBlockNum = (coin) => {
+  return new Promise(async (resolve, reject) => {
+    const ecl = await getServer(coin);
+
+    ecl.blockchainHeadersSubscribe()
+    .then((json) => {
+      console.log('getCurrentBlockNum', json.height);
+      resolve(json.height);
+    });
+  });
+};
+
 module.exports = {
   setMainWindow,
 };
