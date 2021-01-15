@@ -164,6 +164,19 @@ const initElectrumManager = () => {
   }, CHECK_INTERVAL);
 };
 
+// eq to insight api/block/
+const getCurrentBlock = (coin) => {
+  return new Promise(async (resolve, reject) => {
+    const ecl = await getServer(coin);
+    
+    ecl.blockchainHeadersSubscribe()
+    .then((json) => {
+      console.log('getCurrentBlock', parseBlockToJSON(parseBlock(json.hex)));
+      resolve(parseBlockToJSON(parseBlock(json.hex)));
+    });
+  });
+};
+
 module.exports = {
   setMainWindow,
 };
