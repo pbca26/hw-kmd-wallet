@@ -51,6 +51,23 @@ const parseBlockToJSON = (hex, network) => {
   return hex;
 };
 
+const formatTransaction = (tx) => {
+  return {
+    txid: tx.format.txid,
+    version: tx.format.version,
+    locktime: tx.format.locktime,
+    vin: tx.inputs,
+    vout: tx.outputs,
+    time: tx.timestamp,
+    blocktime: tx.timestamp,
+    confirmations: tx.confirmations,
+    blockheight: tx.height,
+    fOverwintered: tx.tx.overwintered ? true : false,
+    nVersionGroupId: tx.tx.versionGroupId,
+    nExpiryHeight: tx.tx.expiryHeight,
+  };
+};
+
 module.exports = {
   asyncForEach,
   getRandomIntInclusive,
@@ -58,4 +75,5 @@ module.exports = {
   pubToElectrumScriptHashHex,
   parseBlock,
   parseBlockToJSON,
+  formatTransaction,
 };
