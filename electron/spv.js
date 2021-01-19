@@ -214,6 +214,26 @@ const getBlock = (coin, height) => {
   });
 };
 
+// eq to insight api/tx/
+// TODO: parse vins
+const getTransaction = (coin, txid, decode) => {
+  return new Promise(async (resolve, reject) => {
+    const ecl = await getServer(coin);      
+
+    ecl.blockchainTransactionGet(txid)
+    .then((json) => {
+      try {
+        transactionDecoder(json);
+      } catch (e) {
+        // handle
+      }
+      if (decode) json = transactionDecoder(json);
+      console.log('getTransaction', json);
+      resolve(json);
+    });
+  });
+};
+
 module.exports = {
   setMainWindow,
 };
