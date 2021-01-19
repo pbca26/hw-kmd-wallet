@@ -197,6 +197,23 @@ const getCurrentBlockNum = (coin) => {
   });
 };
 
+const getBlock = (coin, height) => {
+  return new Promise(async (resolve, reject) => {
+    const ecl = await getServer(coin);
+    
+    ecl.blockchainBlockGetHeader(height)
+    .then((json) => {
+      try {
+        parseBlockToJSON(parseBlock(json));
+      } catch (e) {
+        // handle
+      }
+      console.log('blockchainBlockGetHeader', parseBlockToJSON(parseBlock(json)));
+      resolve(parseBlockToJSON(parseBlock(json)));
+    });
+  });
+};
+
 module.exports = {
   setMainWindow,
 };
