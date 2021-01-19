@@ -13,7 +13,8 @@ const {
   checkTimestamp,
   pubToElectrumScriptHashHex,
   parseBlock,
-  parseBlockToJSON
+  parseBlockToJSON,
+  formatTransaction,
 } = require('./spv-utils');
 
 let mainWindow;
@@ -230,6 +231,77 @@ const getTransaction = (coin, txid, decode) => {
       if (decode) json = transactionDecoder(json);
       console.log('getTransaction', json);
       resolve(json);
+    });
+  });
+};
+
+// eq to insight api/addrs/utxo
+const getUtxo = (coin, address) => {
+  return new Promise(async (resolve, reject) => {
+    const ecl = await getServer(coin);
+    const _address = ecl.protocolVersion && ecl.protocolVersion === '1.4' ? pubToElectrumScriptHashHex(address, network) : address;
+
+    let _atLeastOneDecodeTxFailed = false;
+  
+    ecl.blockchainAddressListunspent(_address)
+    .then((_utxoJSON) => {
+      console.log(_utxoJSON)
+      if (_utxoJSON) {
+        let formattedUtxoList = [];
+        let _utxo = [];
+
+        getCurrentBlockNum(coin)
+        .then((currentHeight) => {
+          if (currentHeight &&
+              Number(currentHeight) > 0) {
+            // filter out unconfirmed utxos
+            for (let i = 0; i < _utxoJSON.length; i++) {
+              if (Number(currentHeight) - Number(_utxoJSON[i].height) !== 0) {
+                _utxo.push(_utxoJSON[i]);
+                console.log('utxo '+ i);
+                console.log(_utxoJSON[i]);
+              }
+            }
+
+            if (!_utxo.length) { // no confirmed utxo
+              //resolve('no valid utxo');
+              resolve([]);
+            } else {
+              Promise.all(_utxo.map((_utxoItem, index) => {
+                return new Promise((resolve, reject) => {
+                  const _resolveObj = {
+                    txid: _utxoItem.tx_hash,
+                    vout: _utxoItem.tx_pos,
+                    address,
+                    amount: Number(_utxoItem.value) * 0.00000001,
+                    satoshis: _utxoItem.value,
+                    confirmations: Number(_utxoItem.height) === 0 ? 0 : currentHeight - _utxoItem.height,
+                    height: _utxoItem.height,
+                    currentHeight,
+                    spendable: true,
+                    verified: false,
+                    dpowSecured: false,
+                  };
+                  resolve(_resolveObj);
+                });
+              }))
+              .then(promiseResult => {
+                if (!_atLeastOneDecodeTxFailed) {
+                  console.log(promiseResult, 'spv.listunspent');
+                  resolve(promiseResult);
+                } else {
+                  console.log('listunspent error, cant decode tx(s)', 'spv.listunspent');
+                  resolve('decode error');
+                }
+              });
+            }
+          } else {
+            resolve('cant get current height');
+          }
+        });
+      } else {
+        resolve('Connection Error');
+      }
     });
   });
 };
