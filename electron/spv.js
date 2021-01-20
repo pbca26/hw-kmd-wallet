@@ -306,6 +306,26 @@ const getUtxo = (coin, address) => {
   });
 };
 
+// eq to insight addr/address/?noTxList=1 
+const getAddress = (coin, address) => {
+  return new Promise(async (resolve, reject) => {
+    const ecl = await getServer(coin);
+    const _address = ecl.protocolVersion && ecl.protocolVersion === '1.4' ? pubToElectrumScriptHashHex(address, network) : address;
+    
+    ecl.blockchainAddressGetHistory(_address)
+    .then((json) => {
+      console.log('getAddress', {
+        txApperances: json.length,
+        addrStr: address,
+      });
+      resolve({
+        txApperances: json.length,
+        addrStr: address,
+      });
+    });
+  });
+};
+
 module.exports = {
   setMainWindow,
 };
