@@ -326,6 +326,114 @@ const getAddress = (coin, address) => {
   });
 };
 
+// eq to insight api/addrs/txs
+// TODO: parse vins
+const getHistory = (coin, address) => {
+  return new Promise(async(resolve, reject) => {
+    const _maxlength = 10;
+    const coinLc = coin.toLowerCase()
+    const ecl = await getServer(coin);
+    const _address = ecl.protocolVersion && ecl.protocolVersion === '1.4' ? pubToElectrumScriptHashHex(address, network) : address;
+    
+    console.log('electrum get_transactions ==>', 'spv.get_transactions');
+    
+    // !expensive call!
+    // TODO: limit e.g. 1-10, 10-20 etc
+    const MAX_TX = _maxlength || 10;
+    
+    getCurrentBlockNum(coin)
+    .then((currentHeight) => {
+      if (currentHeight &&
+          Number(currentHeight) > 0) {
+        ecl.blockchainAddressGetHistory(_address)
+        .then(async(json) => {
+          if (json &&
+              json.length) {
+            let _rawtx = [];
+            
+            console.log(json.length, 'spv.get_transactions');
+            //let index = 0;
+
+            // callback hell, use await?
+            await asyncForEach(json, async (transaction, index) => {
+              await getBlock(
+                coin,
+                transaction.height
+              )
+              .then(async(blockInfo) => {
+                console.log('blockinfo.timestamp', blockInfo.timestamp);
+                if (blockInfo &&
+                    blockInfo.timestamp) {
+                  //if (transaction.height === 'pending') transaction.height = currentHeight;
+                  
+                  await getTransaction(
+                    coin,
+                    transaction.tx_hash
+                  )
+                  .then(async(_rawtxJSON) => {
+                    // if (transaction.height === 'pending') transaction.height = currentHeight;
+                    
+                    console.log('electrum gettransaction ==>', 'spv.get_transactions');
+                    console.log((index + ' | ' + (_rawtxJSON.length - 1)), 'spv.get_transactions');
+                    // console.log(_rawtxJSON, 'spv.get_transactions');
+
+                    // decode tx
+                    let decodedTx = transactionDecoder(_rawtxJSON);
+                    decodedTx.timestamp = blockInfo.timestamp;
+                    decodedTx.height = transaction.height;
+                    decodedTx.confirmations = Number(transaction.height) === 0 ? 0 : currentHeight - transaction.height;
+                    //console.log('decodedTx', decodedTx);
+
+                    console.log(`decodedtx network ${coin}`, 'spv.get_transactions');
+
+                    console.log('decodedtx =>', 'spv.get_transactions');
+                    // console.log(decodedTx.outputs, 'spv.get_transactions');
+                    // collect vin amounts
+                    //console.log(JSON.stringify(decodedTx.inputs, null, 2));
+                    //console.log(JSON.stringify(decodedTx.outputs, null, 2));
+                    await asyncForEach(decodedTx.inputs, async (input, index) => {
+                      await getTransaction(
+                        coin,
+                        input.txid
+                      )
+                      .then((inputRawtxJSON) => {
+                        console.log(`input index ${index}, n ${input.n}`);
+                        const decodedInputTx = transactionDecoder(inputRawtxJSON);
+                        
+                        decodedTx.inputs[index].satoshi = decodedInputTx.outputs[input.n].satoshi;
+                        decodedTx.inputs[index].value = decodedInputTx.outputs[input.n].value;
+                        decodedTx.inputs[index].addr = decodedInputTx.outputs[input.n].scriptPubKey.addresses[0];
+                      });
+                    });
+                    _rawtx.push(decodedTx);
+                  });
+                } else {
+                  const _parsedTx = {
+                    network: 'cant parse',
+                    format: 'cant parse',
+                    inputs: 'cant parse',
+                    outputs: 'cant parse',
+                    height: transaction.height,
+                    timestamp: 'cant get block info',
+                    confirmations: Number(transaction.height) === 0 ? 0 : currentHeight - transaction.height,
+                  };
+                  _rawtx.push(_parsedTx);
+                }
+              });
+            });
+            console.log('async done');
+            resolve(_rawtx);
+          } else {
+            resolve(_rawtx);
+          }
+        });
+      } else {
+        resolve('Connection Errror');
+      }
+    });
+  });
+};
+
 module.exports = {
   setMainWindow,
 };
