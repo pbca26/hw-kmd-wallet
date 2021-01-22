@@ -92,6 +92,22 @@ const normalizeListTransactions = (txs) => {
   return _txs;
 };
 
+const getUniqueHistory = txs => {
+  let uniqueTxs = [];
+  let uniqueTxids = [];
+
+  for (let i = 0; i < txs.length; i++) {
+    if (uniqueTxids.indexOf(txs[i].txid) === -1) {
+      uniqueTxids.push(txs[i].txid);
+      uniqueTxs.push(txs[i]);
+    }
+  }
+
+  console.warn(`total tx in history ${txs.length} | unique txs ${uniqueTxids.length}`);
+  
+  return uniqueTxs;
+};
+
 module.exports = {
   asyncForEach,
   getRandomIntInclusive,
@@ -101,4 +117,5 @@ module.exports = {
   parseBlockToJSON,
   formatTransaction,
   normalizeListTransactions,
+  getUniqueHistory,
 };
