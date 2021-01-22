@@ -434,6 +434,85 @@ const getHistory = (coin, address) => {
   });
 };
 
+// eq to insight api/tx/send
+// TODO: parse vins
+const broadcastTx = async(coin, rawtx) => {
+  return new Promise(async(resolve, reject) => {
+    const ecl = await getServer(coin);
+
+    ecl.blockchainTransactionBroadcast(rawtx)
+    .then((json) => {
+      console.log('rawtx', rawtx);
+      console.log('electrum pushtx ==>', 'spv.pushtx');
+      console.log(json, 'spv.pushtx');
+
+      if (json &&
+          JSON.stringify(json).indexOf('fee not met') > -1) {
+        resolve(json);
+        /*const retObj = {
+          msg: 'error',
+          result: 'Missing fee',
+        };*/
+
+        res.end(JSON.stringify(retObj));
+      } else if (
+        json &&
+        JSON.stringify(json).indexOf('the transaction was rejected by network rules') > -1
+      ) {
+        resolve(json);
+        /*const retObj = {
+          msg: 'error',
+          result: json,
+        };*/
+        res.end(JSON.stringify(retObj));
+      } else if (
+        json &&
+        JSON.stringify(json).indexOf('bad-txns-inputs-spent') > -1
+      ) {
+        resolve(json);
+        /*const retObj = {
+          msg: 'error',
+          result: 'Bad transaction inputs spent',
+        };*/
+      } else if (
+        json &&
+        json.length === 64
+      ) {
+        if (JSON.stringify(json).indexOf('bad-txns-in-belowout') > -1) {
+          resolve(json);
+          /*const retObj = {
+            msg: 'error',
+            result: 'Bad transaction inputs spent',
+          };
+
+          res.end(JSON.stringify(retObj));*/
+        } else {
+          resolve({txid: json});
+        }
+      } else if (
+        json &&
+        JSON.stringify(json).indexOf('bad-txns-in-belowout') > -1
+      ) {
+        resolve(json);
+        /*const retObj = {
+          msg: 'error',
+          result: 'Bad transaction inputs spent',
+        };
+
+        res.end(JSON.stringify(retObj));*/
+      } else {
+        resolve(json);
+        /*const retObj = {
+          msg: 'error',
+          result: 'Can\'t broadcast transaction',
+        };
+
+        res.end(JSON.stringify(retObj));*/
+      }
+    });
+  });
+};
+
 module.exports = {
   setMainWindow,
 };
