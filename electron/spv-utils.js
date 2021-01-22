@@ -68,6 +68,30 @@ const formatTransaction = (tx) => {
   };
 };
 
+// format electrum like utxo list in insight compatible format
+const normalizeListTransactions = (txs) => {
+  let _txs = [];
+
+  for (let i = 0; i < txs.length; i++) {
+    _txs.push({
+      txid: txs[i].format.txid,
+      version: txs[i].format.version,
+      locktime: txs[i].format.locktime,
+      vin: txs[i].inputs,
+      vout: txs[i].outputs,
+      time: txs[i].timestamp,
+      blocktime: txs[i].timestamp,
+      confirmations: txs[i].confirmations,
+      blockheight: txs[i].height,
+      fOverwintered: txs[i].tx.overwintered ? true : false,
+      nVersionGroupId: txs[i].tx.versionGroupId,
+      nExpiryHeight: txs[i].tx.expiryHeight,
+    });
+  }
+
+  return _txs;
+};
+
 module.exports = {
   asyncForEach,
   getRandomIntInclusive,
@@ -76,4 +100,5 @@ module.exports = {
   parseBlock,
   parseBlockToJSON,
   formatTransaction,
+  normalizeListTransactions,
 };
