@@ -88,10 +88,6 @@ const coins = {
     explorer: 'https://btch.explorer.dexstats.info/',
     api: ['https://btch.explorer.dexstats.info/insight-api-komodo/'],
   },
-  HUSH3: {
-    explorer: 'https://hush3.explorer.dexstats.info/',
-    api: ['https://hush3.explorer.dexstats.info/insight-api-komodo/'],
-  },
   NINJA: {
     explorer: 'https://ninja.explorer.dexstats.info/',
     api: ['https://ninja.explorer.dexstats.info/insight-api-komodo/'],
@@ -139,6 +135,22 @@ const coins = {
       'https://vrsc.explorer.dexstats.info/insight-api-komodo/',
       'https://insight.vrsc.0x03.services/insight-api-komodo/',
     ],
+  },
+  WSB: {
+    explorer: 'https://wsb.explorer.dexstats.info/',
+    api: ['https://wsb.explorer.dexstats.info/insight-api-komodo/'],
+  },
+  SPACE: {
+    explorer: 'https://space.explorer.dexstats.info/',
+    api: ['https://space.explorer.dexstats.info/insight-api-komodo/'],
+  },
+  CLC: {
+    explorer: 'https://clc.explorer.dexstats.info/',
+    api: ['https://clc.explorer.dexstats.info/insight-api-komodo/'],
+  },
+  SOULJA: {
+    explorer: 'https://soulja.explorer.dexstats.info/',
+    api: ['https://soulja.explorer.dexstats.info/insight-api-komodo/'],
   },
   // DP: '',
   // SHARK: '',
