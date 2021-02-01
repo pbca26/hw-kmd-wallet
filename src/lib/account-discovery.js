@@ -17,6 +17,7 @@ const walkDerivationPath = async node => {
   if (window.location.href.indexOf('extgap=s') > -1) gapLimit = 30;
   if (window.location.href.indexOf('extgap=m') > -1) gapLimit = 40;
   if (window.location.href.indexOf('extgap=l') > -1) gapLimit = 50;
+  if (window.location.href.indexOf('extgap=xl') > -1) gapLimit = 100;
 
   if (window.location.href.indexOf('timeout=s') > -1) addressConcurrency = 2;
   if (window.location.href.indexOf('timeout=m') > -1) addressConcurrency = 5;

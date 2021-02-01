@@ -304,9 +304,6 @@ class SendCoinButton extends React.Component {
                   'display': 'block',
                   'paddingLeft': '3px'
                 }}>{rawtx}</span>
-                <React.Fragment>
-                Transaction ID: <TxidLink txid="123" coin={coin} />
-                </React.Fragment>
               </React.Fragment>
           });
           setTimeout(() => {
