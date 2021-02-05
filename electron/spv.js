@@ -15,6 +15,8 @@ const {
   parseBlock,
   parseBlockToJSON,
   formatTransaction,
+  normalizeListTransactions,
+  getUniqueHistory,
 } = require('./spv-utils');
 
 let mainWindow;
@@ -512,6 +514,94 @@ const broadcastTx = async(coin, rawtx) => {
     });
   });
 };
+
+pcMain.on('spvGetAddress', (e, {ruid, coin, address}) => {
+  if (mainWindow) {
+    console.warn(`${coin} spvGetAddress called`);
+    getAddress(coin, address).then(result => {
+      mainWindow.webContents.send('spvGetAddress', {ruid, result});
+    });
+  }
+});
+
+ipcMain.on('spvGetUtxo', async(e, {ruid, coin, addresses}) => {
+  if (mainWindow) {
+    let result = [];
+    console.warn(`${coin} spvGetUtxo called`);
+    await asyncForEach(addresses, async (address, index) => {
+      const res = await getUtxo(coin, address);
+
+      console.log(`${coin} spv utxo for ${address}`);
+      console.log(res);
+      result = result.concat(res);
+    });
+
+    mainWindow.webContents.send('spvGetUtxo', {ruid, result});
+  }
+});
+
+ipcMain.on('spvGetHistory', async(e, {ruid, coin, addresses}) => {
+  if (mainWindow) {
+    let result = [];
+    console.warn(`${coin} spvGetHistory called`);
+    await asyncForEach(addresses, async (address, index) => {
+      const res = normalizeListTransactions(await getHistory(coin, address));
+
+      console.log(`${coin} spv tx history for ${address}`);
+      console.log(res);
+      result = result.concat(res); 
+    });
+
+    result = getUniqueHistory(result);
+
+    mainWindow.webContents.send('spvGetHistory', {ruid, result: {
+      totalItems: result.length,
+      from: 0,
+      to: result.length - 1,
+      items: result,
+    }});
+  }
+});
+
+ipcMain.on('spvGetCurrentBlock', (e, {ruid, coin}) => {
+  if (mainWindow) {
+    console.warn(`${coin} spvGetCurrentBlock called`);
+    getCurrentBlock(coin).then(result => {
+      console.warn(`${coin} spvGetCurrentBlock result`, result);
+      mainWindow.webContents.send('spvGetCurrentBlock', {ruid, result});
+    });
+  }
+});
+
+ipcMain.on('spvGetRawTransaction', (e, {ruid, coin, txid}) => {
+  if (mainWindow) {
+    console.warn(`${coin} spvGetRawTransaction called`);
+    getTransaction(coin, txid).then(result => {
+      console.warn(`${coin} spvGetRawTransaction result`, result);
+      mainWindow.webContents.send('spvGetRawTransaction', {ruid, result});
+    });
+  }
+});
+
+ipcMain.on('spvGetTransaction', (e, {ruid, coin, txid}) => {
+  if (mainWindow) {
+    console.warn(`${coin} spvGetTransaction called`);
+    getTransaction(coin, txid, true).then(result => {
+      console.warn(`${coin} spvGetTransaction result`, formatTransaction(result));
+      mainWindow.webContents.send('spvGetTransaction', {ruid, result: formatTransaction(result)});
+    });
+  }
+});
+
+ipcMain.on('spvBroadcastTransaction', (e, {ruid, coin, rawtx}) => {
+  if (mainWindow) {
+    console.warn(`${coin} spvBroadcastTransaction called`);
+    broadcastTx(coin, rawtx).then(result => {
+      console.warn(`${coin} spvBroadcastTransaction result`, result);
+      mainWindow.webContents.send('spvBroadcastTransaction', {ruid, result});
+    });
+  }
+});
 
 module.exports = {
   setMainWindow,
