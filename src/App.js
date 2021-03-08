@@ -318,7 +318,7 @@ class App extends React.Component {
                 {this.state.vendor &&
                   <strong>{VENDOR[this.state.vendor]} KMD HW {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
                 }
-                { apiEndpoints[this.state.coin].length > 1 &&
+                { apiEndpoints[this.state.coin].api.length > 1 &&
                   <span className="explorer-selector-block">
                     <i className="fa fa-cog"></i>
                     <select
@@ -331,7 +331,7 @@ class App extends React.Component {
                         disabled>
                         Select API endpoint
                       </option>
-                      {apiEndpoints[this.state.coin].map((val, index) => (
+                      {apiEndpoints[this.state.coin].api.map((val, index) => (
                         <option
                           key={`explorer-selector-${val}`}
                           value={val}>
