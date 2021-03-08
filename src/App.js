@@ -140,6 +140,8 @@ class App extends React.Component {
       return getInfo(value);
     }));
     let isExplorerEndpointSet = false;
+    let longestBlockHeight = 0;
+    let apiEndPointIndex = 0;
 
     console.warn('checkExplorerEndpoints', getInfoRes);
     
@@ -147,17 +149,20 @@ class App extends React.Component {
       if (getInfoRes[i] &&
           getInfoRes[i].hasOwnProperty('info') &&
           getInfoRes[i].info.hasOwnProperty('version')) {
-        console.warn('set api endpoint to ' + apiEndpoints[this.state.coin].api[i]);
-        setExplorerUrl(apiEndpoints[this.state.coin].api[i]);
-        isExplorerEndpointSet = true;
-        
-        this.setState({
-          explorerEndpoint: apiEndpoints[this.state.coin].api[i],
-        });
-
-        break;
+        if (getInfoRes[i].info.blocks > longestBlockHeight) {
+          longestBlockHeight = getInfoRes[i].info.blocks;
+          apiEndPointIndex = i;
+        }
       }
     }
+
+    console.warn('set api endpoint to ' + apiEndpoints[this.state.coin].api[apiEndPointIndex]);
+    setExplorerUrl(apiEndpoints[this.state.coin].api[apiEndPointIndex]);
+    isExplorerEndpointSet = true;
+    
+    this.setState({
+      explorerEndpoint: apiEndpoints[this.state.coin].api[apiEndPointIndex],
+    });
 
     setTimeout(() => {
       if (!isExplorerEndpointSet) {
