@@ -202,6 +202,7 @@ jobs:
     needs: [job-macos-build, job-linux-build, job-win-build]
 
     steps:
+      - uses: actions/checkout@v1
       - name: Set variables
         run: |
           VER=$( node -pe "require('./package.json').version" )
