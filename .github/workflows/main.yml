@@ -62,10 +62,10 @@ jobs:
       run: |
         VER=$( node -pe "require('./package.json').version" )
         echo "APP_VERSION=$VER" >> $GITHUB_ENV
+        BRANCH=${{ github.base_ref }}
+        echo "BASE_BRANCH=$BRANCH" >> $GITHUB_ENV
 
     - name: Build Electron App
-      env:
-        BASE_BRANCH: ${{ github.base_ref }}
       run: |
         cd electron
         npm install
@@ -75,16 +75,12 @@ jobs:
         tar -czvf hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-dmg.tar.gz dist/hw-kmd-wallet-electron-${{ env.APP_VERSION }}.dmg
 
     - name: Upload hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable.tar.gz as artifact
-      env:
-        BASE_BRANCH: ${{ github.base_ref }}
       uses: actions/upload-artifact@v1
       with:
         name: hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-dmg
         path: ./electron/hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-dmg.tar.gz
 
     - name: Upload hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-dmg.tar.gz as artifact
-      env:
-        BASE_BRANCH: ${{ github.base_ref }}
       uses: actions/upload-artifact@v1
       with:
         name: hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable
@@ -114,11 +110,14 @@ jobs:
         tar xvzf gui.tar.gz
         rm gui.tar.gz
 
+    - name: Set variables
+      run: |
+        VER=$( node -pe "require('./package.json').version" )
+        echo "APP_VERSION=$VER" >> $GITHUB_ENV
+        BRANCH=${{ github.base_ref }}
+        echo "BASE_BRANCH=$BRANCH" >> $GITHUB_ENV
 
     - name: Build Electron App
-      env:
-        BASE_BRANCH: ${{ github.base_ref }}
-        APP_VERSION: $( node -pe "require('./package.json').version" )
       run: |
         cd electron
         npm install
@@ -127,28 +126,19 @@ jobs:
         tar -czvf hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-appimage.tar.gz dist/hw-kmd-wallet-electron-${{ env.APP_VERSION }}.AppImage
         tar -czvf hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-snap.tar.gz dist/hw-kmd-wallet-electron_${{ env.APP_VERSION }}_amd64.snap
 
-    - name: Upload hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-portable.tar.gz as artifact
-      env:
-        BASE_BRANCH: ${{ github.base_ref }}
-        APP_VERSION: $( node -pe "require('./electron/package.json').version" )
+    - name: Upload hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-${{ env.APP_VERSION }}-portable.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
         name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-${{ env.APP_VERSION }}-portable
         path: ./electron/hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-${{ env.APP_VERSION }}-portable.tar.gz
 
     - name: Upload hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH  }}-appimage.tar.gz as artifact
-      env:
-        BASE_BRANCH: ${{ github.base_ref }}
-        APP_VERSION: $( node -pe "require('./electron/package.json').version" )
       uses: actions/upload-artifact@v1
       with:
         name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-appimage
         path: ./electron/hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-appimage.tar.gz
 
-    - name: Upload hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-snap.tar.gz as artifact
-      env:
-        BASE_BRANCH: ${{ github.base_ref }}
-        APP_VERSION: $( node -pe "require('./electron/package.json').version" )
+    - name: Upload hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-snap.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
         name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-snap
@@ -157,51 +147,38 @@ jobs:
   job-win-build:
     name: Build (Windows)
     runs-on: windows-latest
-    needs: job-gui-build
 
     steps:
     - uses: actions/checkout@v1
-    - name: Download pre-built GUI
-      uses: actions/download-artifact@v1
-      with:
-        name: gui
     - uses: actions/setup-node@v1
       with:
         node-version: '12'
         check-latest: true
 
-    - name: Unpack GUI
+    - name: Set variables
       env:
-        CI: ""
+        APPVERSION: $( node -pe "require('./package.json').version" )
+        BASEBRANCH: ${{ github.base_ref }}
       run: |
-        mv gui/gui.tar.gz .
-        tar xvzf gui.tar.gz
-        rm gui.tar.gz
+        echo "APP_VERSION=$env.APPVERSION" >> $GITHUB_ENV
+        echo "BASE_BRANCH=$env.BASEBRANCH" >> $GITHUB_ENV
 
     - name: Build Electron App
-      env:
-        BASE_BRANCH: ${{ github.base_ref }}
-        APP_VERSION: $( node -pe "require('./package.json').version" )
       run: |
         cd electron
         npm install
         npm run dist
+        ls -l dist
         tar -czvf hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable.tar.gz dist/win-unpacked
         tar -czvf hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-setup.tar.gz dist/hw-kmd-wallet-electron" Setup "${{ env.APP_VERSION }}.exe
 
-    - name: Upload hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-portable.tar.gz as artifact
-      env:
-        BASE_BRANCH: ${{ github.base_ref }}
-        APP_VERSION: $( node -pe "require('./electron/package.json').version" )
+    - name: Upload hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
         name: hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable
         path: ./electron/hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable.tar.gz
 
-    - name: Upload hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-setup.tar.gz as artifact
-      env:
-        BASE_BRANCH: ${{ github.base_ref }}
-        APP_VERSION: $( node -pe "require('./electron/package.json').version" )
+    - name: Upload hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-setup.tar.gz as artifact
       uses: actions/upload-artifact@v1
       with:
         name: hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-setup
@@ -213,62 +190,44 @@ jobs:
     needs: [job-macos-build, job-linux-build, job-win-build]
 
     steps:
+      - name: Set variables
+        run: |
+          VER=$( node -pe "require('./package.json').version" )
+          echo "APP_VERSION=$VER" >> $GITHUB_ENV
+          BRANCH=${{ github.base_ref }}
+          echo "BASE_BRANCH=$BRANCH" >> $GITHUB_ENV
       - name: ACTIONS_ALLOW_UNSECURE_COMMANDS
         id: ACTIONS_ALLOW_UNSECURE_COMMANDS
         run: echo 'ACTIONS_ALLOW_UNSECURE_COMMANDS=true' >> $GITHUB_ENV
       - name: Download Artifacts Portable (Linux)
-        env:
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         uses: actions/download-artifact@v1
         with:
           name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable
       - name: Download Artifacts App Image (Linux)
-        env:
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         uses: actions/download-artifact@v1
         with:
           name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-appimage
       - name: Download Artifacts Snap (Linux)
-        env:
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         uses: actions/download-artifact@v1
         with:
           name: hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-snap
       - name: Download Artifacts Portable (Win)
-        env:
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         uses: actions/download-artifact@v1
         with:
           name: hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable
       - name: Download Artifacts Setup (Win)
-        env:
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         uses: actions/download-artifact@v1
         with:
           name: hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-setup
       - name: Download Artifacts Portable (MacOS)
-        env:
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         uses: actions/download-artifact@v1
         with:
           name: hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable
       - name: Download Artifacts DMG (MacOS)
-        env:
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         uses: actions/download-artifact@v1
         with:
           name: hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-dmg
       - name: Prepare Archives
-        env:
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         run: |
           mv hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable/hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable.tar.gz .
           mv hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-appimage/hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-appimage.tar.gz .
@@ -278,9 +237,6 @@ jobs:
           mv hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable/hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable.tar.gz .
           mv hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-dmg/hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-dmg.tar.gz .
       - name: Prepare Checksum file
-        env:
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         run: |
           md5sum hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable.tar.gz >> checksum.txt
           md5sum hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-appimage.tar.gz >> checksum.txt
@@ -313,7 +269,6 @@ jobs:
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: ${{ github.base_ref }}
         with:
           tag_name: ${{ steps.buildnumber.outputs.build_number }}
           release_name: Build - ${{ github.sha }}
@@ -325,8 +280,6 @@ jobs:
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable.tar.gz
@@ -338,8 +291,6 @@ jobs:
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-appimage.tar.gz
@@ -351,8 +302,6 @@ jobs:
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./hw-kmd-wallet-desktop-linux-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-snap.tar.gz
@@ -364,8 +313,6 @@ jobs:
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable.tar.gz
@@ -377,8 +324,6 @@ jobs:
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./hw-kmd-wallet-desktop-win-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-setup.tar.gz
@@ -390,8 +335,6 @@ jobs:
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-portable.tar.gz
@@ -403,8 +346,6 @@ jobs:
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./hw-kmd-wallet-desktop-osx-${{ env.BASE_BRANCH }}-${{ env.APP_VERSION }}-dmg.tar.gz
@@ -416,8 +357,6 @@ jobs:
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BASE_BRANCH: ${{ github.base_ref }}
-          APP_VERSION: $( node -pe "require('./electron/package.json').version" )
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./checksum.txt
