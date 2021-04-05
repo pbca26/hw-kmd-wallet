@@ -50,8 +50,8 @@ const parse = ([txs, addr, options]) => {
     tx = {
       type: 'sent',
       amount: Math.abs(Number(Number(Math.abs(vinSum) - Math.abs(voutSum) - 0.0001).toFixed(8))),
-      timestamp: txs[i].height === -1 ? Math.floor(Date.now() / 1000) : txs[i].blocktime || 'unknown',
-      date: txs[i].blocktime ? secondsToString(txs[i].blocktime) : 'unknown',
+      timestamp: txs[i].height === -1 ? Math.floor(Date.now() / 1000) : txs[i].blocktime || 'pending',
+      date: txs[i].blocktime ? secondsToString(txs[i].blocktime) : 'pending',
       txid: txs[i].txid || 'unknown',
       height: txs[i].height === -1 ? 0 : txs[i].height,
       confirmations: txs[i].confirmations || 0,
