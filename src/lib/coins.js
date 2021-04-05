@@ -108,9 +108,12 @@ const coins = {
     explorer: 'https://labs.explorer.dexstats.info/',
     api: ['https://labs.explorer.dexstats.info/insight-api-komodo/'],
   },
-  VOTE2020: {
-    explorer: 'https://vote2020.explorer.dexstats.info/',
-    api: ['https://vote2020.explorer.dexstats.info/insight-api-komodo/'],
+  VOTE2021: {
+    explorer: 'https://vote2021.explorer.dexstats.info/',
+    api: [
+      'https://vote2021.explorer.dexstats.info/insight-api-komodo/',
+      'https://vote.kmdexplorer.io/insight-api-komodo/',
+    ],
   },
   RICK: {
     explorer: 'https://rick.kmd.dev/',
