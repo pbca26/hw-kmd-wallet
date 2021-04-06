@@ -4,13 +4,14 @@ import getAddress from './get-address';
 import bitcoin from 'bitcoinjs-lib';
 import parseHistory from './history-parser';
 import asyncForEach from './async';
+import {airDropCoins} from './coins';
 
 let pubKeysCache = {};
+let gapLimit = 20;
 
 const walkDerivationPath = async node => {
   const addresses = [];
   let addressConcurrency = 10;
-  let gapLimit = 20;
   let consecutiveUnusedAddresses = 0;
   let addressIndex = 0;
 
@@ -182,9 +183,16 @@ export const getAddressHistoryOld = async addresses => {
   };
 };
 
-const accountDiscovery = async vendor => {
+const accountDiscovery = async (vendor, coin) => {
   const accounts = [];
   let accountIndex = 0;
+
+  if (airDropCoins.indexOf(coin) > -1 &&
+      window.location.href.indexOf('extgap=') === -1) {
+    gapLimit = 50;
+  } else {
+    gapLimit = 20;
+  }
 
   while (true) {
     const account = await getAccountAddresses(accountIndex, vendor);
@@ -198,18 +206,16 @@ const accountDiscovery = async vendor => {
       }; 
       account.accountIndex = accountIndex;
       accounts.push(account);
-      return accounts;
+      if (airDropCoins.indexOf(coin) === -1 || accountIndex === 4) return accounts;
     } else {
       account.utxos = await getAddressUtxos(account.addresses);
       account.history = await getAddressHistory(account.addresses); 
       account.accountIndex = accountIndex;
+      accounts.push(account);
     }
 
-    accounts.push(account);
     accountIndex++;
   }
-
-  console.warn('accounts', accounts);
 
   return accounts;
 };
