@@ -111,8 +111,8 @@ const coins = {
   VOTE2021: {
     explorer: 'https://vote2021.explorer.dexstats.info/',
     api: [
+      'https://explorer.komodoplatform.com:10000/vote2021/api/',
       'https://vote2021.explorer.dexstats.info/insight-api-komodo/',
-      'https://vote.kmdexplorer.io/insight-api-komodo/',
     ],
   },
   RICK: {
@@ -141,7 +141,10 @@ const coins = {
   },
   WSB: {
     explorer: 'https://wsb.explorer.dexstats.info/',
-    api: ['https://wsb.explorer.dexstats.info/insight-api-komodo/'],
+    api: [
+      'https://wsb.explorer.dexstats.info/insight-api-komodo/',
+      'https://explorer.komodoplatform.com:10000/wsb/api/',
+    ],
   },
   SPACE: {
     explorer: 'https://space.explorer.dexstats.info/',

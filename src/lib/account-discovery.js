@@ -23,6 +23,8 @@ const walkDerivationPath = async node => {
   if (window.location.href.indexOf('timeout=s') > -1) addressConcurrency = 2;
   if (window.location.href.indexOf('timeout=m') > -1) addressConcurrency = 5;
 
+  if (gapLimit > 20) addressConcurrency = 5;
+
   while (consecutiveUnusedAddresses < gapLimit) {
     const addressApiRequests = [];
 
