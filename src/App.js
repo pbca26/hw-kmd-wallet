@@ -185,7 +185,7 @@ class App extends React.Component {
       console.warn('sync data called');
 
       let [accounts, tiptime] = await Promise.all([
-        accountDiscovery(),
+        accountDiscovery(this.state.vendor, this.state.coin),
         blockchain.getTipTime()
       ]);
 
@@ -377,14 +377,16 @@ class App extends React.Component {
                         <CheckBalanceButton
                           handleRewardData={this.handleRewardData}
                           checkTipTime={this.checkTipTime}
-                          vendor={this.state.vendor}>
+                          vendor={this.state.vendor}
+                          coin={this.state.coin}>
                           <strong>Check Balance</strong>
                         </CheckBalanceButton>
                         <CheckAllBalancesButton
                           handleRewardData={this.handleRewardData}
                           checkTipTime={this.checkTipTime}
                           vendor={this.state.vendor}
-                          explorerEndpoint={this.state.explorerEndpoint}>
+                          explorerEndpoint={this.state.explorerEndpoint}
+                          coin={this.state.coin}>
                           <strong>Check All</strong>
                         </CheckAllBalancesButton>
                       </React.Fragment>
