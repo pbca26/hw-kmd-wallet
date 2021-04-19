@@ -18,6 +18,21 @@ const getAppPath = () => {
   }
 };
 
+const getNspvBinPath = () => {
+  const nspvPath = path.join(__dirname, './bin/');
+  const currentOs = os.platform();
+
+  if (currentOs === 'darwin') {
+    fixPath();
+    return `${nspvPath}/osx`;
+  } else if (currentOs === 'linux') {
+    return `${nspvPath}/linux64`;
+  } else if (currentOs === 'win32') {
+    return path.normalize(`${nspvPath}/win64`);
+  }
+};
+
 module.exports = {
   getAppPath,
+  getNspvBinPath,
 };
