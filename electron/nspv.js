@@ -18,6 +18,34 @@ const setMainWindow = (_mainWindow) => {
   mainWindow = _mainWindow;
 };
 
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
+
+const syncCoinData = async(_coin, isFirstRun) => {
+  let requestsToProcess = [];
+
+  for (let coin in nspvProcesses) {
+    if (!_coin || (_coin && _coin === coin)) {
+      await asyncForEach(requestsToProcess, async (reqhash, index) => {
+        console.log(`process reqhash ${reqhash}`);
+        console.log(`req`, cache[coin][reqhash].req);
+        await nspvRequest(
+          coin.toLowerCase(),
+          cache[coin][reqhash].req.method,
+          cache[coin][reqhash].req.params,
+          true
+        );
+        console.log(`processed reqhash ${reqhash} | ${index} of ${requestsToProcess.length - 1}`);
+      });
+
+      console.log(`${coin} nspv all reqhash synced!`);
+      mainWindow.webContents.send('nspvRecheck', {coin, isFirstRun});
+    }
+  }
+};
 
 (async function() {
   cache = await cacheUtil.loadLocalCache('nspv');
@@ -62,6 +90,8 @@ const writeCache = (coin, hash, data) => {
   console.log(`save to cache ${coin} ${hash}`);
   cacheUtil.saveLocalCache(cache, 'nspv');
 };
+
+const toSats = value => Number((Number(value).toFixed(8) * 100000000).toFixed(0));
 
 const nspvRequest = async(coin, method, params, override) => {
   await nspvCheckReady(coin);
