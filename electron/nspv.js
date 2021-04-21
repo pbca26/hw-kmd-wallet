@@ -63,6 +63,90 @@ const writeCache = (coin, hash, data) => {
   cacheUtil.saveLocalCache(cache, 'nspv');
 };
 
+const nspvRequest = async(coin, method, params, override) => {
+  await nspvCheckReady(coin);
+
+  const reqHash = md5(JSON.stringify(params ? {
+    jsonrpc: '2.0',
+    method,
+    params,
+  } : {
+    jsonrpc: '2.0',
+    method,
+  }));
+
+  if (nspvPorts[coin]) {
+    return new Promise((resolve, reject) => {
+      const cachedData = getCache(coin, reqHash);
+
+      if (!override && cachedData) {
+        resolve(cachedData);
+      } else {
+        const options = {
+          url: `http://localhost:${nspvPorts[coin.toLowerCase()]}/`,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(params ? {
+            jsonrpc: '2.0',
+            method,
+            params,
+          } : {
+            jsonrpc: '2.0',
+            method,
+          }),
+        };
+        
+        console.log(`nspv req hash`, reqHash);
+
+        console.log(JSON.stringify(params ? {
+          jsonrpc: '2.0',
+          method,
+          params,
+        } : {
+          jsonrpc: '2.0',
+          method,
+        }), 'spv.nspv.req');
+
+        request(options, (error, response, body) => {
+          if (body) {
+            console.log(body, 'spv.nspv.req');
+            // TODO: proper error handling in ecl calls
+            try {
+              if (JSON) {
+                const parsedBody = JSON.parse(body);
+                writeCache(coin, reqHash, {
+                  req: params ? {
+                    jsonrpc: '2.0',
+                    method,
+                    params,
+                  } : {
+                    jsonrpc: '2.0',
+                    method,
+                  },
+                  res: parsedBody,
+                });
+                resolve(parsedBody);
+              }
+              else resolve('error');
+            } catch (e) {
+              console.log('nspv json parse error', 'nspv');
+              console.log(e);
+              resolve('error');
+            }
+          } else {
+            console.log('nspv empty response', 'nspv');
+            resolve('error');
+          }
+        });
+      }
+    });
+  } else {
+    resolve('error');
+  }
+};
+
 module.exports = {
   setMainWindow,
 };
