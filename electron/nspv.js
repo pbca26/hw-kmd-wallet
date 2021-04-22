@@ -13,6 +13,9 @@ const md5 = require('./md5');
 const nspvPorts = parseNSPVports();
 
 let mainWindow;
+let isNSPVReady = {};
+let nspvProcesses = {};
+let nspvProcessesSync = {};
 
 const setMainWindow = (_mainWindow) => {
   mainWindow = _mainWindow;
@@ -175,6 +178,62 @@ const nspvRequest = async(coin, method, params, override) => {
   } else {
     resolve('error');
   }
+};
+
+const startNSPVDaemon = (coin) => {
+  syncChainTip(coin);
+  isNSPVReady[coin] = false;
+
+  const nspv = spawn(
+    `${getNspvBinPath()}/nspv`,
+    coin.toUpperCase() === 'KMD' ? [] : [coin.toUpperCase()],
+    {
+      cwd: getAppPath(),
+    }, []
+  );
+
+  nspv.stdout.on('data', (data) => {
+    if (process.argv.indexOf('nspv-debug') > -1) console.log(`stdout: ${data}`, 'NSPV');
+
+    if (data.indexOf('NSPV_req "getnSPV" request sent to node') > -1 && !isNSPVReady[coin]) {
+      console.log(`${coin} nspv is ready to serve requests`, 'NSPV');
+      isNSPVReady[coin] = true;
+    }
+  });
+  
+  nspv.stderr.on('data', (data) => {
+    if (process.argv.indexOf('nspv-debug') > -1) console.log(`stderr: ${data}`, 'NSPV');
+
+    if (data.indexOf('NSPV_req "getnSPV" request sent to node') > -1 && !isNSPVReady[coin]) {
+      console.log(`${coin} nspv is ready to serve requests`, 'NSPV');
+      isNSPVReady[coin] = true;
+    }
+  });
+  
+  nspv.on('close', (code) => {
+    console.log(`child process exited with code ${code}`, 'NSPV');
+    isNSPVReady[coin] = false;
+    
+    if (nspvProcesses[coin]) {
+      nspvProcesses[coin] = 'exited';
+      
+      setTimeout(() => {
+          // attempt to revive supposedly dead daemon
+        if (nspvProcesses[coin] &&
+            nspvProcesses[coin] === 'exited') {
+          const nspvProcess = startNSPVDaemon(coin);
+          nspvProcesses[coin] = {
+            process: nspvProcess,
+            pid: nspvProcess.pid,
+          };
+
+          console.log(`${coin.toUpperCase()} NSPV daemon PID ${nspvProcess.pid} (restart)`, 'spv.coin');
+        }
+      }, 5000);
+    }
+  });
+
+  return nspv;
 };
 
 module.exports = {
