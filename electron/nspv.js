@@ -12,10 +12,18 @@ const md5 = require('./md5');
 
 const nspvPorts = parseNSPVports();
 
+const NSPV_CHECK_READY_INTERVAL_TIMEOUT = 50;
+const NSPV_RECHECK_INTERVAL_TIMEOUT = 300 * 1000;
+const nspvPorts = parseNSPVports();
+
 let mainWindow;
 let isNSPVReady = {};
 let nspvProcesses = {};
 let nspvProcessesSync = {};
+let nspvCheckReadyInterval = {};
+let nspvCheckReadyIntervalIncrement = -1;
+let nspvSyncChainTipInterval = {};
+let cancelRecheck = false;
 
 const setMainWindow = (_mainWindow) => {
   mainWindow = _mainWindow;
@@ -266,6 +274,40 @@ const stopNSPVDaemon = (coin) => {
   }
 };
 
+const nspvCheckReady = (coin) => {
+  return new Promise((resolve, reject) => {
+    if (!isNSPVReady[coin] && !nspvProcesses[coin]) {
+      const nspv = startNSPVDaemon(coin);
+      
+      nspvProcesses[coin] = {
+        process: nspv,
+        pid: nspv.pid,
+      };
+    }
+    
+    if (!isNSPVReady[coin]) {
+      if (!nspvCheckReadyInterval[coin]) nspvCheckReadyInterval[coin] = [];
+      if (process.argv.indexOf('nspv-debug') > -1) console.log(`interval ${nspvCheckReadyIntervalIncrement} nspv daemon check set`, 'NSPV');
+      nspvCheckReadyIntervalIncrement++;
+      
+      const interval = setInterval((nspvCheckReadyIntervalIncrement) => {
+        
+        if (isNSPVReady[coin]) {
+          isNSPVReady[coin] = true;
+          clearInterval(nspvCheckReadyInterval[coin][nspvCheckReadyIntervalIncrement]);
+          if (process.argv.indexOf('nspv-debug') > -1) console.log(`interval ${nspvCheckReadyIntervalIncrement} nspv daemon check cleared`, 'NSPV');
+          resolve(isNSPVReady[coin]);
+        } else {
+          if (process.argv.indexOf('nspv-debug') > -1) console.log(`awaiting ${coin} nspv daemon`, 'NSPV');
+        }
+      }, NSPV_CHECK_READY_INTERVAL_TIMEOUT, nspvCheckReadyIntervalIncrement);
+
+      nspvCheckReadyInterval[coin].push(interval);
+    } else {
+      resolve(isNSPVReady[coin]);
+    }
+  });
+};
 
 module.exports = {
   setMainWindow,
