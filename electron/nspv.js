@@ -236,6 +236,37 @@ const startNSPVDaemon = (coin) => {
   return nspv;
 };
 
+const stopNSPVDaemon = (coin) => {
+  if (coin === 'all') {
+    for (let key in nspvPorts) {
+      if (nspvProcesses[key].pid) {
+        console.log(`NSPV daemon ${key.toUpperCase()} PID ${nspvProcesses[key].pid} is stopped`, 'spv.nspv.coin');
+        for (let i = 0; i < nspvCheckReadyInterval[key].length; i++) {
+          clearInterval(nspvCheckReadyInterval[key][i]);
+        }
+        nspvCheckReadyInterval[coin] = [];
+        isNSPVReady[key] = false;
+        nspvProcesses[key].process.kill('SIGINT');
+        delete nspvProcesses[key];
+      }
+    }
+  } else {
+    if (nspvPorts[coin] &&
+        nspvProcesses[coin].pid) {
+      console.log(`NSPV daemon ${coin.toUpperCase()} PID ${nspvProcesses[coin].pid} is stopped`, 'spv.nspv.coin');
+
+      for (let i = 0; i < nspvCheckReadyInterval[coin].length; i++) {
+        clearInterval(nspvCheckReadyInterval[coin][i]);
+      }
+      nspvCheckReadyInterval[coin] = [];
+      isNSPVReady[coin] = false;
+      nspvProcesses[coin].process.kill('SIGINT');
+      delete nspvProcesses[coin];
+    }
+  }
+};
+
+
 module.exports = {
   setMainWindow,
 };
