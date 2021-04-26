@@ -309,6 +309,37 @@ const nspvCheckReady = (coin) => {
   });
 };
 
+const syncChainTip = (coin) => {
+  console.log(`sync chaintip for ${coin} nspv`);
+
+  const _syncChainTip = () => {
+    nspvRequest(
+      coin.toLowerCase(),
+      'getinfo',
+      null,
+      true
+    )
+    .then((nspvGetinfo) => {
+      console.log(nspvGetinfo);
+      if (nspvGetinfo &&
+          nspvGetinfo.height) {
+        console.log(`synced chaintip for ${coin} nspv`);
+        console.log(`${coin} nspv currentblock ==>`, 'nspv.currentblock');
+        console.log(`${coin} h ${nspvGetinfo.height} t ${nspvGetinfo.header.nTime}`, 'nspv.currentblock');
+      } else {
+        resolve('Connection Error');
+      }
+    });
+  };
+
+  if (!nspvSyncChainTipInterval[coin]) {
+    nspvSyncChainTipInterval[coin] = setInterval(() => {
+      _syncChainTip();
+    }, 30 * 1000);
+    _syncChainTip();
+  }
+};
+
 module.exports = {
   setMainWindow,
 };
