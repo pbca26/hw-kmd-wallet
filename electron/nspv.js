@@ -340,6 +340,32 @@ const syncChainTip = (coin) => {
   }
 };
 
+const nspvWrapper = (network) => {
+  return {
+    connect: () => {
+      console.log('nspv connect', 'nspv');
+    },
+    close: () => {
+      console.log('nspv close', 'nspv');
+    },
+    blockchainAddressGetHistory: () => {
+      // stub
+    },
+    blockchainAddressGetBalance: () => {
+      // stub
+    },
+    blockchainAddressListunspent: () => {
+      // stub
+    },
+    blockchainTransactionGet: () => {
+      // stub
+    },
+    blockchainTransactionBroadcast: () => {
+      // stub
+    },
+  };
+};
+
 module.exports = {
   setMainWindow,
 };
