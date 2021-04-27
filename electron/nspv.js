@@ -349,7 +349,32 @@ const nspvWrapper = (network) => {
       console.log('nspv close', 'nspv');
     },
     blockchainAddressGetHistory: () => {
-      // stub
+      return new Promise((resolve, reject) => {
+        let _nspvTxs = [];
+
+        nspvRequest(
+          network.toLowerCase(),
+          'listtransactions',
+          [__address],
+        )
+        .then((nspvTxHistory) => {
+          if (nspvTxHistory &&
+              nspvTxHistory.result &&
+              nspvTxHistory.result === 'success') {
+            for (let i = 0; i < nspvTxHistory.txids.length; i++) {
+              _nspvTxs.push({
+                tx_hash: nspvTxHistory.txids[i].txid,
+                height: nspvTxHistory.txids[i].height,
+                value: nspvTxHistory.txids[i].value,
+              });
+            }
+
+            resolve(_nspvTxs);
+          } else {
+            resolve('unable to get transactions history');
+          }
+        });
+      });
     },
     blockchainAddressGetBalance: () => {
       // stub
