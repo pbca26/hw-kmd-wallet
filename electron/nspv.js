@@ -432,8 +432,27 @@ const nspvWrapper = (network) => {
         });
       });
     },
-    blockchainTransactionGet: () => {
-      // stub
+    blockchainTransactionGet: (__txid, returnValue) => {
+      return new Promise((resolve, reject) => {
+        nspvRequest(
+          network.toLowerCase(),
+          'gettransaction',
+          [__txid],
+        )
+        .then((nspvGetTx) => {
+          if (returnValue) {
+            resolve(nspvGetTx);
+          } else {
+            if (nspvGetTx &&
+                nspvGetTx.hasOwnProperty('hex')) {
+              resolve(nspvGetTx.hex);
+            } else {
+              console.log(`nspv unable to get raw input tx ${__txid}`, 'spv.cache');
+              resolve('unable to get raw transaction');
+            }
+          }
+        });
+      });
     },
     blockchainTransactionBroadcast: () => {
       // stub
