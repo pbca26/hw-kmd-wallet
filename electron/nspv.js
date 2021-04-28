@@ -454,8 +454,29 @@ const nspvWrapper = (network) => {
         });
       });
     },
-    blockchainTransactionBroadcast: () => {
-      // stub
+    blockchainTransactionBroadcast: (__rawtx, returnValue) => {
+      return new Promise((resolve, reject) => {
+        nspvRequest(
+          network.toLowerCase(),
+          'broadcast',
+          [__rawtx],
+        )
+        .then((nspvBroadcast) => {
+          if (returnValue) {
+            resolve(nspvBroadcast);
+          } else {
+            if (nspvBroadcast &&
+                nspvBroadcast.result &&
+                nspvBroadcast.result === 'success' &&
+                nspvBroadcast.expected === nspvBroadcast.broadcast) {
+              resolve(nspvBroadcast.broadcast);
+            } else {
+              console.log(`nspv unable to push transaction ${__rawtx}`, 'spv.cache');
+              resolve({err: 'Unable to push raw transaction'});
+            }
+          }
+        });
+      });
     },
   };
 };
