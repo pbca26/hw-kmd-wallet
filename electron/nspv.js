@@ -376,8 +376,26 @@ const nspvWrapper = (network) => {
         });
       });
     },
-    blockchainAddressGetBalance: () => {
-      // stub
+    blockchainAddressGetBalance: (__address) => {
+      return new Promise((resolve, reject) => {
+        nspvRequest(
+          network.toLowerCase(),
+          'listunspent',
+          [__address],
+        )
+        .then((nspvTxHistory) => {
+          if (nspvTxHistory &&
+              nspvTxHistory.result &&
+              nspvTxHistory.result === 'success') {
+            resolve({
+              confirmed: toSats(nspvTxHistory.balance),
+              unconfirmed: 0,
+            });
+          } else {
+            resolve('unable to get balance');
+          }
+        });
+      });
     },
     blockchainAddressListunspent: () => {
       // stub
