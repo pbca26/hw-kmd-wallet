@@ -397,8 +397,40 @@ const nspvWrapper = (network) => {
         });
       });
     },
-    blockchainAddressListunspent: () => {
-      // stub
+    blockchainAddressListunspent: (__address) => {
+      return new Promise((resolve, reject) => {
+        let nspvUtxos = [];
+        
+        nspvRequest(
+          network.toLowerCase(),
+          'listunspent',
+          [__address],
+        )
+        .then((nspvListunspent) => {
+          if (nspvListunspent &&
+              nspvListunspent.result &&
+              nspvListunspent.result === 'success') {
+            for (let i = 0; i < nspvListunspent.utxos.length; i++) {
+              nspvUtxos.push(network.toLowerCase() === 'kmd' ? {
+                tx_hash: nspvListunspent.utxos[i].txid,
+                height: nspvListunspent.utxos[i].height,
+                value: toSats(nspvListunspent.utxos[i].value),
+                rewards: toSats(nspvListunspent.utxos[i].rewards),
+                tx_pos: nspvListunspent.utxos[i].vout,
+              } : {
+                tx_hash: nspvListunspent.utxos[i].txid,
+                height: nspvListunspent.utxos[i].height,
+                value: toSats(nspvListunspent.utxos[i].value),
+                tx_pos: nspvListunspent.utxos[i].vout,
+              });
+            }
+
+            resolve(nspvUtxos);
+          } else {
+            resolve('unable to get utxos');
+          }
+        });
+      });
     },
     blockchainTransactionGet: () => {
       // stub
