@@ -1,3 +1,5 @@
+// TODO: spawn multiple nspv instances to query data
+//       address lookup
 const request = require('request');
 const { spawn } = require('child_process');
 const {ipcMain} = require('electron');
@@ -9,8 +11,6 @@ const {
 } = require('./path-utils');
 const cacheUtil = require('./cache');
 const md5 = require('./md5');
-
-const nspvPorts = parseNSPVports();
 
 const NSPV_CHECK_READY_INTERVAL_TIMEOUT = 50;
 const NSPV_RECHECK_INTERVAL_TIMEOUT = 300 * 1000;
@@ -40,6 +40,16 @@ const syncCoinData = async(_coin, isFirstRun) => {
 
   for (let coin in nspvProcesses) {
     if (!_coin || (_coin && _coin === coin)) {
+      for (let reqhash in cache[coin]) {
+        if (cache[coin][reqhash].req.method === 'listtransactions' || cache[coin][reqhash].req.method === 'listunspent') {
+          console.log(reqhash);
+          console.log(cache[coin][reqhash].req);
+          requestsToProcess.push(reqhash);
+        }
+      }
+
+      //requestsToProcess = requestsToProcess.slice(0, 3);
+
       await asyncForEach(requestsToProcess, async (reqhash, index) => {
         console.log(`process reqhash ${reqhash}`);
         console.log(`req`, cache[coin][reqhash].req);
@@ -103,6 +113,72 @@ const writeCache = (coin, hash, data) => {
 };
 
 const toSats = value => Number((Number(value).toFixed(8) * 100000000).toFixed(0));
+
+const syncChainTip = (coin) => {
+  console.log(`sync chaintip for ${coin} nspv`);
+
+  const _syncChainTip = () => {
+    nspvRequest(
+      coin.toLowerCase(),
+      'getinfo',
+      null,
+      true
+    )
+    .then((nspvGetinfo) => {
+      console.log(nspvGetinfo);
+      if (nspvGetinfo &&
+          nspvGetinfo.height) {
+        console.log(`synced chaintip for ${coin} nspv`);
+        console.log(`${coin} nspv currentblock ==>`, 'nspv.currentblock');
+        console.log(`${coin} h ${nspvGetinfo.height} t ${nspvGetinfo.header.nTime}`, 'nspv.currentblock');
+      } else {
+        resolve('Connection Error');
+      }
+    });
+  };
+
+  if (!nspvSyncChainTipInterval[coin]) {
+    nspvSyncChainTipInterval[coin] = setInterval(() => {
+      _syncChainTip();
+    }, 30 * 1000);
+    _syncChainTip();
+  }
+};
+
+const nspvCheckReady = (coin) => {
+  return new Promise((resolve, reject) => {
+    if (!isNSPVReady[coin] && !nspvProcesses[coin]) {
+      const nspv = startNSPVDaemon(coin);
+      
+      nspvProcesses[coin] = {
+        process: nspv,
+        pid: nspv.pid,
+      };
+    }
+    
+    if (!isNSPVReady[coin]) {
+      if (!nspvCheckReadyInterval[coin]) nspvCheckReadyInterval[coin] = [];
+      if (process.argv.indexOf('nspv-debug') > -1) console.log(`interval ${nspvCheckReadyIntervalIncrement} nspv daemon check set`, 'NSPV');
+      nspvCheckReadyIntervalIncrement++;
+      
+      const interval = setInterval((nspvCheckReadyIntervalIncrement) => {
+        
+        if (isNSPVReady[coin]) {
+          isNSPVReady[coin] = true;
+          clearInterval(nspvCheckReadyInterval[coin][nspvCheckReadyIntervalIncrement]);
+          if (process.argv.indexOf('nspv-debug') > -1) console.log(`interval ${nspvCheckReadyIntervalIncrement} nspv daemon check cleared`, 'NSPV');
+          resolve(isNSPVReady[coin]);
+        } else {
+          if (process.argv.indexOf('nspv-debug') > -1) console.log(`awaiting ${coin} nspv daemon`, 'NSPV');
+        }
+      }, NSPV_CHECK_READY_INTERVAL_TIMEOUT, nspvCheckReadyIntervalIncrement);
+
+      nspvCheckReadyInterval[coin].push(interval);
+    } else {
+      resolve(isNSPVReady[coin]);
+    }
+  });
+};
 
 const nspvRequest = async(coin, method, params, override) => {
   await nspvCheckReady(coin);
@@ -274,72 +350,6 @@ const stopNSPVDaemon = (coin) => {
   }
 };
 
-const nspvCheckReady = (coin) => {
-  return new Promise((resolve, reject) => {
-    if (!isNSPVReady[coin] && !nspvProcesses[coin]) {
-      const nspv = startNSPVDaemon(coin);
-      
-      nspvProcesses[coin] = {
-        process: nspv,
-        pid: nspv.pid,
-      };
-    }
-    
-    if (!isNSPVReady[coin]) {
-      if (!nspvCheckReadyInterval[coin]) nspvCheckReadyInterval[coin] = [];
-      if (process.argv.indexOf('nspv-debug') > -1) console.log(`interval ${nspvCheckReadyIntervalIncrement} nspv daemon check set`, 'NSPV');
-      nspvCheckReadyIntervalIncrement++;
-      
-      const interval = setInterval((nspvCheckReadyIntervalIncrement) => {
-        
-        if (isNSPVReady[coin]) {
-          isNSPVReady[coin] = true;
-          clearInterval(nspvCheckReadyInterval[coin][nspvCheckReadyIntervalIncrement]);
-          if (process.argv.indexOf('nspv-debug') > -1) console.log(`interval ${nspvCheckReadyIntervalIncrement} nspv daemon check cleared`, 'NSPV');
-          resolve(isNSPVReady[coin]);
-        } else {
-          if (process.argv.indexOf('nspv-debug') > -1) console.log(`awaiting ${coin} nspv daemon`, 'NSPV');
-        }
-      }, NSPV_CHECK_READY_INTERVAL_TIMEOUT, nspvCheckReadyIntervalIncrement);
-
-      nspvCheckReadyInterval[coin].push(interval);
-    } else {
-      resolve(isNSPVReady[coin]);
-    }
-  });
-};
-
-const syncChainTip = (coin) => {
-  console.log(`sync chaintip for ${coin} nspv`);
-
-  const _syncChainTip = () => {
-    nspvRequest(
-      coin.toLowerCase(),
-      'getinfo',
-      null,
-      true
-    )
-    .then((nspvGetinfo) => {
-      console.log(nspvGetinfo);
-      if (nspvGetinfo &&
-          nspvGetinfo.height) {
-        console.log(`synced chaintip for ${coin} nspv`);
-        console.log(`${coin} nspv currentblock ==>`, 'nspv.currentblock');
-        console.log(`${coin} h ${nspvGetinfo.height} t ${nspvGetinfo.header.nTime}`, 'nspv.currentblock');
-      } else {
-        resolve('Connection Error');
-      }
-    });
-  };
-
-  if (!nspvSyncChainTipInterval[coin]) {
-    nspvSyncChainTipInterval[coin] = setInterval(() => {
-      _syncChainTip();
-    }, 30 * 1000);
-    _syncChainTip();
-  }
-};
-
 const nspvWrapper = (network) => {
   return {
     connect: () => {
@@ -348,7 +358,7 @@ const nspvWrapper = (network) => {
     close: () => {
       console.log('nspv close', 'nspv');
     },
-    blockchainAddressGetHistory: () => {
+    blockchainAddressGetHistory: (__address) => {
       return new Promise((resolve, reject) => {
         let _nspvTxs = [];
 
@@ -481,6 +491,17 @@ const nspvWrapper = (network) => {
   };
 };
 
+ipcMain.on('nspvRunRecheck', (e, {coin, isFirstRun}) => {
+  if (mainWindow) {
+    console.warn(`${coin} nspvRunRecheck called`);
+    syncCoinData(coin, isFirstRun);
+    //mainWindow.webContents.send('nspvRecheckInProgress');
+  }
+});
+
 module.exports = {
+  startNSPVDaemon,
+  nspvRequest,
+  nspvWrapper,
   setMainWindow,
 };
