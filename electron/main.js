@@ -9,6 +9,7 @@ const path = require('path');
 const url = require('url');
 const ipcLedger = require('./ipc-ledger');
 const ipcSPV = require('./spv');
+const ipcNSPV = require('./nspv');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -47,7 +48,8 @@ function createWindow() {
   global.app = {
     isDev: process.argv.indexOf('devmode') > -1,
     noFWCheck: true,
-    blockchainAPI: process.argv.indexOf('api=spv') > -1 ? 'spv' : 'insight',
+    blockchainAPI: process.argv.indexOf('api=spv') > -1 || process.argv.indexOf('api=nspv') > -1 ? 'spv' : 'insight',
+    isNspv: process.argv.indexOf('api=nspv') > -1,
   };
 
   // and load the index.html of the app.
@@ -82,6 +84,7 @@ function createWindow() {
 
   ipcLedger.setMainWindow(mainWindow);
   ipcSPV.setMainWindow(mainWindow);
+  ipcNSPV.setMainWindow(mainWindow);
 }
 
 // This method will be called when Electron has finished
