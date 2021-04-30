@@ -64,10 +64,19 @@ class App extends React.Component {
 
   componentWillMount() {
     document.title = `Komodo Hardware Wallet (v${version})`;
-    setInterval(() => {
-      console.warn('auto sync called');
-      this.syncData();
-    }, 300 * 1000);
+    if (isElectron && !appData.isNspv) {
+      setInterval(() => {
+        if (!this.state.syncInProgress) {
+          console.warn('auto sync called');
+          this.syncData();
+        }
+      }, 300 * 1000);
+    }
+
+    /*setTimeout(() => {
+      console.warn('run recheck');
+      ipcRenderer.send('nspvRunRecheck', {coin: 'rick'});
+    }, 2000);*/
 
     hw.trezor.init();
 
@@ -78,7 +87,30 @@ class App extends React.Component {
       document.getElementById('body').className = getLocalStorageVar('settings').theme;
     }
 
-    this.checkExplorerEndpoints();
+    if (isElectron && appData.blockchainAPI === 'spv') {
+      blockchain[blockchainAPI].setCoin(this.state.coin);
+    }
+
+    if (!isElectron || (isElectron && appData.blockchainAPI === 'insight')) this.checkExplorerEndpoints();
+
+    if (isElectron && appData.blockchainAPI === 'spv'/*&& isElectron.blockchainAPI*/) {
+      setBlockchainAPI('spv');
+    }
+
+    if (isElectron && appData.isNspv) {
+      ipcRenderer.on('nspvRecheck', (event, arg) => {
+        console.warn('nspvRecheck arg', arg);
+        if (!arg.isFirstRun) console.warn('schedule next sync update in 5 min');
+        else console.warn('run sync update immediately (first run)');
+        
+        if (arg.coin === this.state.coin.toLowerCase()) {
+          setTimeout(() => {
+            console.warn('auto sync called');
+            this.syncData();
+          }, arg.isFirstRun === true ? 1000 : 300 * 1000);
+        }
+      });
+    }
   }
 
   checkTipTime(tiptime) {
