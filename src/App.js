@@ -33,7 +33,7 @@ import {
   getInfo,
 } from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
-import blockchain from './lib/blockchain';
+import blockchain, {setBlockchainAPI, blockchainAPI} from './lib/blockchain';
 import apiEndpoints from './lib/insight-endpoints';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import {osName} from 'react-device-detect';
@@ -131,12 +131,15 @@ class App extends React.Component {
     this.setState({
       accounts: [],
       tiptime: null,
-      explorerEndpoint: null,
+      explorerEndpoint: isElectron && appData.blockchainAPI === 'spv' ? 'default' : null,
       [e.target.name]: e.target.value,
     });
 
     setTimeout(() => {
-      this.checkExplorerEndpoints();
+      if (!isElectron || (isElectron && appData.blockchainAPI === 'insight')) this.checkExplorerEndpoints();
+      if (isElectron && appData.blockchainAPI === 'spv') {
+        blockchain[blockchainAPI].setCoin(this.state.coin);
+      }
     }, 50);
   }
 
@@ -163,12 +166,12 @@ class App extends React.Component {
 
     console.warn('set api endpoint to ' + e.target.value);
 
-    setExplorerUrl(e.target.value);
+    blockchain[blockchainAPI].setExplorerUrl(e.target.value);
   }
 
   checkExplorerEndpoints = async () => {
     const getInfoRes =  await Promise.all(apiEndpoints[this.state.coin].map((value, index) => {
-      return getInfo(value);
+      return blockchain[blockchainAPI].getInfo(value);
     }));
     let isExplorerEndpointSet = false;
 
@@ -179,7 +182,7 @@ class App extends React.Component {
           getInfoRes[i].hasOwnProperty('info') &&
           getInfoRes[i].info.hasOwnProperty('version')) {
         console.warn('set api endpoint to ' + apiEndpoints[this.state.coin][i]);
-        setExplorerUrl(apiEndpoints[this.state.coin][i]);
+        blockchain[blockchainAPI].setExplorerUrl(apiEndpoints[this.state.coin][i]);
         isExplorerEndpointSet = true;
         
         this.setState({
@@ -209,8 +212,8 @@ class App extends React.Component {
       console.warn('sync data called');
 
       let [accounts, tiptime] = await Promise.all([
-        accountDiscovery(),
-        blockchain.getTipTime()
+        accountDiscovery(this.state.vendor, this.state.coin.toLowerCase()),
+        blockchain[blockchainAPI].getTipTime()
       ]);
 
       tiptime = this.checkTipTime(tiptime);
