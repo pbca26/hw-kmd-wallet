@@ -63,7 +63,7 @@ class CheckBalanceButton extends React.Component {
       currentAction = 'approve';
       updateActionState(this, currentAction, 'loading');
       let [accounts, tiptime] = await Promise.all([
-        accountDiscovery(this.props.vendor),
+        accountDiscovery(this.props.vendor, this.props.coin),
         blockchain.getTipTime()
       ]);
 

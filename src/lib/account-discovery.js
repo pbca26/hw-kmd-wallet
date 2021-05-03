@@ -3,14 +3,17 @@ import blockchain, {blockchainAPI} from './blockchain';
 import getAddress from './get-address';
 import bitcoin from 'bitcoinjs-lib';
 import parseHistory from './history-parser';
+import asyncForEach from './async';
 import {
   isElectron,
   appData,
   ipcRenderer,
 } from '../Electron';
+import {airDropCoins} from './coins';
 
 let pubKeysCache = {};
 let isFirstRun = {};
+let gapLimit = 20;
 
 async function asyncForEach(array, callback) {
   for (let index = 0; index < array.length; index++) {
@@ -19,13 +22,27 @@ async function asyncForEach(array, callback) {
 }
 
 const walkDerivationPath = async node => {
-  console.warn('blockchainAPI', blockchainAPI);
-  const addressConcurrency = isElectron && appData.isNspv ? 2 : 10;
-  const gapLimit = isElectron && appData.isNspv ? 5 : 20;
-  console.warn('walkDerivationPath gapLimit', gapLimit);
   const addresses = [];
+  let addressConcurrency = 10;
   let consecutiveUnusedAddresses = 0;
   let addressIndex = 0;
+
+  if (window.location.href.indexOf('extgap=s') > -1) gapLimit = 30;
+  if (window.location.href.indexOf('extgap=m') > -1) gapLimit = 40;
+  if (window.location.href.indexOf('extgap=l') > -1) gapLimit = 50;
+  if (window.location.href.indexOf('extgap=xl') > -1) gapLimit = 100;
+
+  if (window.location.href.indexOf('timeout=s') > -1) addressConcurrency = 2;
+  if (window.location.href.indexOf('timeout=m') > -1) addressConcurrency = 5;
+
+  if (gapLimit > 20) addressConcurrency = 5;
+
+  if (isElectron && appData.isNspv) {
+    console.warn('blockchainAPI', blockchainAPI);
+    addressConcurrency = 2;
+    gapLimit = 5;
+    console.warn('walkDerivationPath gapLimit', gapLimit);
+  }
 
   while (consecutiveUnusedAddresses < gapLimit) {
     const addressApiRequests = [];
@@ -187,7 +204,6 @@ export const getAddressHistoryOld = async addresses => {
   };
 };
 
-
 const accountDiscovery = async (vendor, coin) => {
   const accounts = [];
   let accountIndex = 0;
@@ -218,6 +234,13 @@ const accountDiscovery = async (vendor, coin) => {
     ipcRenderer.send('nspvRunRecheck', {coin, isFirstRun: !isFirstRun.hasOwnProperty(coin)});
     if (!isFirstRun.hasOwnProperty(coin)) isFirstRun[coin] = true;
   } else {
+    if (airDropCoins.indexOf(coin) > -1 &&
+        window.location.href.indexOf('extgap=') === -1) {
+      gapLimit = 50;
+    } else {
+      gapLimit = 20;
+    }
+
     while (true) {
       const account = await getAccountAddresses(accountIndex, vendor);
 
@@ -230,14 +253,14 @@ const accountDiscovery = async (vendor, coin) => {
         }; 
         account.accountIndex = accountIndex;
         accounts.push(account);
-        return accounts;
+        if (airDropCoins.indexOf(coin) === -1 || accountIndex === 4) return accounts;
       } else {
         account.utxos = await getAddressUtxos(account.addresses);
         account.history = await getAddressHistory(account.addresses); 
         account.accountIndex = accountIndex;
+        accounts.push(account);
       }
 
-      accounts.push(account);
       accountIndex++;
     }
   }
@@ -245,6 +268,10 @@ const accountDiscovery = async (vendor, coin) => {
   console.warn('accounts', accounts);
 
   return accounts;
+};
+
+export const clearPubkeysCache = () => {
+  pubKeysCache = {};
 };
 
 export default accountDiscovery;

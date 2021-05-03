@@ -85,6 +85,36 @@ function createWindow() {
   ipcLedger.setMainWindow(mainWindow);
   ipcSPV.setMainWindow(mainWindow);
   ipcNSPV.setMainWindow(mainWindow);
+
+  ipcMain.on('getAddress', (e, {ruid, derivationPath}) => {
+    console.log(derivationPath);
+
+    if (mainWindow) {
+      getAddress(derivationPath, false).then(result => {
+        mainWindow.webContents.send('getAddress', {ruid, result});
+      });
+    }
+  });
+
+  ipcMain.on('createPaymentTransactionNew', (e, {ruid, txData}) => {
+    console.log(txData);
+
+    if (mainWindow) {
+      createPaymentTransactionNew(txData).then(result => {
+        mainWindow.webContents.send('createPaymentTransactionNew', {ruid, result});
+      });
+    }
+  });
+
+  ipcMain.on('splitTransaction', (e, {ruid, txData}) => {
+    console.log(txData);
+
+    if (mainWindow) {
+      splitTransaction(txData).then(result => {
+        mainWindow.webContents.send('splitTransaction', {ruid, result});
+      });
+    }
+  });
 }
 
 // This method will be called when Electron has finished

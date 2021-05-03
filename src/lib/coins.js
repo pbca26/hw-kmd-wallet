@@ -12,10 +12,6 @@ const coins = {
     explorer: 'https://axo.explorer.dexstats.info/',
     api: ['https://axo.explorer.dexstats.info/insight-api-komodo/'],
   },
-  ETOMIC: {
-    explorer: 'https://etomic.explorer.dexstats.info/',
-    api: ['https://etomic.explorer.dexstats.info/insight-api-komodo/'],
-  },
   KOIN: {
     explorer: 'https://koin.explorer.dexstats.info/',
     api: ['https://koin.explorer.dexstats.info/insight-api-komodo/'],
@@ -32,21 +28,9 @@ const coins = {
     explorer: 'https://supernet.explorer.dexstats.info/',
     api: ['https://supernet.explorer.dexstats.info/insight-api-komodo/'],
   },
-  DION: {
-    explorer: 'https://explorer.dionpay.com/',
-    api: ['https://explorer.dionpay.com/insight-api-komodo/'],
-  },
   CCL: {
     explorer: 'https://ccl.explorer.dexstats.info/',
     api: ['https://ccl.explorer.dexstats.info/insight-api-komodo/'],
-  },
-  KV: {
-    explorer: 'https://kv.explorer.dexstats.info/',
-    api: ['https://kv.explorer.dexstats.info/insight-api-komodo/'],
-  },
-  CHAIN: {
-    explorer: 'https://chain.explorer.dexstats.info/',
-    api: ['https://chain.explorer.dexstats.info/insight-api-komodo/'],
   },
   PGT: {
     explorer: 'https://pgt.explorer.dexstats.info/',
@@ -104,37 +88,13 @@ const coins = {
     explorer: 'https://btch.explorer.dexstats.info/',
     api: ['https://btch.explorer.dexstats.info/insight-api-komodo/'],
   },
-  HUSH3: {
-    explorer: 'https://hush3.explorer.dexstats.info/',
-    api: ['https://hush3.explorer.dexstats.info/insight-api-komodo/'],
-  },
   NINJA: {
     explorer: 'https://ninja.explorer.dexstats.info/',
     api: ['https://ninja.explorer.dexstats.info/insight-api-komodo/'],
   },
-  SEC: {
-    explorer: 'https://sec.explorer.dexstats.info/',
-    api: ['https://sec.explorer.dexstats.info/insight-api-komodo/'],
-  },
   THC: {
     explorer: 'https://thc.explorer.dexstats.info/',
     api: ['https://thc.explorer.dexstats.info/insight-api-komodo/'],
-  },
-  KMDICE: {
-    explorer: 'https://kmdice.explorer.dexstats.info/',
-    api: ['https://kmdice.explorer.dexstats.info/insight-api-komodo/'],
-  },
-  ZEXO: {
-    explorer: 'https://zex.explorer.dexstats.info/',
-    api: ['https://zexo.explorer.dexstats.info/insight-api-komodo/'],
-  },
-  KSB: {
-    explorer: 'https://ksb.explorer.dexstats.info/',
-    api: ['https://ksb.explorer.dexstats.info/insight-api-komodo/'],
-  },
-  OUR: {
-    explorer: 'https://our.explorer.dexstats.info/',
-    api: ['https://our.explorer.dexstats.info/insight-api-komodo/'],
   },
   MCL: {
     explorer: 'https://mcl.explorer.dexstats.info/',
@@ -148,22 +108,27 @@ const coins = {
     explorer: 'https://labs.explorer.dexstats.info/',
     api: ['https://labs.explorer.dexstats.info/insight-api-komodo/'],
   },
-  VOTE2020: {
-    explorer: 'https://vote2020.explorer.dexstats.info/',
-    api: ['https://vote2020.explorer.dexstats.info/insight-api-komodo/'],
+  VOTE2021: {
+    explorer: 'https://vote2021.explorer.dexstats.info/',
+    api: [
+      'https://explorer.komodoplatform.com:10000/vote2021/api/',
+      'https://vote2021.explorer.dexstats.info/insight-api-komodo/',
+    ],
   },
   RICK: {
     explorer: 'https://rick.kmd.dev/',
     api: [
-      'https://rick.kmd.dev/insight-api-komodo/',
+      'https://explorer.komodoplatform.com:10000/rick/api/',
       'https://rick.explorer.dexstats.info/insight-api-komodo/',
+      'https://rick.kmd.dev/insight-api-komodo/',
     ],
   },
   MORTY: {
     explorer: 'https://morty.kmd.dev/',
     api: [
-      'https://morty.kmd.dev/insight-api-komodo/',
       'https://morty.explorer.dexstats.info/insight-api-komodo/',
+      'https://explorer.komodoplatform.com:10000/morty/api/',
+      'https://morty.kmd.dev/insight-api-komodo/',
     ],
   },
   VRSC: {
@@ -171,7 +136,27 @@ const coins = {
     api: [
       'https://explorer.komodoplatform.com:10000/vrsc/api/',
       'https://vrsc.explorer.dexstats.info/insight-api-komodo/',
+      'https://insight.vrsc.0x03.services/insight-api-komodo/',
     ],
+  },
+  WSB: {
+    explorer: 'https://wsb.explorer.dexstats.info/',
+    api: [
+      'https://wsb.explorer.dexstats.info/insight-api-komodo/',
+      'https://explorer.komodoplatform.com:10000/wsb/api/',
+    ],
+  },
+  SPACE: {
+    explorer: 'https://space.explorer.dexstats.info/',
+    api: ['https://space.explorer.dexstats.info/insight-api-komodo/'],
+  },
+  CLC: {
+    explorer: 'https://clc.explorer.dexstats.info/',
+    api: ['https://clc.explorer.dexstats.info/insight-api-komodo/'],
+  },
+  SOULJA: {
+    explorer: 'https://soulja.explorer.dexstats.info/',
+    api: ['https://soulja.explorer.dexstats.info/insight-api-komodo/'],
   },
   // DP: '',
   // SHARK: '',
@@ -190,5 +175,10 @@ const coins = {
   },
   */
 };
+
+export const airDropCoins = [
+  'WSB',
+  'VOTE2021',
+];
 
 export default sortObject(coins);

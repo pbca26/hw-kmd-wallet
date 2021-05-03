@@ -5,6 +5,7 @@ import {isEqual} from 'lodash';
 import Header from './Header';
 import BetaWarning from './BetaWarning';
 import CheckBalanceButton from './CheckBalanceButton';
+import CheckAllBalancesButton from './CheckAllBalancesButton';
 import Accounts from './Accounts';
 import WarnU2fCompatibility from './WarnU2fCompatibility';
 import WarnBrowser from './WarnBrowser';
@@ -34,7 +35,7 @@ import {
 } from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain, {setBlockchainAPI, blockchainAPI} from './lib/blockchain';
-import apiEndpoints from './lib/insight-endpoints';
+import apiEndpoints from './lib/coins';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import {osName} from 'react-device-detect';
 import {
@@ -174,30 +175,37 @@ class App extends React.Component {
       return blockchain[blockchainAPI].getInfo(value);
     }));
     let isExplorerEndpointSet = false;
+    let longestBlockHeight = 0;
+    let apiEndPointIndex = 0;
 
     console.warn('checkExplorerEndpoints', getInfoRes);
     
-    for (let i = 0; i < apiEndpoints[this.state.coin].length; i++) {
+    for (let i = 0; i < apiEndpoints[this.state.coin].api.length; i++) {
       if (getInfoRes[i] &&
           getInfoRes[i].hasOwnProperty('info') &&
           getInfoRes[i].info.hasOwnProperty('version')) {
-        console.warn('set api endpoint to ' + apiEndpoints[this.state.coin][i]);
-        blockchain[blockchainAPI].setExplorerUrl(apiEndpoints[this.state.coin][i]);
-        isExplorerEndpointSet = true;
-        
-        this.setState({
-          explorerEndpoint: apiEndpoints[this.state.coin][i],
-        });
-
-        break;
+        if (getInfoRes[i].info.blocks > longestBlockHeight) {
+          longestBlockHeight = getInfoRes[i].info.blocks;
+          apiEndPointIndex = i;
+        }
       }
     }
 
-    if (!isExplorerEndpointSet) {
-      this.setState({
-        explorerEndpoint: false,
-      });
-    }
+    console.warn('set api endpoint to ' + apiEndpoints[this.state.coin].api[apiEndPointIndex]);
+    blockchain[blockchainAPI].setExplorerUrl(apiEndpoints[this.state.coin].api[apiEndPointIndex]);    
+    isExplorerEndpointSet = true;
+    
+    this.setState({
+      explorerEndpoint: apiEndpoints[this.state.coin].api[apiEndPointIndex],
+    });
+
+    setTimeout(() => {
+      if (!isExplorerEndpointSet) {
+        this.setState({
+          explorerEndpoint: false,
+        });
+      }
+    }, 50);
   };
 
   resetState = () => {
@@ -350,7 +358,7 @@ class App extends React.Component {
                 {this.state.vendor &&
                   <strong>{VENDOR[this.state.vendor]} KMD HW {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
                 }
-                { apiEndpoints[this.state.coin].length > 1 &&
+                { apiEndpoints[this.state.coin].api.length > 1 &&
                   <span className="explorer-selector-block">
                     <i className="fa fa-cog"></i>
                     <select
@@ -363,7 +371,7 @@ class App extends React.Component {
                         disabled>
                         Select API endpoint
                       </option>
-                      {apiEndpoints[this.state.coin].map((val, index) => (
+                      {apiEndpoints[this.state.coin].api.map((val, index) => (
                         <option
                           key={`explorer-selector-${val}`}
                           value={val}>
@@ -400,12 +408,23 @@ class App extends React.Component {
                     </select>
                     {(this.state.vendor === 'trezor' || (this.state.vendor === 'ledger' && this.state.ledgerDeviceType)) &&
                      this.state.explorerEndpoint &&
-                      <CheckBalanceButton
-                        handleRewardData={this.handleRewardData}
-                        checkTipTime={this.checkTipTime}
-                        vendor={this.state.vendor}>
-                        <strong>Check Balance</strong>
-                      </CheckBalanceButton>
+                      <React.Fragment>
+                        <CheckBalanceButton
+                          handleRewardData={this.handleRewardData}
+                          checkTipTime={this.checkTipTime}
+                          vendor={this.state.vendor}
+                          coin={this.state.coin}>
+                          <strong>Check Balance</strong>
+                        </CheckBalanceButton>
+                        <CheckAllBalancesButton
+                          handleRewardData={this.handleRewardData}
+                          checkTipTime={this.checkTipTime}
+                          vendor={this.state.vendor}
+                          explorerEndpoint={this.state.explorerEndpoint}
+                          coin={this.state.coin}>
+                          <strong>Check All</strong>
+                        </CheckAllBalancesButton>
+                      </React.Fragment>
                     }
                     <button
                       className="button is-light"
