@@ -268,7 +268,7 @@ class App extends React.Component {
 
   vendorSelectorRender() {
     return (
-      <div className="App">
+      <div className={`App isPristine${!isElectron && window.location.href.indexOf('disable-mobile') === -1 ? ' Responsive' : ''}`}>
         <Header>
           <div className="navbar-brand">
             <div className="navbar-item">
@@ -342,7 +342,7 @@ class App extends React.Component {
       return this.vendorSelectorRender();
     } else {
       return (
-        <div className="App">
+        <div className={`App${testCoins.indexOf(this.state.coin) > -1 ? ' testcoins-warning-fix' : ''}${!isElectron && window.location.href.indexOf('disable-mobile') === -1 ? ' Responsive' : ''}`}>
           <Header>
             <div className="navbar-brand">
               <div className="navbar-item">
@@ -358,7 +358,7 @@ class App extends React.Component {
                 {this.state.vendor &&
                   <strong>{VENDOR[this.state.vendor]} KMD HW {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
                 }
-                { apiEndpoints[this.state.coin].api.length > 1 &&
+                {apiEndpoints[this.state.coin].api.length > 1 &&
                   <span className="explorer-selector-block">
                     <i className="fa fa-cog"></i>
                     <select
