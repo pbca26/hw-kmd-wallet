@@ -19,7 +19,7 @@ const getData = (ruid, payload) => {
           console.warn(`ledger data ruid ${ruid} available, clear interval`, data[ruid]);
           clearInterval(intervals[ruid]);
           delete pendingCalls[ruid];
-          resolve(data[ruid] === 'false' ? false : data[ruid]);
+          resolve(data[ruid]);
         } else {
           pendingCalls[ruid] = payload;
         }
@@ -27,7 +27,7 @@ const getData = (ruid, payload) => {
     } else {
       console.warn(`ledger data ruid ${ruid} available`, data[ruid]);
       delete pendingCalls[ruid];
-      resolve(data[ruid] === 'false' ? false : data[ruid]);
+      resolve(data[ruid]);
     }
   });
 };
@@ -35,20 +35,20 @@ const getData = (ruid, payload) => {
 if (isElectron) {
   ipcRenderer.on('getAddress', (event, arg) => {
     console.warn('getAddress arg', arg);
-    console.warn('arg.bitcoinAddress', arg);
-    if (arg === -777) data[arg.ruid] = 'false';
+    console.warn('arg.bitcoinAddress', arg.bitcoinAddress);
+    if (arg === -777) resolve(false);
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('createPaymentTransactionNew', (event, arg) => {
     console.warn('createPaymentTransactionNew arg', arg);
-    if (arg === -777) data[arg.ruid] = 'false';
+    if (arg === -777) resolve(false);
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('splitTransaction', (event, arg) => {
     console.warn('splitTransaction arg', arg);
-    if (arg === -777) data[arg.ruid] = 'false';
+    if (arg === -777) resolve(false);
     else data[arg.ruid] = arg.result;
   });
 }

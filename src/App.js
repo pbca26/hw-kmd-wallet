@@ -34,7 +34,7 @@ import {
   getInfo,
 } from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
-import blockchain from './lib/blockchain';
+import blockchain, {setBlockchainAPI, blockchainAPI} from './lib/blockchain';
 import apiEndpoints from './lib/coins';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import {osName} from 'react-device-detect';
@@ -65,10 +65,19 @@ class App extends React.Component {
 
   componentWillMount() {
     document.title = `Komodo Hardware Wallet (v${version})`;
-    setInterval(() => {
-      console.warn('auto sync called');
-      this.syncData();
-    }, 300 * 1000);
+    if (isElectron && !appData.isNspv) {
+      setInterval(() => {
+        if (!this.state.syncInProgress) {
+          console.warn('auto sync called');
+          this.syncData();
+        }
+      }, 300 * 1000);
+    }
+
+    /*setTimeout(() => {
+      console.warn('run recheck');
+      ipcRenderer.send('nspvRunRecheck', {coin: 'rick'});
+    }, 2000);*/
 
     hw.trezor.init();
 
@@ -79,7 +88,30 @@ class App extends React.Component {
       document.getElementById('body').className = getLocalStorageVar('settings').theme;
     }
 
-    this.checkExplorerEndpoints();
+    if (isElectron && appData.blockchainAPI === 'spv') {
+      blockchain[blockchainAPI].setCoin(this.state.coin);
+    }
+
+    if (!isElectron || (isElectron && appData.blockchainAPI === 'insight')) this.checkExplorerEndpoints();
+
+    if (isElectron && appData.blockchainAPI === 'spv'/*&& isElectron.blockchainAPI*/) {
+      setBlockchainAPI('spv');
+    }
+
+    if (isElectron && appData.isNspv) {
+      ipcRenderer.on('nspvRecheck', (event, arg) => {
+        console.warn('nspvRecheck arg', arg);
+        if (!arg.isFirstRun) console.warn('schedule next sync update in 5 min');
+        else console.warn('run sync update immediately (first run)');
+        
+        if (arg.coin === this.state.coin.toLowerCase()) {
+          setTimeout(() => {
+            console.warn('auto sync called');
+            this.syncData();
+          }, arg.isFirstRun === true ? 1000 : 300 * 1000);
+        }
+      });
+    }
   }
 
   checkTipTime(tiptime) {
@@ -100,12 +132,15 @@ class App extends React.Component {
     this.setState({
       accounts: [],
       tiptime: null,
-      explorerEndpoint: null,
+      explorerEndpoint: isElectron && appData.blockchainAPI === 'spv' ? 'default' : null,
       [e.target.name]: e.target.value,
     });
 
     setTimeout(() => {
-      this.checkExplorerEndpoints();
+      if (!isElectron || (isElectron && appData.blockchainAPI === 'insight')) this.checkExplorerEndpoints();
+      if (isElectron && appData.blockchainAPI === 'spv') {
+        blockchain[blockchainAPI].setCoin(this.state.coin);
+      }
     }, 50);
   }
 
@@ -132,12 +167,12 @@ class App extends React.Component {
 
     console.warn('set api endpoint to ' + e.target.value);
 
-    setExplorerUrl(e.target.value);
+    blockchain[blockchainAPI].setExplorerUrl(e.target.value);
   }
 
   checkExplorerEndpoints = async () => {
-    const getInfoRes =  await Promise.all(apiEndpoints[this.state.coin].api.map((value, index) => {
-      return getInfo(value);
+    const getInfoRes =  await Promise.all(apiEndpoints[this.state.coin].map((value, index) => {
+      return blockchain[blockchainAPI].getInfo(value);
     }));
     let isExplorerEndpointSet = false;
     let longestBlockHeight = 0;
@@ -157,7 +192,7 @@ class App extends React.Component {
     }
 
     console.warn('set api endpoint to ' + apiEndpoints[this.state.coin].api[apiEndPointIndex]);
-    setExplorerUrl(apiEndpoints[this.state.coin].api[apiEndPointIndex]);
+    blockchain[blockchainAPI].setExplorerUrl(apiEndpoints[this.state.coin].api[apiEndPointIndex]);    
     isExplorerEndpointSet = true;
     
     this.setState({
@@ -185,8 +220,8 @@ class App extends React.Component {
       console.warn('sync data called');
 
       let [accounts, tiptime] = await Promise.all([
-        accountDiscovery(this.state.vendor, this.state.coin),
-        blockchain.getTipTime()
+        accountDiscovery(this.state.vendor, this.state.coin.toLowerCase()),
+        blockchain[blockchainAPI].getTipTime()
       ]);
 
       tiptime = this.checkTipTime(tiptime);

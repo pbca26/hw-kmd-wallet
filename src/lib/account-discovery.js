@@ -1,13 +1,25 @@
 import hw from './hw';
-import blockchain from './blockchain';
+import blockchain, {blockchainAPI} from './blockchain';
 import getAddress from './get-address';
 import bitcoin from 'bitcoinjs-lib';
 import parseHistory from './history-parser';
 import asyncForEach from './async';
+import {
+  isElectron,
+  appData,
+  ipcRenderer,
+} from '../Electron';
 import {airDropCoins} from './coins';
 
 let pubKeysCache = {};
+let isFirstRun = {};
 let gapLimit = 20;
+
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
 
 const walkDerivationPath = async node => {
   const addresses = [];
@@ -25,20 +37,27 @@ const walkDerivationPath = async node => {
 
   if (gapLimit > 20) addressConcurrency = 5;
 
+  if (isElectron && appData.isNspv) {
+    console.warn('blockchainAPI', blockchainAPI);
+    addressConcurrency = 2;
+    gapLimit = 5;
+    console.warn('walkDerivationPath gapLimit', gapLimit);
+  }
+
   while (consecutiveUnusedAddresses < gapLimit) {
     const addressApiRequests = [];
 
     for (let i = 0; i < addressConcurrency; i++) {
       const address = getAddress(node.derive(addressIndex).publicKey);
 
-      addressApiRequests.push(blockchain.getAddress(address));
+      addressApiRequests.push(blockchain[blockchainAPI].getAddress(address));
       addresses.push({address, addressIndex});
 
       addressIndex++;
     }
 
     for (const address of await Promise.all(addressApiRequests)) {
-      if (address.totalReceived > 0 || address.unconfirmedBalance > 0) {
+      if (address.txApperances > 0 || address.totalReceived > 0 || address.unconfirmedBalance > 0) {
         consecutiveUnusedAddresses = 0;
       } else {
         consecutiveUnusedAddresses++;
@@ -88,9 +107,9 @@ const getAccountAddresses = async (account, vendor) => {
 };
 
 const getAddressUtxos = async addresses => {
-  const utxos = await blockchain.getUtxos(addresses.map(a => a.address));
+  const utxos = await blockchain[blockchainAPI].getUtxos(addresses.map(a => a.address));
 
-  return await Promise.all(utxos.map(async utxo => {
+  return await Promise.all(utxos.map(async (utxo, index) => {
     const addressInfo = addresses.find(a => a.address === utxo.address);
 
     const [
@@ -104,8 +123,8 @@ const getAddressUtxos = async addresses => {
         nExpiryHeight,
       }
     ] = await Promise.all([
-      blockchain.getRawTransaction(utxo.txid),
-      blockchain.getTransaction(utxo.txid)
+      blockchain[blockchainAPI].getRawTransaction(utxo.txid),
+      blockchain[blockchainAPI].getTransaction(utxo.txid)
     ]);
 
     return {
@@ -124,7 +143,7 @@ const getAddressUtxos = async addresses => {
 };
 
 const getAddressHistory = async addresses => {
-  const history = await blockchain.getHistory(addresses.map(a => a.address));
+  const history = await blockchain[blockchainAPI].getHistory(addresses.map(a => a.address));
 
   return {
     addresses: addresses,
@@ -142,7 +161,7 @@ export const getAddressHistoryOld = async addresses => {
   console.warn('addresses', addresses);
 
   await asyncForEach(addresses, async (addressItem, index) => {
-    const addressHistoryRes = await blockchain.getHistory(addressItem.address);
+    const addressHistoryRes = await blockchain[blockchainAPI].getHistory(addressItem.address);
     
     console.warn('addressHistoryRes', addressHistoryRes);
 
@@ -189,16 +208,10 @@ const accountDiscovery = async (vendor, coin) => {
   const accounts = [];
   let accountIndex = 0;
 
-  if (airDropCoins.indexOf(coin) > -1 &&
-      window.location.href.indexOf('extgap=') === -1) {
-    gapLimit = 50;
-  } else {
-    gapLimit = 20;
-  }
-
-  while (true) {
+  if (isElectron && appData.isNspv) {
+    console.warn('accountDiscovery accountIndex', accountIndex);
     const account = await getAccountAddresses(accountIndex, vendor);
-
+    
     if (account.addresses.length === 0) {
       account.utxos = [];
       account.history = {
@@ -208,16 +221,51 @@ const accountDiscovery = async (vendor, coin) => {
       }; 
       account.accountIndex = accountIndex;
       accounts.push(account);
-      if (airDropCoins.indexOf(coin) === -1 || accountIndex === 4) return accounts;
     } else {
       account.utxos = await getAddressUtxos(account.addresses);
       account.history = await getAddressHistory(account.addresses); 
       account.accountIndex = accountIndex;
-      accounts.push(account);
     }
 
-    accountIndex++;
+    console.warn('nspv account discovery done');
+
+    accounts.push(account);
+    console.warn('run diff check');
+    ipcRenderer.send('nspvRunRecheck', {coin, isFirstRun: !isFirstRun.hasOwnProperty(coin)});
+    if (!isFirstRun.hasOwnProperty(coin)) isFirstRun[coin] = true;
+  } else {
+    if (airDropCoins.indexOf(coin) > -1 &&
+        window.location.href.indexOf('extgap=') === -1) {
+      gapLimit = 50;
+    } else {
+      gapLimit = 20;
+    }
+
+    while (true) {
+      const account = await getAccountAddresses(accountIndex, vendor);
+
+      if (account.addresses.length === 0) {
+        account.utxos = [];
+        account.history = {
+          addresses: [],
+          allTxs: [],
+          historyParsed: [],
+        }; 
+        account.accountIndex = accountIndex;
+        accounts.push(account);
+        if (airDropCoins.indexOf(coin) === -1 || accountIndex === 4) return accounts;
+      } else {
+        account.utxos = await getAddressUtxos(account.addresses);
+        account.history = await getAddressHistory(account.addresses); 
+        account.accountIndex = accountIndex;
+        accounts.push(account);
+      }
+
+      accountIndex++;
+    }
   }
+
+  console.warn('accounts', accounts);
 
   return accounts;
 };

@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "hw-kmd-wallet-electron",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Komodo Hardware Wallet Electron App",
   "main": "main.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "pack": "electron-builder --dir hw-kmd-wallet-electron-unpacked",
     "dist": "electron-builder --publish=never",
     "dist-win": "electron-builder --publish=never  --win",
-    "postinstall": "electron-rebuild"
+    "postinstall": "rm -rf node_modules/bitgo-utxo-lib/node_modules/create-hash && electron-rebuild"
   },
   "repository": "https://github.com/pbca26/hw-kmd-wallet",
   "keywords": [
@@ -31,6 +31,10 @@
   "dependencies": {
     "@ledgerhq/hw-app-btc": "^5.16.0",
     "@ledgerhq/hw-transport-node-hid": "^4.38.6",
-    "babel-polyfill": "^6.26.0"
+    "babel-polyfill": "^6.26.0",
+    "bitgo-utxo-lib": "git+https://github.com/pbca26/bitgo-utxo-lib",
+    "create-hash": "git://github.com/pbca26/createHash#electron-v4",
+    "fix-path": "^2.1.0",
+    "tx-decoder": "git+https://github.com/pbca26/tx-decoder"
   }
 }

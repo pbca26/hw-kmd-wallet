@@ -2,7 +2,7 @@ import React from 'react';
 import ActionListModal from './ActionListModal';
 import TxidLink from './TxidLink';
 import hw from './lib/hw';
-import blockchain from './lib/blockchain';
+import blockchain, {blockchainAPI} from './lib/blockchain';
 import getAddress from './lib/get-address';
 import checkPublicAddress from './lib/validate-address';
 import transactionBuilder from './lib/transaction-builder';
@@ -312,7 +312,7 @@ class SendCoinButton extends React.Component {
         } else {
           currentAction = 'broadcastTransaction';
           updateActionState(this, currentAction, 'loading');
-          const {txid} = await blockchain.broadcast(rawtx);
+          const {txid} = await blockchain[blockchainAPI].broadcast(rawtx);
           if (!txid || txid.length !== 64) {
             throw new Error('Unable to broadcast transaction');
           }
