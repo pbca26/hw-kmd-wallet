@@ -13,7 +13,16 @@ import {airDropCoins} from './coins';
 
 let pubKeysCache = {};
 let isFirstRun = {};
-let gapLimit = 20;
+let config = {
+  discoveryGapLimit: 20,
+  discoveryAddressConcurrency: 10,
+};
+
+export const setConfigVar = (name, val) => {
+  config[name] = val;
+
+  console.warn('setConfigVar', config);
+};
 
 async function asyncForEach(array, callback) {
   for (let index = 0; index < array.length; index++) {
@@ -23,8 +32,8 @@ async function asyncForEach(array, callback) {
 
 const walkDerivationPath = async node => {
   const addresses = [];
-  let addressConcurrency = 10;
-  let consecutiveUnusedAddresses = 0;
+  let addressConcurrency = config.discoveryGapLimit;
+  let consecutiveUnusedAddresses = config.discoveryAddressConcurrency;
   let addressIndex = 0;
 
   if (window.location.href.indexOf('extgap=s') > -1) gapLimit = 30;
