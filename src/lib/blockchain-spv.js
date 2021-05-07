@@ -99,7 +99,7 @@ const getAddress = address => {
   });
 }
 
-const getAddressHistory = (address) => get(`/txs?address=${address}`);
+//const getAddressHistory = (address) => get(`/txs?address=${address}`);
 
 //const getHistory = addresses => get(`addrs/txs`, {addrs: addresses.join(',')});
 
@@ -194,7 +194,7 @@ const broadcast = async (rawtx) => {
 const blockchain = {
   getAddress,
   getUtxos,
-  getAddressHistory,
+  //getAddressHistory,
   getHistory,
   getTransaction,
   getRawTransaction,
