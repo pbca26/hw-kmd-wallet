@@ -20,6 +20,8 @@ module.exports = {
       path.resolve(paths.appNodeModules, 'lru-cache'),
       path.resolve(paths.appNodeModules, 'yallist'),
       path.resolve(paths.appNodeModules, 'u2f-api'),
+      path.resolve(paths.appNodeModules, 'asn1.js'),
+      path.resolve(paths.appNodeModules, '@trezor/utxo-lib'),
       path.resolve(paths.appNodeModules, '@ledgerhq/hw-app-btc'),
       path.resolve(paths.appNodeModules, '@ledgerhq/hw-transport/lib-es'),
       path.resolve(paths.appNodeModules, '@ledgerhq/hw-transport-webusb/lib-es'),
