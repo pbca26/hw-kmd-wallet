@@ -158,6 +158,13 @@ const coins = {
     explorer: 'https://soulja.explorer.dexstats.info/',
     api: ['https://soulja.explorer.dexstats.info/insight-api-komodo/'],
   },
+  GLEEC: {
+    explorer: 'https://gleec.xyz/',
+    api: [
+      'https://gleec.explorer.dexstats.info/insight-api-komodo/',
+      'https://gleec.xyz/insight-api-komodo/',
+    ],
+  },
   // DP: '',
   // SHARK: '',
   // EQL: '',
