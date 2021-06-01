@@ -5,6 +5,7 @@ import bitcoin from 'bitcoinjs-lib';
 import parseHistory from './history-parser';
 import asyncForEach from './async';
 import {airDropCoins} from './coins';
+import TrezorUtxoLib from '@trezor/utxo-lib';
 
 let pubKeysCache = {};
 let gapLimit = 20;
@@ -93,7 +94,7 @@ const getAddressUtxos = async addresses => {
   return await Promise.all(utxos.map(async utxo => {
     const addressInfo = addresses.find(a => a.address === utxo.address);
 
-    const [
+    let [
       {rawtx},
       {
         locktime,
@@ -107,6 +108,14 @@ const getAddressUtxos = async addresses => {
       blockchain.getRawTransaction(utxo.txid),
       blockchain.getTransaction(utxo.txid)
     ]);
+
+    // fix for insight explorer value rounding issue
+    TrezorUtxoLib.Transaction.USE_STRING_VALUES = true;
+    const decodeFromRaw = TrezorUtxoLib.Transaction.fromHex(rawtx, TrezorUtxoLib.networks.komodo);
+
+    for (let i = 0; i < vout.length; i++) {
+      vout[i].satoshis = parseInt(decodeFromRaw.outs[i].value);
+    }
 
     return {
       id: `${utxo.txid}:${utxo.vout}`,

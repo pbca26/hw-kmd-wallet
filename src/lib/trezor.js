@@ -110,7 +110,7 @@ const createTransaction = async (utxos, outputs, isKMD) => {
         }),
         bin_outputs: refTx.outputs.map((output) => {
           return {
-            amount: Number((Number(output.value).toFixed(8) * 100000000).toFixed(0)),
+            amount: output.hasOwnProperty('satoshis') ? output.satoshis.toString() : output.value.replace('.', ''),
             script_pubkey: output.scriptPubKey.hex,
           };
         }),
