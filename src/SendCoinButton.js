@@ -286,8 +286,8 @@ class SendCoinButton extends React.Component {
         [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change + txData.totalInterest - (isClaimRewardsOnly ? 0 : TX_FEE * 2), derivationPath}] : [{address: txData.outputAddress, value: txData.value}]);
 
         console.warn('rawtx', rawtx);
-        if (!rawtx) {
-          throw new Error(`${VENDOR[this.props.vendor]} failed to generate a valid transaction`);
+        if (!rawtx || (rawtx && rawtx.hasOwnProperty('err'))) {
+          throw new Error(`${VENDOR[this.props.vendor]} failed to generate a valid transaction${rawtx.hasOwnProperty('err') ? '\n\n' + JSON.stringify(rawtx) : ''}`);
         }
         updateActionState(this, currentAction, true);
         
