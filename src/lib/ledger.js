@@ -32,7 +32,7 @@ const resetTransport = () => {
 
 let getDevice = async () => {
   let newTransport;
-  let transportType = 'u2f'; // default
+  let transportType = 'webusb'; // default
 
   if (window.location.href.indexOf('ledger-webusb') > -1 ||
       ledgerFWVersion === 'webusb') {

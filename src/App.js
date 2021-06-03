@@ -57,7 +57,7 @@ class App extends React.Component {
       vendor: null,
       isFirstRun: true,
       ledgerDeviceType: null,
-      ledgerFWVersion: 'default',
+      ledgerFWVersion: 'webusb',
       coin: 'KMD',
       theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
