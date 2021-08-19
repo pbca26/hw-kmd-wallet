@@ -36,19 +36,19 @@ if (isElectron) {
   ipcRenderer.on('getAddress', (event, arg) => {
     console.warn('getAddress arg', arg);
     console.warn('arg.bitcoinAddress', arg.bitcoinAddress);
-    if (arg === -777) resolve(false);
+    if (arg === -777) data[arg.ruid] = false;
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('createPaymentTransactionNew', (event, arg) => {
     console.warn('createPaymentTransactionNew arg', arg);
-    if (arg === -777) resolve(false);
+    if (arg === -777) data[arg.ruid] = false;
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('splitTransaction', (event, arg) => {
     console.warn('splitTransaction arg', arg);
-    if (arg === -777) resolve(false);
+    if (arg === -777) data[arg.ruid] = false;
     else data[arg.ruid] = arg.result;
   });
 }

@@ -119,6 +119,8 @@ jobs:
 
     - name: Build Electron App
       run: |
+        sudo apt-get install libusb-1.0-0-dev
+        sudo apt install libudev-dev
         cd electron
         npm install
         npm run dist

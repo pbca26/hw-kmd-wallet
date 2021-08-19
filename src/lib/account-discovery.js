@@ -10,12 +10,14 @@ import {
   ipcRenderer,
 } from '../Electron';
 import {airDropCoins} from './coins';
+import TrezorUtxoLib from '@trezor/utxo-lib';
 
 let pubKeysCache = {};
 let isFirstRun = {};
 let config = {
   discoveryGapLimit: 20,
   discoveryAddressConcurrency: 10,
+  accountIndex: 0,
 };
 
 export const setConfigVar = (name, val) => {
@@ -24,16 +26,11 @@ export const setConfigVar = (name, val) => {
   console.warn('setConfigVar', config);
 };
 
-async function asyncForEach(array, callback) {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-}
-
 const walkDerivationPath = async node => {
   const addresses = [];
-  let addressConcurrency = config.discoveryGapLimit;
-  let consecutiveUnusedAddresses = config.discoveryAddressConcurrency;
+  let addressConcurrency = config.discoveryAddressConcurrency;
+  let gapLimit = config.discoveryGapLimit;
+  let consecutiveUnusedAddresses = 0;
   let addressIndex = 0;
 
   if (window.location.href.indexOf('extgap=s') > -1) gapLimit = 30;
@@ -45,6 +42,7 @@ const walkDerivationPath = async node => {
   if (window.location.href.indexOf('timeout=m') > -1) addressConcurrency = 5;
 
   if (gapLimit > 20) addressConcurrency = 5;
+  if (gapLimit > 50) addressConcurrency = 3;
 
   if (isElectron && appData.isNspv) {
     console.warn('blockchainAPI', blockchainAPI);
@@ -52,6 +50,8 @@ const walkDerivationPath = async node => {
     gapLimit = 5;
     console.warn('walkDerivationPath gapLimit', gapLimit);
   }
+
+  console.warn(`walkDerivationPath gapLimit = ${gapLimit}`);
 
   while (consecutiveUnusedAddresses < gapLimit) {
     const addressApiRequests = [];
@@ -121,7 +121,7 @@ const getAddressUtxos = async addresses => {
   return await Promise.all(utxos.map(async (utxo, index) => {
     const addressInfo = addresses.find(a => a.address === utxo.address);
 
-    const [
+    let [
       {rawtx},
       {
         locktime,
@@ -135,6 +135,14 @@ const getAddressUtxos = async addresses => {
       blockchain[blockchainAPI].getRawTransaction(utxo.txid),
       blockchain[blockchainAPI].getTransaction(utxo.txid)
     ]);
+
+    // fix for insight explorer value rounding issue
+    TrezorUtxoLib.Transaction.USE_STRING_VALUES = true;
+    const decodeFromRaw = TrezorUtxoLib.Transaction.fromHex(rawtx, TrezorUtxoLib.networks.komodo);
+
+    for (let i = 0; i < vout.length; i++) {
+      vout[i].satoshis = parseInt(decodeFromRaw.outs[i].value);
+    }
 
     return {
       id: `${utxo.txid}:${utxo.vout}`,
@@ -215,7 +223,7 @@ export const getAddressHistoryOld = async addresses => {
 
 const accountDiscovery = async (vendor, coin) => {
   const accounts = [];
-  let accountIndex = 0;
+  let accountIndex = config.accountIndex > 0 ? config.accountIndex - 1 : 0;
 
   if (isElectron && appData.isNspv) {
     console.warn('accountDiscovery accountIndex', accountIndex);
@@ -243,16 +251,18 @@ const accountDiscovery = async (vendor, coin) => {
     ipcRenderer.send('nspvRunRecheck', {coin, isFirstRun: !isFirstRun.hasOwnProperty(coin)});
     if (!isFirstRun.hasOwnProperty(coin)) isFirstRun[coin] = true;
   } else {
-    if (airDropCoins.indexOf(coin) > -1 &&
+    /*if (airDropCoins.indexOf(coin) > -1 &&
         window.location.href.indexOf('extgap=') === -1) {
       gapLimit = 50;
+      console.warn(`airdrop coin ${coin}, set gap limit to`, gapLimit);
     } else {
       gapLimit = 20;
-    }
+    }*/
 
     while (true) {
       const account = await getAccountAddresses(accountIndex, vendor);
-
+      console.warn('accountDiscovery accountIndex', accountIndex);
+      
       if (account.addresses.length === 0) {
         account.utxos = [];
         account.history = {
@@ -262,13 +272,16 @@ const accountDiscovery = async (vendor, coin) => {
         }; 
         account.accountIndex = accountIndex;
         accounts.push(account);
-        if (airDropCoins.indexOf(coin) === -1 || accountIndex === 4) return accounts;
+        if (airDropCoins.indexOf(coin) === -1 && accountIndex >= 2) break;
+        else if (airDropCoins.indexOf(coin) > -1 && accountIndex >= 3) break;
       } else {
         account.utxos = await getAddressUtxos(account.addresses);
         account.history = await getAddressHistory(account.addresses); 
         account.accountIndex = accountIndex;
         accounts.push(account);
       }
+
+      if (config.accountIndex > 0) break;
 
       accountIndex++;
     }

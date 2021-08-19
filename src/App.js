@@ -12,6 +12,7 @@ import WarnBrowser from './WarnBrowser';
 import ConnectionError from './ConnectionError';
 import Footer from './Footer';
 import FirmwareCheckModal from './FirmwareCheckModal';
+import SettingsModal from './SettingsModal';
 import {
   repository,
   version,
@@ -29,19 +30,17 @@ import {
   TX_FEE,
   VENDOR,
 } from './constants';
-import {
-  setExplorerUrl,
-  getInfo,
-} from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain, {setBlockchainAPI, blockchainAPI} from './lib/blockchain';
 import apiEndpoints from './lib/coins';
 import getKomodoRewards from './lib/get-komodo-rewards';
-import {osName} from 'react-device-detect';
+//import {osName} from 'react-device-detect';
 import {
   isElectron,
   appData,
+  ipcRenderer,
 } from './Electron';
+import initSettings from './lib/init-settings';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
 const MAX_TIP_TIME_DIFF = 3600 * 24;
@@ -57,7 +56,7 @@ class App extends React.Component {
       vendor: null,
       isFirstRun: true,
       ledgerDeviceType: null,
-      ledgerFWVersion: 'default',
+      ledgerFWVersion: 'webusb',
       coin: 'KMD',
       theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
@@ -79,6 +78,7 @@ class App extends React.Component {
       ipcRenderer.send('nspvRunRecheck', {coin: 'rick'});
     }, 2000);*/
 
+    initSettings();
     hw.trezor.init();
 
     if (!getLocalStorageVar('settings')) {
@@ -88,16 +88,13 @@ class App extends React.Component {
       document.getElementById('body').className = getLocalStorageVar('settings').theme;
     }
 
-    if (isElectron && appData.blockchainAPI === 'spv') {
-      blockchain[blockchainAPI].setCoin(this.state.coin);
-    }
-
-    if (!isElectron || (isElectron && appData.blockchainAPI === 'insight')) this.checkExplorerEndpoints();
-
     if (isElectron && appData.blockchainAPI === 'spv'/*&& isElectron.blockchainAPI*/) {
+      blockchain[blockchainAPI].setCoin(this.state.coin);
       setBlockchainAPI('spv');
     }
 
+    if (!isElectron || (isElectron && appData.blockchainAPI === 'insight')) this.checkExplorerEndpoints();
+    
     if (isElectron && appData.isNspv) {
       ipcRenderer.on('nspvRecheck', (event, arg) => {
         console.warn('nspvRecheck arg', arg);
@@ -171,7 +168,7 @@ class App extends React.Component {
   }
 
   checkExplorerEndpoints = async () => {
-    const getInfoRes =  await Promise.all(apiEndpoints[this.state.coin].map((value, index) => {
+    const getInfoRes =  await Promise.all(apiEndpoints[this.state.coin].api.map((value, index) => {
       return blockchain[blockchainAPI].getInfo(value);
     }));
     let isExplorerEndpointSet = false;
@@ -279,6 +276,13 @@ class App extends React.Component {
             </div>
             <h1 className="navbar-item">
               <strong>HW KMD {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
+              <SettingsModal
+                updateExplorerEndpoint={this.updateExplorerEndpoint}
+                coin={this.state.coin}
+                explorerEndpoint={this.state.explorerEndpoint} />
+            {/*<button
+              className="button is-primary add-pwa-button"
+              style={{'display': 'none'}}>Add to home screen</button>*/}
             </h1>
           </div>
         </Header>
@@ -315,6 +319,18 @@ class App extends React.Component {
         }
 
         <Footer>
+          {!isElectron &&
+            <div className="download-desktop-block">
+              <a
+                href="https://github.com/pbca26/hw-kmd-wallet/releases"
+                target="_blank">
+                <button
+                  className="button is-light">
+                  <i className="fa fa-download"></i>Download for desktop
+                </button>
+              </a>
+            </div>
+          }
           <p>
             <strong>{this.state.coin === voteCoin ? 'Hardware wallet KMD Notary Elections' : 'KMD hardware wallet'}</strong> by <a target="_blank" rel="noopener noreferrer" href="https://github.com/atomiclabs">Atomic Labs</a> and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
           </p>
@@ -323,7 +339,7 @@ class App extends React.Component {
             <br />
             View the <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}#usage`}>README</a> for usage instructions.
           </p>
-          <div className="theme-selector">
+          {/*<div className="theme-selector">
             Theme
             <div
               onClick={() => this.setTheme('tdark')}
@@ -331,7 +347,7 @@ class App extends React.Component {
             <div
               onClick={() => this.setTheme('tlight') }
               className={'item light' + (this.state.theme === 'tlight' ? ' active' : '')}></div>
-          </div>
+          </div>*/}
         </Footer>
       </div>
     );
@@ -358,7 +374,11 @@ class App extends React.Component {
                 {this.state.vendor &&
                   <strong>{VENDOR[this.state.vendor]} KMD HW {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
                 }
-                {apiEndpoints[this.state.coin].api.length > 1 &&
+                <SettingsModal
+                  updateExplorerEndpoint={this.updateExplorerEndpoint}
+                  coin={this.state.coin} 
+                  explorerEndpoint={this.state.explorerEndpoint} />
+                {/*apiEndpoints[this.state.coin].api.length > 1 &&
                   <span className="explorer-selector-block">
                     <i className="fa fa-cog"></i>
                     <select
@@ -380,7 +400,7 @@ class App extends React.Component {
                       ))}
                     </select>
                   </span>
-                }
+                */}
               </h1>
             </div>
             <div className="navbar-menu">
@@ -446,7 +466,8 @@ class App extends React.Component {
             <ConnectionError />
           }
 
-          {(!isElectron || (isElectron && !appData.noFWCheck)) &&
+          {getLocalStorageVar('settings') && getLocalStorageVar('settings').fwCheck &&
+            (!isElectron || (isElectron && !appData.noFWCheck)) &&
             <FirmwareCheckModal
               vendor={this.state.vendor}
               updateLedgerDeviceType={this.updateLedgerDeviceType}
@@ -526,7 +547,7 @@ class App extends React.Component {
               <br />
               View the <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}#usage`}>README</a> for usage instructions.
             </p>
-            <div className="theme-selector">
+            {/*<div className="theme-selector">
               Theme
               <div
                 onClick={() => this.setTheme('tdark')}
@@ -534,7 +555,7 @@ class App extends React.Component {
               <div
                 onClick={() => this.setTheme('tlight') }
                 className={'item light' + (this.state.theme === 'tlight' ? ' active' : '')}></div>
-            </div>
+            </div>*/}
           </Footer>
         </div>
       );

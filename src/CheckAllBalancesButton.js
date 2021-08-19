@@ -2,7 +2,7 @@ import React from 'react';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import hw from './lib/hw';
 import accountDiscovery, {clearPubkeysCache} from './lib/account-discovery';
-import blockchain, {setExplorerUrl, getInfo} from './lib/blockchain';
+import blockchain, {blockchainAPI} from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
 import {TX_FEE, VENDOR} from './constants';
 import ActionListModal from './ActionListModal';
@@ -79,7 +79,7 @@ class CheckAllBalancesButton extends React.Component {
     await asyncForEach(coinTickers, async (coin, index) => {
       if (!cancel && (!this.state.isDebug || (this.state.isDebug && coinsToCheckDev.indexOf(coin) > -1))) {
         const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
-          return getInfo(value);
+          return blockchain[blockchainAPI].getInfo(value);
         }));
         let isExplorerEndpointSet = false;
     
@@ -90,7 +90,7 @@ class CheckAllBalancesButton extends React.Component {
               getInfoRes[i].hasOwnProperty('info') &&
               getInfoRes[i].info.hasOwnProperty('version')) {
             console.warn(`${coin} set api endpoint to ${coins[coin].api[i]}`);
-            setExplorerUrl(coins[coin].api[i]);
+            blockchain[blockchainAPI].setExplorerUrl(coins[coin].api[i]);
             isExplorerEndpointSet = true;
     
             break;
@@ -120,7 +120,7 @@ class CheckAllBalancesButton extends React.Component {
             updateActionState(this, currentAction, 'loading');
             let [accounts, tiptime] = await Promise.all([
               accountDiscovery(this.props.vendor, this.props.coin),
-              blockchain.getTipTime()
+              blockchain[blockchainAPI].getTipTime()
             ]);
 
             tiptime = this.props.checkTipTime(tiptime);
@@ -174,7 +174,7 @@ class CheckAllBalancesButton extends React.Component {
       });
     }
     
-    setExplorerUrl(this.props.explorerEndpoint);
+    blockchain[blockchainAPI].setExplorerUrl(this.props.explorerEndpoint);
   };
 
   renderCoinBalances() {

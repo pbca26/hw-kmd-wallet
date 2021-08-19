@@ -10,6 +10,7 @@ export const defaultSettings = {
   enableDebugTools: false,
   discoveryGapLimit: 20,
   discoveryAddressConcurrency: 10,
+  accountIndex: 0,
 };
 
 const initSettings = () => {

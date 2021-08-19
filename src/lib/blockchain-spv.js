@@ -11,11 +11,11 @@ let pendingCalls = {};
 let ruid = 0;
 let intervals = {};
 
-setInterval(() => {
-  console.warn('pendingCalls', pendingCalls);
-}, 1000);
-
 if (isElectron) {
+  setInterval(() => {
+    console.warn('pendingCalls', pendingCalls);
+  }, 1000);
+  
   ipcRenderer.on('spvGetAddress', (event, arg) => {
     console.warn('spvGetAddress arg', arg);
     if (arg === -777) console.warn('spvGetAddress', 'failed!');

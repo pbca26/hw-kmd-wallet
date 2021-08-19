@@ -2,7 +2,7 @@ import React from 'react';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import hw from './lib/hw';
 import accountDiscovery from './lib/account-discovery';
-import blockchain from './lib/blockchain';
+import blockchain, {blockchainAPI} from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
 import {TX_FEE, VENDOR} from './constants';
 import ActionListModal from './ActionListModal';
@@ -64,7 +64,7 @@ class CheckBalanceButton extends React.Component {
       updateActionState(this, currentAction, 'loading');
       let [accounts, tiptime] = await Promise.all([
         accountDiscovery(this.props.vendor, this.props.coin),
-        blockchain.getTipTime()
+        blockchain[blockchainAPI].getTipTime()
       ]);
 
       tiptime = this.props.checkTipTime(tiptime);
