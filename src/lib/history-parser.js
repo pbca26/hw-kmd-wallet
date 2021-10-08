@@ -50,10 +50,10 @@ const parse = ([txs, addr, options]) => {
     tx = {
       type: 'sent',
       amount: Math.abs(Number(Number(Math.abs(vinSum) - Math.abs(voutSum) - 0.0001).toFixed(8))),
-      timestamp: txs[i].height === -1 || txs[i].blockheight === -1  ? Math.floor(Date.now() / 1000) : txs[i].blocktime || 'pending',
+      timestamp: txs[i].height === -1 ? Math.floor(Date.now() / 1000) : txs[i].blocktime || 'pending',
       date: txs[i].blocktime ? secondsToString(txs[i].blocktime) : 'pending',
       txid: txs[i].txid || 'unknown',
-      height: txs[i].height || txs[i].blockheight === -1 ? 0 : txs[i].height || txs[i].blockheight,
+      height: txs[i].height === -1 ? 0 : txs[i].height || 'unknown',
       confirmations: txs[i].confirmations || 0,
     };
 
@@ -72,21 +72,36 @@ const parse = ([txs, addr, options]) => {
   return txHistory;
 };
 
-const sort = ([txs, addr, options]) => {
-  console.warn('sort', txs);
-  return [sortTransactions(txs, 'time'), addr, options];
-};
+const sort = (txHistory) => {
+  let _txHistory;
 
-const limit = ([txs, addr, options]) => {
-  if (txs.length > 10) {
-    txs = txs.slice(0, 9);
+  if (txHistory.length && !txHistory.txid) {
+    txHistory[0] = sortTransactions(txHistory[0], 'timestamp');
+
+    return txHistory;
   }
 
-  return [txs, addr, options];
+  return sortTransactions(txHistory, 'timestamp');
+};
+
+const limit = (txHistory) => {
+  let _txHistory;
+
+  if (txHistory.length && !txHistory.txid) {
+    txHistory[0] = txHistory[0].slice(0, 10);
+
+    return txHistory;
+  }
+
+  if (txHistory.length > 10) {
+    txHistory = txHistory.slice(0, 10);
+  }
+
+  return txHistory;
 };
 
 const parsehistory = (txs, addr, options) => {
-  return compose(sort, limit, parse)([txs, addr, options]);
+  return compose(limit, sort, parse)([txs, addr, options]);
 };
 
 export default parsehistory;

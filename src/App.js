@@ -12,6 +12,7 @@ import WarnBrowser from './WarnBrowser';
 import ConnectionError from './ConnectionError';
 import Footer from './Footer';
 import FirmwareCheckModal from './FirmwareCheckModal';
+import SettingsModal from './SettingsModal';
 import {
   repository,
   version,
@@ -21,7 +22,7 @@ import hw from './lib/hw';
 import {
   getLocalStorageVar,
   setLocalStorageVar,
-} from './localstorage-util';
+} from './lib/localstorage-util';
 import {
   LEDGER_FW_VERSIONS,
   voteCoin,
@@ -29,19 +30,25 @@ import {
   TX_FEE,
   VENDOR,
 } from './constants';
-import {
-  setExplorerUrl,
-  getInfo,
-} from './lib/blockchain';
 import accountDiscovery from './lib/account-discovery';
 import blockchain, {setBlockchainAPI, blockchainAPI} from './lib/blockchain';
 import apiEndpoints from './lib/coins';
 import getKomodoRewards from './lib/get-komodo-rewards';
-import {osName} from 'react-device-detect';
+import {isMobile, osName} from 'react-device-detect';
 import {
   isElectron,
   appData,
+  ipcRenderer,
 } from './Electron';
+import initSettings from './lib/init-settings';
+import asyncForEach from './lib/async';
+import {sortTransactions} from './lib/sort';
+import CoinsSelector from './CoinsSelector';
+import DashboardOperations from './DashboardOperations';
+import DashboardPrices from './DashboardPrices';
+import HWFirmwareRequirements from './HWFirmwareRequirementsModal';
+import Sidebar from './Sidebar';
+import LoginModal from './LoginModal';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
 const MAX_TIP_TIME_DIFF = 3600 * 24;
@@ -50,6 +57,13 @@ class App extends React.Component {
   state = this.initialState;
 
   get initialState() {
+    this.addCoins = this.addCoins.bind(this);
+    this.setActiveCoin = this.setActiveCoin.bind(this);
+    this.setActiveAccount = this.setActiveAccount.bind(this);
+    this.removeCoin = this.removeCoin.bind(this);
+    this.isCoinData = this.isCoinData.bind(this);
+    this.closeLoginModal = this.closeLoginModal.bind(this);
+
     return {
       accounts: [],
       tiptime: null,
@@ -57,15 +71,112 @@ class App extends React.Component {
       vendor: null,
       isFirstRun: true,
       ledgerDeviceType: null,
-      ledgerFWVersion: 'default',
+      ledgerFWVersion: 'webusb',
       coin: 'KMD',
-      theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
+      activeCoin: null,
+      activeAccount: null,
+      loginModalClosed: false,
+      coins: {},
+      lastOperations: [],
+      theme: 'tdark',
+      //coins: getLocalStorageVar('coins') ? getLocalStorageVar('coins') : {},
+      //lastOperations: getLocalStorageVar('lastOperations') ? getLocalStorageVar('lastOperations') : [],
+      //theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
+  }
+
+  closeLoginModal(pw) {
+    this.setState({
+      loginModalClosed: true,
+    });
+
+    initSettings();
+
+    if (!getLocalStorageVar('settings')) {
+      setLocalStorageVar('settings', {theme: 'tdark'});
+      document.getElementById('body').className = 'tdark';
+    } else {
+      document.getElementById('body').className = getLocalStorageVar('settings').theme;
+    }
+
+    this.setState({
+      coins: getLocalStorageVar('coins') ? getLocalStorageVar('coins') : {},
+      lastOperations: getLocalStorageVar('lastOperations') ? getLocalStorageVar('lastOperations') : [],
+      theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
+    });
+
+    setTimeout(() => {
+      this.syncData();
+    });
+  }
+
+  removeCoin(coin) {
+    let lastOperations = [];
+    let coins = this.state.coins;
+    delete coins[coin];
+
+    for (let coin in coins) {
+      for (let j = 0; j < coins[coin].accounts.length; j++) {
+        for (let a = 0; a < coins[coin].accounts[j].history.historyParsed.length; a++) {
+          lastOperations.push({
+            coin: coin,
+            type: coins[coin].accounts[j].history.historyParsed[a].type,
+            date: coins[coin].accounts[j].history.historyParsed[a].date,
+            amount: coins[coin].accounts[j].history.historyParsed[a].amount,
+            txid: coins[coin].accounts[j].history.historyParsed[a].txid,
+            timestamp: coins[coin].accounts[j].history.historyParsed[a].timestamp,
+          });
+        }
+      }
+    }
+
+    lastOperations = sortTransactions(lastOperations, 'timestamp').slice(0, 3);
+
+    this.setState({
+      coins,
+      lastOperations,
+      activeAccount: null,
+      activeCoin: null,
+    });
+
+    setLocalStorageVar('coins', coins);
+    setLocalStorageVar('lastOperations', lastOperations);
+  }
+
+  setActiveCoin(activeCoin) {
+    this.setState({
+      activeCoin,
+      activeAccount: null,
+    });
+
+    console.warn(this.state.coins[activeCoin])
+  }
+
+  setActiveAccount(activeAccount) {
+    console.warn('activeAccount', activeAccount);
+
+    this.setState({
+      activeAccount,
+    });
+
+    if (activeAccount) console.warn(this.state.coins[this.state.activeCoin][activeAccount])
+  }
+
+  isCoinData() {
+    const coins = this.state.coins;
+
+    for (let coin in coins) {
+      if (coins[coin].accounts.length) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   componentWillMount() {
     document.title = `Komodo Hardware Wallet (v${version})`;
-    if (isElectron && !appData.isNspv) {
+    if (!isElectron || (isElectron && !appData.isNspv)) {
       setInterval(() => {
         if (!this.state.syncInProgress) {
           console.warn('auto sync called');
@@ -79,25 +190,26 @@ class App extends React.Component {
       ipcRenderer.send('nspvRunRecheck', {coin: 'rick'});
     }, 2000);*/
 
+    // limit mobile support to ledger webusb only
+    if (isMobile) {
+      hw.ledger.setLedgerFWVersion('webusb');
+
+      this.setState({
+        vendor: 'ledger',
+        ledgerDeviceType: 's',
+        ledgerFWVersion: 'webusb',
+      });
+    }
+
     hw.trezor.init();
 
-    if (!getLocalStorageVar('settings')) {
-      setLocalStorageVar('settings', {theme: 'tdark'});
-      document.getElementById('body').className = 'tdark';
-    } else {
-      document.getElementById('body').className = getLocalStorageVar('settings').theme;
-    }
-
-    if (isElectron && appData.blockchainAPI === 'spv') {
-      blockchain[blockchainAPI].setCoin(this.state.coin);
-    }
-
-    if (!isElectron || (isElectron && appData.blockchainAPI === 'insight')) this.checkExplorerEndpoints();
-
     if (isElectron && appData.blockchainAPI === 'spv'/*&& isElectron.blockchainAPI*/) {
+      blockchain[blockchainAPI].setCoin(this.state.coin);
       setBlockchainAPI('spv');
     }
 
+    if (!isElectron || (isElectron && appData.blockchainAPI === 'insight')) this.checkExplorerEndpoints();
+    
     if (isElectron && appData.isNspv) {
       ipcRenderer.on('nspvRecheck', (event, arg) => {
         console.warn('nspvRecheck arg', arg);
@@ -149,7 +261,7 @@ class App extends React.Component {
       'ledgerDeviceType': type,
     });
 
-    if (type === 'x') hw.ledger.setLedgerFWVersion('webusb');
+    hw.ledger.setLedgerFWVersion('webusb');
   }
 
   updateLedgerFWVersion = (e) => {
@@ -171,7 +283,7 @@ class App extends React.Component {
   }
 
   checkExplorerEndpoints = async () => {
-    const getInfoRes =  await Promise.all(apiEndpoints[this.state.coin].map((value, index) => {
+    const getInfoRes =  await Promise.all(apiEndpoints[this.state.coin].api.map((value, index) => {
       return blockchain[blockchainAPI].getInfo(value);
     }));
     let isExplorerEndpointSet = false;
@@ -213,37 +325,172 @@ class App extends React.Component {
     this.setState(this.initialState);
     // TODO: auto-close connection after idle time
     hw.ledger.resetTransport();
-  }
 
-  syncData = async () => {
-    if (!this.state.isFirstRun) {
-      console.warn('sync data called');
+    // limit mobile support to ledger webusb only
+    if (isMobile) {
+      setTimeout(() => {
+        hw.ledger.setLedgerFWVersion('webusb');
 
-      let [accounts, tiptime] = await Promise.all([
-        accountDiscovery(this.state.vendor, this.state.coin.toLowerCase()),
-        blockchain[blockchainAPI].getTipTime()
-      ]);
-
-      tiptime = this.checkTipTime(tiptime);
-
-      accounts.map(account => {
-        account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
-        account.rewards = account.utxos.reduce((rewards, utxo) => rewards + getKomodoRewards({tiptime, ...utxo}), 0);
-        account.claimableAmount = account.rewards - TX_FEE;
-
-        return account;
-      });
-
-      console.warn('syncData accounts', accounts);
-
-      this.setState({accounts, tiptime});
+        this.setState({
+          vendor: 'ledger',
+          ledgerDeviceType: 's',
+          ledgerFWVersion: 'webusb',
+        });
+      }, 50);
     }
   }
 
-  handleRewardData = ({accounts, tiptime}) => {
+  calculateRewardData = ({accounts, tiptime}) => accounts.map(account => {
+    account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
+    account.rewards = account.utxos.reduce((rewards, utxo) => rewards + getKomodoRewards({tiptime, ...utxo}), 0);
+    account.claimableAmount = account.rewards - TX_FEE * 2;
+
+    return account;
+  });
+
+  syncData = async (_coin) => {
+    if (!this.state.isFirstRun || this.isCoinData()) {
+      console.warn('sync data called');
+
+      const coinTickers = _coin ? [_coin] : Object.keys(this.state.coins);
+      const coins = apiEndpoints;
+      let balances = [];
+      
+      await asyncForEach(coinTickers, async (coin, index) => {
+        console.warn(coin)
+        const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
+          return blockchain[blockchainAPI].getInfo(value);
+        }));
+        let isExplorerEndpointSet = false;
+        let longestBlockHeight = 0;
+        let apiEndPointIndex = 0;
+    
+        console.warn('checkExplorerEndpoints', getInfoRes);
+        
+        for (let i = 0; i < coins[coin].api.length; i++) {
+          if (getInfoRes[i] &&
+              getInfoRes[i].hasOwnProperty('info') &&
+              getInfoRes[i].info.hasOwnProperty('version')) {
+            if (getInfoRes[i].info.blocks > longestBlockHeight) {
+              longestBlockHeight = getInfoRes[i].info.blocks;
+              apiEndPointIndex = i;
+            }
+          }
+        }
+
+        console.warn(`${coin} set api endpoint to ${coins[coin].api[apiEndPointIndex]}`);
+        blockchain[blockchainAPI].setExplorerUrl(coins[coin].api[apiEndPointIndex]);
+        isExplorerEndpointSet = true;
+    
+        this.setState({
+          explorerEndpoint: coins[coin].api[apiEndPointIndex],
+        });
+
+        if (isExplorerEndpointSet) {
+          console.warn('app vendor', this.state.vendor);
+          let [accounts, tiptime] = await Promise.all([
+            accountDiscovery(this.state.vendor, coin, this.state.coins[coin].accounts),
+            blockchain[blockchainAPI].getTipTime()
+          ]);
+
+          tiptime = this.checkTipTime(tiptime);
+
+          accounts = this.calculateRewardData({accounts, tiptime});
+
+          let balanceSum = 0;
+          let rewardsSum = 0;
+
+          for (let i = 0; i < accounts.length; i++) {
+            balanceSum += accounts[i].balance;
+            rewardsSum += accounts[i].rewards; 
+          }
+
+          balances.push({
+            coin,
+            balance: balanceSum,
+            rewards: rewardsSum,
+            accounts,
+          });
+
+          if (index === coinTickers.length - 1) {
+            console.warn('coin data sync finished', balances);
+            
+            this.handleScanData({
+              coins: balances,
+              tiptime,
+            })
+          }
+        }
+      });
+    }
+  }
+
+  handleScanData = ({coins, tiptime}) => {
+    let newCoins = coins;
+    let lastOperations = [];
+    coins = this.state.coins;
+
+    for (var i = 0; i < newCoins.length; i++) {
+      coins[newCoins[i].coin] = newCoins[i];
+    }
+    
+    for (let coin in coins) {
+      for (let j = 0; j < coins[coin].accounts.length; j++) {
+        for (let a = 0; a < coins[coin].accounts[j].history.historyParsed.length; a++) {
+          lastOperations.push({
+            coin: coin,
+            type: coins[coin].accounts[j].history.historyParsed[a].type,
+            date: coins[coin].accounts[j].history.historyParsed[a].date,
+            amount: coins[coin].accounts[j].history.historyParsed[a].amount,
+            txid: coins[coin].accounts[j].history.historyParsed[a].txid,
+            timestamp: coins[coin].accounts[j].history.historyParsed[a].timestamp,
+          });
+        }
+      }
+    }
+
+    console.warn('lastops', lastOperations);
+    console.warn(newCoins);
+    console.warn(coins);  
+    
+    lastOperations = sortTransactions(lastOperations, 'timestamp').slice(0, 3);
+
     tiptime = this.checkTipTime(tiptime);
     
-    this.setState({accounts, tiptime, isFirstRun: false});
+    this.setState({
+      coins,
+      lastOperations,
+      tiptime,
+      isFirstRun: false,
+    });
+
+    setLocalStorageVar('coins', coins);
+    setLocalStorageVar('lastOperations', lastOperations);
+  }
+
+  addCoins(coins) {
+    console.warn('main addCoins', coins);
+
+    let currentCoins = this.state.coins;
+    for (let i = 0; i < coins.length; i++) {
+      currentCoins[coins[i]] = {
+        accounts: [],
+      };
+    }
+
+    this.setState({
+      coins: currentCoins,
+    });
+
+    setLocalStorageVar('coins', currentCoins);
+
+    setTimeout(() => {
+      console.warn(this.state)
+    }, 1000)
+  }
+
+  handleRewardClaim() {
+    // stub
   }
 
   setVendor = async (vendor) => {
@@ -269,6 +516,9 @@ class App extends React.Component {
   vendorSelectorRender() {
     return (
       <div className={`App isPristine${!isElectron && window.location.href.indexOf('disable-mobile') === -1 ? ' Responsive' : ''}`}>
+        <LoginModal
+          closeLoginModal={this.closeLoginModal}
+          isClosed={this.state.loginModalClosed} />
         <Header>
           <div className="navbar-brand">
             <div className="navbar-item">
@@ -279,10 +529,24 @@ class App extends React.Component {
             </div>
             <h1 className="navbar-item">
               <strong>HW KMD {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
+              {/*<SettingsModal
+                updateExplorerEndpoint={this.updateExplorerEndpoint}
+                coin={this.state.coin}
+              explorerEndpoint={this.state.explorerEndpoint} />*/}
+            {/*<button
+              className="button is-primary add-pwa-button"
+              style={{'display': 'none'}}>Add to home screen</button>*/}
             </h1>
           </div>
         </Header>
-
+        <Sidebar
+          isCoinData={this.isCoinData}
+          activeCoin={this.state.activeCoin}
+          activeAccount={this.state.activeAccount}
+          setActiveCoin={this.setActiveCoin}
+          setActiveAccount={this.setActiveAccount}
+          vendor={this.state.vendor}
+          loginModalClosed={this.state.loginModalClosed} />
         <section className="main">
           <React.Fragment>
             <div className="container content text-center">
@@ -313,26 +577,6 @@ class App extends React.Component {
         {!isElectron &&
           <WarnBrowser />
         }
-
-        <Footer>
-          <p>
-            <strong>{this.state.coin === voteCoin ? 'Hardware wallet KMD Notary Elections' : 'KMD hardware wallet'}</strong> by <a target="_blank" rel="noopener noreferrer" href="https://github.com/atomiclabs">Atomic Labs</a> and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
-          </p>
-          <p>
-            The <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}`}>source code</a> is licensed under <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}/blob/master/LICENSE`}>MIT</a>.
-            <br />
-            View the <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}#usage`}>README</a> for usage instructions.
-          </p>
-          <div className="theme-selector">
-            Theme
-            <div
-              onClick={() => this.setTheme('tdark')}
-              className={'item black' + (this.state.theme === 'tdark' ? ' active' : '')}></div>
-            <div
-              onClick={() => this.setTheme('tlight') }
-              className={'item light' + (this.state.theme === 'tlight' ? ' active' : '')}></div>
-          </div>
-        </Footer>
       </div>
     );
   }
@@ -342,7 +586,7 @@ class App extends React.Component {
       return this.vendorSelectorRender();
     } else {
       return (
-        <div className={`App${testCoins.indexOf(this.state.coin) > -1 ? ' testcoins-warning-fix' : ''}${!isElectron && window.location.href.indexOf('disable-mobile') === -1 ? ' Responsive' : ''}`}>
+        <div className={`App dashboard ${testCoins.indexOf(this.state.coin) > -1 ? ' testcoins-warning-fix' : ''}${!isElectron && window.location.href.indexOf('disable-mobile') === -1 ? ' Responsive' : ''}`}>
           <Header>
             <div className="navbar-brand">
               <div className="navbar-item">
@@ -358,95 +602,31 @@ class App extends React.Component {
                 {this.state.vendor &&
                   <strong>{VENDOR[this.state.vendor]} KMD HW {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
                 }
-                {apiEndpoints[this.state.coin].api.length > 1 &&
-                  <span className="explorer-selector-block">
-                    <i className="fa fa-cog"></i>
-                    <select
-                      className="explorer-selector"
-                      name="explorerEndpoint"
-                      value={this.state.explorerEndpoint}
-                      onChange={(event) => this.updateExplorerEndpoint(event)}>
-                      <option
-                        key="explorer-selector-disabled"
-                        disabled>
-                        Select API endpoint
-                      </option>
-                      {apiEndpoints[this.state.coin].api.map((val, index) => (
-                        <option
-                          key={`explorer-selector-${val}`}
-                          value={val}>
-                          {val}
-                        </option>
-                      ))}
-                    </select>
-                  </span>
-                }
+                {/*<SettingsModal
+                  updateExplorerEndpoint={this.updateExplorerEndpoint}
+                  coin={this.state.coin} 
+                explorerEndpoint={this.state.explorerEndpoint} />*/}
               </h1>
             </div>
-            <div className="navbar-menu">
-              <div className="navbar-end">
-                <div className="navbar-item">
-                  <div className="buttons">
-                    <select
-                      className="coin-selector"
-                      name="coin"
-                      value={this.state.coin}
-                      onChange={(event) => this.updateCoin(event)}>
-                      <option
-                        key="coins-none"
-                        value=""
-                        disabled>
-                        Select a coin
-                      </option>
-                      {Object.keys(apiEndpoints).map((coinTicker, index) => (
-                        <option
-                          key={`coins-${coinTicker}`}
-                          value={coinTicker}>
-                          {coinTicker}
-                        </option>
-                      ))}
-                    </select>
-                    {(this.state.vendor === 'trezor' || (this.state.vendor === 'ledger' && this.state.ledgerDeviceType)) &&
-                     this.state.explorerEndpoint &&
-                      <React.Fragment>
-                        <CheckBalanceButton
-                          handleRewardData={this.handleRewardData}
-                          checkTipTime={this.checkTipTime}
-                          vendor={this.state.vendor}
-                          coin={this.state.coin}>
-                          <strong>Check Balance</strong>
-                        </CheckBalanceButton>
-                        <CheckAllBalancesButton
-                          handleRewardData={this.handleRewardData}
-                          checkTipTime={this.checkTipTime}
-                          vendor={this.state.vendor}
-                          explorerEndpoint={this.state.explorerEndpoint}
-                          coin={this.state.coin}>
-                          <strong>Check All</strong>
-                        </CheckAllBalancesButton>
-                      </React.Fragment>
-                    }
-                    <button
-                      className="button is-light"
-                      disabled={isEqual(this.state, this.initialState)}
-                      onClick={this.resetState}>
-                      Reset
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
           </Header>
-
-          {testCoins.indexOf(this.state.coin) === -1 &&
-            <BetaWarning />
-          }
+          <Sidebar
+            isCoinData={this.isCoinData}
+            activeCoin={this.state.activeCoin}
+            activeAccount={this.state.activeAccount}
+            setActiveCoin={this.setActiveCoin}
+            setActiveAccount={this.setActiveAccount}
+            vendor={this.state.vendor}
+            accounts={this.state.activeCoin ? this.state.coins[this.state.activeCoin].accounts : []}
+            syncData={this.syncData}
+            handleRewardClaim={this.handleRewardClaim}
+            loginModalClosed={this.state.loginModalClosed} />
 
           {this.state.explorerEndpoint === false &&
             <ConnectionError />
           }
 
-          {(!isElectron || (isElectron && !appData.noFWCheck)) &&
+          {getLocalStorageVar('settings') && getLocalStorageVar('settings').fwCheck &&
+            (!isElectron || (isElectron && !appData.noFWCheck)) &&
             <FirmwareCheckModal
               vendor={this.state.vendor}
               updateLedgerDeviceType={this.updateLedgerDeviceType}
@@ -454,27 +634,45 @@ class App extends React.Component {
           }
 
           <section className={`main${testCoins.indexOf(this.state.coin) === -1 ? ' beta-warning-fix' : ''}`}>
-            {this.state.accounts.length === 0 ? (
+            <div className="container content text-center">
+              {testCoins.indexOf(this.state.coin) === -1 &&
+                <BetaWarning />
+              }
+              {!this.state.activeCoin &&
+                <React.Fragment>
+                  <CoinsSelector
+                    coins={this.state.coins}
+                    addCoins={this.addCoins}
+                    setActiveCoin={this.setActiveCoin}
+                    handleScanData={this.handleScanData}
+                    checkTipTime={this.checkTipTime}
+                    vendor={this.state.vendor}
+                    explorerEndpoint={this.state.explorerEndpoint} />
+                  {this.isCoinData() &&
+                   window.location.href.indexOf('devmode') > -1 &&
+                    <button onClick={() => this.syncData()}>Sync coin data</button>
+                  }
+                  {this.isCoinData() &&
+                    <div className="bottom-blocks">
+                      <DashboardPrices />
+                      <DashboardOperations lastOperations={this.state.lastOperations} />
+                    </div>
+                  }
+                </React.Fragment>
+              }
+            </div>
+            {!this.isCoinData() ? (
               <React.Fragment>
                 <div className="container content">
-                  <h2>{this.state.coin === voteCoin ? 'Cast your VOTEs' : 'Manage your coins'} from {VENDOR[this.state.vendor]} device.</h2>
-                  {this.state.vendor === 'ledger' &&
-                    <p>Make sure the KMD app and firmware on your Ledger are up to date, close any apps that might be using connection to your device such as Ledger Live, then connect your Ledger, open the KMD app, and click the "Check Balance" button.</p>
-                  }
-                  {this.state.vendor === 'trezor' &&
-                    <p>Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the "Check Balance" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.</p>
-                  }
-                  <p>Also, make sure that your {VENDOR[this.state.vendor]} is initialized prior using <strong>KMD {this.state.coin === voteCoin ? 'Notary Elections tool' : 'wallet'}</strong>.</p>
-                  {this.state.vendor === 'ledger' &&
-                    <p>Have trouble accessing your Ledger device? Read here about <a target="_blank" rel="noopener noreferrer" href="https://github.com/pbca26/hw-kmd-reward-claim/wiki/First-time-using-Ledger-Nano-S-(firmware-v1.6)---Nano-X">first time use</a>.</p>
-                  }
+                  <HWFirmwareRequirements vendor={this.state.vendor} />
                 </div>
                 <img
                   className="hw-graphic"
                   src={`${this.state.vendor}-logo.png`}
                   alt={VENDOR[this.state.vendor]} />
                 <div className="trezor-webusb-container"></div>
-                {this.state.vendor === 'ledger' &&
+                {/*!isMobile &&
+                 this.state.vendor === 'ledger' &&
                  !isElectron &&
                   <div className="ledger-device-selector">
                     <div className="ledger-device-selector-buttons">
@@ -510,32 +708,23 @@ class App extends React.Component {
                       </div>
                     }
                   </div>
-                }
+                  */}
               </React.Fragment>
             ) : (
-              <Accounts
-                {...this.state}
-                syncData={this.syncData} />
+              <React.Fragment>
+                {this.state.coins &&
+                this.state.activeCoin &&
+                this.state.coins[this.state.activeCoin] &&
+                this.state.coins[this.state.activeCoin].accounts &&
+                  <Accounts
+                    {...this.state}
+                    setActiveAccount={this.setActiveAccount}
+                    syncData={this.syncData}
+                    removeCoin={this.removeCoin} />
+                }
+              </React.Fragment>
             )}
           </section>
-
-          <Footer>
-            <p>
-              <strong>{VENDOR[this.state.vendor]} KMD {this.state.coin === voteCoin ? 'Notary Elections' : 'HW wallet'}</strong> by <a target="_blank" rel="noopener noreferrer" href="https://github.com/atomiclabs">Atomic Labs</a> and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.<br />
-              The <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}`}>source code</a> is licensed under <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}/blob/master/LICENSE`}>MIT</a>.
-              <br />
-              View the <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}#usage`}>README</a> for usage instructions.
-            </p>
-            <div className="theme-selector">
-              Theme
-              <div
-                onClick={() => this.setTheme('tdark')}
-                className={'item black' + (this.state.theme === 'tdark' ? ' active' : '')}></div>
-              <div
-                onClick={() => this.setTheme('tlight') }
-                className={'item light' + (this.state.theme === 'tlight' ? ' active' : '')}></div>
-            </div>
-          </Footer>
         </div>
       );
     }

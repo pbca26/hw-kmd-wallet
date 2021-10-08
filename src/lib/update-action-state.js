@@ -10,4 +10,5 @@ const updateActionState = (context, action, value) => {
     }
   }));
 };
+
 export default updateActionState;

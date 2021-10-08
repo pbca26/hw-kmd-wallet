@@ -6,10 +6,11 @@ import {setConfigVar} from './account-discovery';
 
 export const defaultSettings = {
   theme: 'tdark',
-  fwCheck: true,
+  fwCheck: false,
   enableDebugTools: false,
   discoveryGapLimit: 20,
   discoveryAddressConcurrency: 10,
+  accountIndex: 0,
 };
 
 const initSettings = () => {
