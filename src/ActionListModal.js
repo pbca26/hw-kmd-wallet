@@ -8,40 +8,49 @@ const ActionListModal = ({
   actions = [],
   error,
   success,
+  className,
+  childrenPosition,
+  topText,
+  display = true,
   ...modalProps
 }) => (
-  <div className="ActionListModal">
+  <div className={`ActionListModal${className ? ' ' + className : ''}`}>
     <Modal isCloseable={error || success} {...modalProps}>
-      {children}
-      <div className="panel">
-        {Object.keys(actions).map(action => {
-          const {
-            icon,
-            description,
-            state
-          } = actions[action];
+      {topText &&
+        <p>{topText}</p>
+      }
+      {!childrenPosition || (childrenPosition && childrenPosition === 'top') ? children : ''}
+      {display &&
+        <div className="panel">
+          {Object.keys(actions).map(action => {
+            const {
+              icon,
+              description,
+              state
+            } = actions[action];
 
-          return (
-            <div
-              key={action}
-              className={`panel-block ${state === 'loading' ? 'is-active' : ''}`}>
-              <span className="left-icon icon has-text-grey">
-                <i className={icon}></i>
-              </span>
+            return (
+              <div
+                key={action}
+                className={`panel-block ${state === 'loading' ? 'is-active' : ''}`}>
+                <span className="left-icon icon has-text-grey">
+                  <i className={icon}></i>
+                </span>
                 {description}
-              <div className="right-icon">
-                {typeof state === 'boolean' ? (
-                  <Boolean value={state} />
-                ) : state === 'loading' ? (
-                  <span className="icon has-text-grey">
-                    <i className="fas fa-circle-notch fa-spin" aria-hidden="true"></i>
-                  </span>
-                ) : null}
+                <div className="right-icon">
+                  {typeof state === 'boolean' ? (
+                    <Boolean value={state} />
+                  ) : state === 'loading' ? (
+                    <span className="icon has-text-grey">
+                      <i className="fas fa-circle-notch fa-spin" aria-hidden="true"></i>
+                    </span>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      }
 
       {error ? (
         <div className="notification is-danger">
@@ -56,6 +65,8 @@ const ActionListModal = ({
           <p>{success}</p>
         </div>
       ) : null}
+
+      {childrenPosition && childrenPosition === 'bottom' ? children : ''}
     </Modal>
   </div>
 );

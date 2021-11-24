@@ -1,0 +1,44 @@
+.Modal-add-coin {
+  .modal-content {
+    width: 704px;
+  }
+
+  .block-coin-icons {    
+    .block-coin-icons-tile {
+      user-select: none;
+      display: inline-block;
+      height: 45px;
+      width: 170px;
+      box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      margin-right: 35px;
+      margin-bottom: 35px;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+      word-break: keep-all;
+
+      .check-icon {
+        position: absolute;
+        margin-top: 27px;
+        margin-left: 153px;
+      }
+      .block-coin-icons-tile-name {
+        position: relative;
+        left: 18px;
+        top: -6px;
+      }
+  
+      &:hover {
+        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+      }
+  
+      img {
+        height: 35px;
+        width: 35px;
+        position: relative;
+        top: 6px;
+        left: 5px;
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@ import {
   ipcRenderer,
   isElectron,
 } from '../Electron';
+import {writeLog} from '../Debug';
 
 let data = {};
 let ruid = 0;
@@ -12,11 +13,11 @@ let pendingCalls = {};
 const getData = (ruid, payload) => {
   return new Promise((resolve, reject) => {
     if (!data[ruid]) {
-      console.warn(`ledger data ruid ${ruid} not available yet, set interval`, ruid);
+      writeLog(`ledger data ruid ${ruid} not available yet, set interval`, ruid);
 
       intervals[ruid] = setInterval((ruid) => {
         if (data[ruid]) {
-          console.warn(`ledger data ruid ${ruid} available, clear interval`, data[ruid]);
+          writeLog(`ledger data ruid ${ruid} available, clear interval`, data[ruid]);
           clearInterval(intervals[ruid]);
           delete pendingCalls[ruid];
           resolve(data[ruid]);
@@ -25,7 +26,7 @@ const getData = (ruid, payload) => {
         }
       }, 100, ruid);
     } else {
-      console.warn(`ledger data ruid ${ruid} available`, data[ruid]);
+      writeLog(`ledger data ruid ${ruid} available`, data[ruid]);
       delete pendingCalls[ruid];
       resolve(data[ruid]);
     }
@@ -34,21 +35,21 @@ const getData = (ruid, payload) => {
 
 if (isElectron) {
   ipcRenderer.on('getAddress', (event, arg) => {
-    console.warn('getAddress arg', arg);
-    console.warn('arg.bitcoinAddress', arg.bitcoinAddress);
-    if (arg === -777) resolve(false);
+    writeLog('getAddress arg', arg);
+    writeLog('arg.bitcoinAddress', arg.bitcoinAddress);
+    if (arg === -777) data[arg.ruid] = false;
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('createPaymentTransactionNew', (event, arg) => {
-    console.warn('createPaymentTransactionNew arg', arg);
-    if (arg === -777) resolve(false);
+    writeLog('createPaymentTransactionNew arg', arg);
+    if (arg === -777) data[arg.ruid] = false;
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('splitTransaction', (event, arg) => {
-    console.warn('splitTransaction arg', arg);
-    if (arg === -777) resolve(false);
+    writeLog('splitTransaction arg', arg);
+    if (arg === -777) data[arg.ruid] = false;
     else data[arg.ruid] = arg.result;
   });
 }
@@ -57,13 +58,13 @@ if (isElectron) {
 const getDevice = async () => {
   return {
     getWalletPublicKey: (derivationPath) => {
-      console.warn(`ledger getWalletPublicKey`);
+      writeLog(`ledger getWalletPublicKey`);
       ruid++;
       ipcRenderer.send('getAddress', {derivationPath, ruid});
       
       return new Promise(async(resolve, reject) => {
         const _data = await getData(ruid);
-        console.warn('ledger getAddress ready', _data);
+        writeLog('ledger getAddress ready', _data);
         resolve(_data);
       });
     },
@@ -79,7 +80,7 @@ const getDevice = async () => {
       additionals,
       expiryHeight,
     ) => {
-      console.warn(`ledger createPaymentTransactionNew`);
+      writeLog(`ledger createPaymentTransactionNew`);
       ruid++;
       ipcRenderer.send('createPaymentTransactionNew', {txData: {
         inputs,
@@ -96,7 +97,7 @@ const getDevice = async () => {
 
       return new Promise(async(resolve, reject) => {
         const _data = await getData(ruid);
-        console.warn('ledger createPaymentTransactionNew ready', _data);
+        writeLog('ledger createPaymentTransactionNew ready', _data);
         resolve(_data);
       });
     },
@@ -107,7 +108,7 @@ const getDevice = async () => {
       hasExtraData,
       additionals,
     ) => {
-      console.warn(`ledger splitTransaction`);
+      writeLog(`ledger splitTransaction`);
       ruid++;
       ipcRenderer.send('splitTransaction', {txData: {
         transactionHex,
@@ -119,7 +120,7 @@ const getDevice = async () => {
 
       return new Promise(async(resolve, reject) => {
         const _data = await getData(ruid);
-        console.warn('ledger splitTransaction ready', _data);
+        writeLog('ledger splitTransaction ready', _data);
         resolve(_data);
       });
     },
@@ -136,14 +137,14 @@ const isAvailable = async () => {
     });
     await ledger.close();
     if (res) {
-      console.warn('device available');
+      writeLog('device available');
       return true;
     } else {
-      console.warn('device unavailable');
+      writeLog('device unavailable');
       return false;
     }
   } catch (error) {
-    console.warn('isAvailable error', error);
+    writeLog('isAvailable error', error);
     return false;
   }
 };

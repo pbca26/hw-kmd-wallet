@@ -1,5 +1,6 @@
 import BlockchainInsight from './blockchain-insight';
 import BlockchainSPV from './blockchain-spv';
+import {writeLog} from '../Debug';
 
 let blockchain = {
   insight: BlockchainInsight,
@@ -11,7 +12,7 @@ export const setBlockchainAPI = (name) => {
   if (name === 'insight') blockchainAPI = 'insight';
   if (name === 'spv') blockchainAPI = 'spv';
 
-  console.warn('setBlockchainAPI', name);
+  writeLog('setBlockchainAPI', name);
 };
 
 export default blockchain;

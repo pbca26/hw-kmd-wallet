@@ -1,10 +1,10 @@
 .Beta-warning {
-  box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
-  top: 52px !important;
   min-height: 2rem !important;
   text-align: center;
-  border-top: solid 1px #1A2939;
+  border-bottom: solid 1px rgba(26, 41, 57, 0.1);
   z-index: 10 !important;
+  margin-top: 4.5em;
+  margin-bottom: 45px;
 
   .container {
     min-height: 2rem !important;

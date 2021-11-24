@@ -1,0 +1,25 @@
+.settings-modal {
+  ul {
+    list-style: none !important;
+
+    li,
+    li:hover {
+      margin-bottom: 20px;
+      border: none;
+      text-align: left;
+      cursor: default;
+    }
+  }
+
+  .explorer-selector {
+    margin-left: 10px;
+  }
+
+  .switch {
+    margin: 7px 0 7px 0;
+  }
+
+  .slider-text {
+    margin-right: 20px;
+  }
+}

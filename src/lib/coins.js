@@ -100,10 +100,6 @@ const coins = {
     explorer: 'https://mcl.explorer.dexstats.info/',
     api: ['https://mcl.explorer.dexstats.info/insight-api-komodo/'],
   },
-  RFOX: {
-    explorer: 'https://rfox.explorer.dexstats.info/',
-    api: ['https://rfox.explorer.dexstats.info/insight-api-komodo/'],
-  },
   LABS: {
     explorer: 'https://labs.explorer.dexstats.info/',
     api: ['https://labs.explorer.dexstats.info/insight-api-komodo/'],
@@ -158,12 +154,32 @@ const coins = {
     explorer: 'https://soulja.explorer.dexstats.info/',
     api: ['https://soulja.explorer.dexstats.info/insight-api-komodo/'],
   },
-  // DP: '',
+  DP: {
+    explorer: 'https://dp.explorer.dexstats.info/',
+    api: ['https://dp.explorer.dexstats.info/insight-api-komodo/'],
+  },
+  GLEEC: {
+    explorer: 'https://gleec.xyz/',
+    api: [
+      'https://gleec.explorer.dexstats.info/insight-api-komodo/',
+      'https://gleec.xyz/insight-api-komodo/',
+    ],
+  },
+  TOKEL: {
+    explorer: 'https://tokel.explorer.dexstats.info/',
+    api: [
+      'https://tokel.explorer.dexstats.info/insight-api-komodo/',
+      'https://explorer.komodoplatform.com:10000/tokel/api/',
+    ],
+  },
+  TKLTEST: {
+    explorer: 'https://tkltest.explorer.dexstats.info/',
+    api: [
+      'https://tkltest.explorer.dexstats.info/insight-api-komodo/',
+      'https://explorer.komodoplatform.com:10000/tkltest/api/',
+    ],
+  },
   // SHARK: '',
-  // EQL: '',
-  // PIZZA: '',
-  // BEER: '',
-  // DSEC: '',
   /* coins below need special handling due to no overwinter support
   ZILLA: {
     explorer: 'https://zilla.explorer.dexstats.info/',
@@ -175,10 +191,5 @@ const coins = {
   },
   */
 };
-
-export const airDropCoins = [
-  'WSB',
-  'VOTE2021',
-];
 
 export default sortObject(coins);

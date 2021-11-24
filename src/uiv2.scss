@@ -1,0 +1,795 @@
+.sidebar-right {
+  position: fixed;
+  top: 52px;
+  height: 100vh;
+  width: 90px;
+  background: #121958;
+  color: #fff;
+  z-index: 100;
+
+  ul {
+    li {
+      text-align: center;
+      padding: 20px 0;
+      border-left: solid 4px #121958;
+
+      i {
+        font-size: 22px;
+        position: relative;
+        left: -4px;
+      }
+
+      &:hover {
+        cursor: pointer;
+        border-left: solid 4px #25CDDA;
+
+        i {
+          color: #25CDDA;
+        }
+      }
+
+      .plane-icon-invert {
+        transform: rotate(175deg);
+      }
+    }
+  }
+
+  a,
+  a:hover {
+    color: #fff !important;
+  }
+}
+
+.container {
+  .navbar-brand {
+    margin: 0 auto !important;
+  }
+}
+
+#body {
+  background: #FCFDFF;
+  color: #121958 !important;
+
+  strong,
+  h2,
+  h3 {
+    color: #121958 !important;
+  }
+
+  a,
+  a:hover {
+    color: #13D0A7;
+  }
+
+  .coins-holdings-block {
+    h3 {
+      font-weight: bold;
+      font-size: 18px;
+      color: #9a9a9a !important;
+      text-align: left;
+    }
+    .inline-coin-icons {
+      margin-top: 10px;
+    }
+  }
+  .notification.is-success {
+    * {
+      color: #fff !important;
+    }
+    .qr-gen-modal {
+      * {
+        color: #121958 !important;
+      }
+    }
+  }
+  .notification.is-danger {
+    * {
+      color: #fff !important;
+    }
+  }
+  .Modal {
+    z-index: 110 !important;
+  }
+}
+
+.Modal {
+  .modal-content {
+    * {
+      color: #121958 !important;
+    }
+    .login-error {
+      color: red !important;
+    }
+    .card,
+    .card-header-title {
+      background: #fff !important;
+    }
+    .card-header {
+      border-bottom: solid 1px rgba(0,0,0,0.2) !important;
+    }
+  }
+}
+
+.Header {
+  &.navbar {
+    background: #fff;
+  }
+}
+
+.main {
+  margin-left: 90px;
+
+  .vendor-trezor,
+  .vendor-ledger {
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.inline-coin-icons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  text-align: left;
+
+  .inline-coin-icons-tile {
+    float: left;
+    height: 45px;
+    width: 45px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+
+    &:hover {
+      box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    img {
+      height: 35px;
+      width: 35px;
+      position: relative;
+      top: 6px;
+      left: 5px;
+    }
+  }
+
+  .coins-add-new {
+    .coins-add-new-plus-sign:before {
+      position: relative;
+      top: 10px;
+      left: 12px;
+      font-size: 24px;
+      opacity: 0.85;
+    }
+  }
+}
+
+.recent-operations-block {
+  display: block;
+
+  h4 {
+    font-size: 18px;
+    color: #121958 !important;
+  }
+
+  .recent-operations {
+    border-radius: 6px;
+    background: #fff;
+    padding: 20px 20px 0 20px;
+    margin-top: 10px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+
+    .item {
+      height: 60px;
+
+      .item-right-pane {
+        float: right;
+
+        .amount {
+          color: #13D0A7;
+          font-weight: 500;
+          font-size: 18px;
+          position: relative;
+          top: 6px;
+        }
+      }
+      .item-left-pane {
+        float: left;
+
+        .date {
+          color: #a9a9a9;
+          position: absolute;
+          margin-top: 17px;
+          font-size: 13px;
+          margin-left: 10px;
+        }
+        .direction {
+          margin-left: 10px;
+          position: absolute;
+          margin-top: -3px;
+          text-transform: capitalize;
+        }
+        img {
+          width: 30px;
+          height: 30px;
+        }
+      }
+    }
+  }
+}
+
+.assets-price-block {
+  display: block;
+  margin-right: 5%;
+
+  h4 {
+    font-size: 18px;
+    color: #121958 !important;
+  }
+
+  .assets-price {
+    border-radius: 6px;
+    background: #fff;
+    padding: 15px 20px 0 20px;
+    margin-top: 10px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+
+    table {
+      width: 100%;
+
+      thead {
+        th {
+          position: relative;
+          top: -5px;
+          padding-bottom: 10px;
+          font-weight: normal;
+        }
+      }
+
+      td:nth-child(2),
+      td:nth-child(3),
+      th:nth-child(2),
+      th:nth-child(3) {
+        text-align: center;
+      }
+
+      tr {
+        td {
+          //padding: 20px 0 15px 0;
+          padding: 10px 0 4px 0;
+          border-bottom: solid 1px #efefef !important;
+          
+          img {
+            width: 30px;
+            height: 30px;
+          }
+          .coin-name {
+            position: relative;
+            top: -10px;
+            left: 10px;
+          }
+        }
+        th {
+          border-bottom: solid 1px #efefef !important;
+        }
+      }
+
+      tbody tr:nth-child(1) {
+        td {
+          padding-top: 5px;
+        }
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none !important;
+      }
+    }
+  }
+}
+
+.bottom-blocks {
+  display: flex;
+  flex-direction: row;
+  margin-top: 35px;
+
+  > div {
+    flex-grow: 1;
+
+    > div {
+      height: 215px;
+    }
+  }
+
+  h4 {
+    text-align: left;
+  }
+}
+
+.dashboard {
+  .hw-graphic {
+    top: 60% !important;
+  }
+}
+
+.ActionListModal.Scan-balances-modal .Modal,
+.ActionListModal.Receive-modal .Modal,
+.ActionListModal.send-coin-modal .Modal {
+  text-align: left;
+
+  .panel-heading, .panel-tabs, .panel-block, .panel-block.is-active {
+    border-bottom: 1px solid #dbdbdb;
+    border-left: 1px solid #dbdbdb;
+    border-right: 1px solid #dbdbdb;
+  }
+
+  .panel .panel-block:first-child {
+    border-top: 1px solid #dbdbdb;
+  }
+
+  .table {
+    margin: 25px 0 35px 0;
+  }
+
+  .button {
+    margin: 0 auto;
+    display: block;
+  }
+}
+
+.Receive-modal .Modal {
+  .fa-qrcode {
+    margin-left: 10px;
+    font-size: 20px;
+    position: relative;
+    top: 1px;
+  }
+
+  .qr-gen-modal {
+    .content {
+      text-align: center;
+    }
+  }
+}
+
+.trezor-webusb-container {
+  display: none;
+}
+
+.accounts-block,
+.transactions-block {
+  display: block;
+
+  * {
+    color: #121958 !important;
+  }
+
+  h4 {
+    font-size: 18px;
+  }
+
+  .accounts,
+  .transactions {
+    border-radius: 6px;
+    background: #fff;
+    //padding: 20px 20px 0 20px;
+    margin-top: 10px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+
+    .account-name {
+      position: relative;
+      top: -9px;
+      font-size: 16px;
+      left: 10px;
+    }
+
+    .amount {
+      font-size: 16px;
+      position: relative;
+      top: 6px;
+    }
+
+    .rewards {
+      color: #13D0A7 !important;
+      font-size: 16px;
+      position: relative;
+      top: 6px;
+    }
+
+    img {
+      width: 30px;
+      height: 30px;
+    }
+
+    table {
+      width: 100%;
+
+      thead {
+        tr {
+          cursor: default;
+
+          th {
+            font-weight: 500;
+            padding: 15px 20px;
+
+            * {
+              position: relative;
+              top: -5px;
+            }
+          }
+        }
+      }
+
+      td:nth-child(2),
+      td:nth-child(3),
+      th:nth-child(2),
+      th:nth-child(3) {
+        text-align: center;
+      }
+
+      tr {
+        cursor: pointer;
+
+        &:hover td {
+          background: rgba(204, 204, 204, 0.15);
+        }
+        td {
+          padding: 15px 20px 10px 20px;
+          border-bottom: solid 1px #efefef !important;
+          
+          img {
+            width: 30px;
+            height: 30px;
+          }
+          .coin-name {
+            position: relative;
+            top: -10px;
+            left: 10px;
+          }
+        }
+        th {
+          border-bottom: solid 1px #efefef !important;
+        }
+      }
+
+      tbody tr:nth-child(1) {
+        td {
+          padding-top: 13px;
+        }
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none !important;
+      }
+    }
+  }
+}
+
+.transactions-block {
+  margin-top: 60px;
+  margin-bottom: 50px;
+
+  .amount-increase {
+    color: #13D0A7 !important;
+  }
+
+  table {
+    tr {
+      td:last-child,
+      th:last-child {
+        text-align: right !important;
+      }
+      td {
+        padding: 20px 20px 18px 20px !important;
+      }
+    }
+  }
+
+  .date {
+    color: #a9a9a9 !important;
+    position: absolute;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+  .direction {
+    position: absolute;
+    margin-top: -10px;
+    text-transform: capitalize;
+
+    i {
+      margin-right: 10px;
+      font-size: 15px;
+    }
+    .fa-long-arrow-alt-up {
+      transform: rotate(45deg);
+    }
+    .fa-long-arrow-alt-down {
+      transform: rotate(-45deg);
+    }
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.no-hover:hover {
+  td {
+    background: #fff !important;
+    cursor: default;
+  }
+}
+
+.coin-actions-modal-trigger,
+.coin-add-account-modal-trigger {
+  position: absolute;
+  right: 20px;
+  margin-top: -35px;
+  height: 25px;
+  width: 25px;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  font-size: 15px;
+
+  &:hover {
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  i {
+    height: 20px;
+    width: 20px;
+    position: relative;
+    top: 2px;
+    left: 5px;
+  }
+}
+
+.coin-add-account-modal-trigger {
+  right: 55px;
+  margin-top: 2px;
+
+  i {
+    left: 6px;
+  }
+}
+
+.del-btn {
+  i {
+    font-size: 13px;
+    position: relative;
+    top: -1px;
+    margin-left: 10px;
+  }
+}
+
+.text-left {
+  text-align: left !important;
+}
+
+.modal-action-block {
+  text-align: right;
+}
+
+.claim-rewards-btn {
+  margin-top: 30px !important;
+  margin-bottom: 0 !important;
+
+  i {
+    color: #fff !important;
+    position: relative;
+    top: -1px;
+    margin-right: 10px;
+  }
+}
+
+.Modal.send-coin-modal {
+  .switch {
+    margin: 7px 0 25px 0;
+
+    .slider-text {
+      margin-left: 60px;
+    }
+  }
+
+  .account-selector {
+    margin: 5px 0 0 10px;
+  }
+  .receive-account-selector-block {
+    padding-bottom: 30px;
+  }
+  .button.copy-btn {
+    margin-left: 0 !important;
+    margin-top: 5px!important;
+  }
+  .fa-qrcode {
+    margin-left: 15px;
+    font-size: 20px;
+    position: relative;
+    top: 2px;
+  }
+}
+
+.Modal-coin-settings {
+  .button:first-child {
+    margin-right: 40px;
+  }
+}
+
+input[type="text"] {
+  padding: 6px 10px;
+  min-width: 310px;
+  border: thin solid rgb(170, 170, 170);
+  border-radius: 2px;
+  outline: none;
+}
+
+select {
+  padding: 6px 48px 6px 5px;
+  border: thin solid rgb(170, 170, 170);
+  border-radius: 2px;
+
+  /* reset */
+  margin: 0;      
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+// ref: https://codepen.io/vkjgr/pen/VYMeXp
+select.minimal,
+select.minimal:focus {
+  background-image:
+    linear-gradient(45deg, transparent 50%, gray 50%),
+    linear-gradient(135deg, gray 50%, transparent 50%),
+    linear-gradient(to right, #ccc, #ccc);
+  background-position:
+    calc(100% - 15px) calc(1em - 2px),
+    calc(100% - 10px) calc(1em - 2px),
+    calc(100% - 2.21em) 0;
+  background-size: 5px 5px, 5px 5px, 1px 2em;
+  background-repeat: no-repeat;
+  outline: none;
+}
+
+select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #000;
+}
+
+.button.is-light.send-max {
+  position: relative;
+  top: -1px;
+  left: 10px;
+  height: 31px;
+}
+
+.button.is-primary.btn-back {
+  margin-bottom: 30px !important;
+}
+
+.left {
+  text-align: left;
+}
+
+.coin-settings-accounts-block {
+  margin-top: 30px;
+
+  h4 {
+    font-size: 1em !important;
+  }
+  .item {
+    padding-bottom: 10px;
+
+    .item-label {
+      width: 82px;
+      display: inline-block;
+    }
+    .button {
+      margin-left: 10px;
+      padding: 12px 6px;
+      height: 0;
+
+      i {
+        font-size: 0.9em;
+      }
+    }
+  }
+}
+
+.kmd-rewards-main-overdue-badge,
+.kmd-rewards-account-overdue-badge {
+  background: red;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  margin-top: -46px;
+  margin-left: 34px;
+
+  i {
+    color: #fff !important;
+    font-style: normal;
+    position: relative;
+    left: 4px;
+    top: -5px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.kmd-rewards-account-overdue-badge {
+  margin: 0;
+  position: relative;
+  display: inline-block;
+  top: 9px;
+  left: 5px;
+  width: 17px;
+  height: 17px;
+
+  i {
+    font-size: 13px;
+    left: 1px;
+    top: -4px;
+  }
+}
+
+.xpub-string {
+  word-break: break-all;
+  padding: 10px 0;
+}
+
+.new-address {
+  display: block;
+
+  * {
+    color: #363636 !important;
+  }
+}
+
+.notification.is-success {
+  .copy-btn {
+    background: transparent !important;
+    border: solid 1px #fff !important;
+    float: none;
+    display: inline-block !important;
+    margin: 0 0 0 15px !important;
+    font-size: 0.95em;
+    padding: 0 7px;
+    height: 28px;
+    position: relative;
+    top: -2px;
+
+    i {
+      font-size: 0.9em;
+    }
+  }
+}
+
+#js-copytextarea {
+  opacity: 0;
+  height: 10px;
+  width: 200px;
+}
+
+.copy-btn {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.4rem;
+  margin: 0 0 0 10px !important;
+  margin-left: 10px;
+  height: 1.4rem;
+  text-transform: lowercase;
+
+  .copy-btn-text {
+    position: relative;
+    top: -1px;
+  }
+  i {
+    margin-right: 5px;
+    font-size: 0.75rem;
+  }
+}

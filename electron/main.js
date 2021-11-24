@@ -1,3 +1,9 @@
+// Modules to control application life and create native browser window
+require('babel-polyfill');
+require('@electron/remote/main').initialize();
+const TransportNodeHid = require('@ledgerhq/hw-transport-node-hid-noevents').default;
+const AppBtc = require('@ledgerhq/hw-app-btc').default;
+
 const {
   app,
   BrowserWindow,
@@ -10,6 +16,8 @@ const url = require('url');
 const ipcLedger = require('./ipc-ledger');
 const ipcSPV = require('./spv');
 const ipcNSPV = require('./nspv');
+const isDev = process.argv.indexOf('devmode') > -1;
+const {createAdapter} = require('iocane');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -23,8 +31,12 @@ function createWindow() {
     webPreferences: {
       nativeWindowOpen: true, // <-- important for trezor
       nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
     },
   });
+
+  require("@electron/remote/main").enable(mainWindow.webContents);
 
   require(path.join(__dirname, 'menu'));
 
@@ -45,15 +57,52 @@ function createWindow() {
     { role: 'selectall' },
   ]);
 
+  const decodeStoredData = (str, pw) => {
+    return new Promise((resolve, reject) => {
+      if (str.length) {
+        createAdapter()
+        .decrypt(str, pw)
+        .catch((err) => {
+          console.log('decodeStoredData error', err);
+          resolve(false);
+        })
+        .then(decryptedString => {
+          //console.log('decryptedString', decryptedString);
+          resolve(decryptedString);
+        });
+      } else {
+        resolve(false);
+      }
+    });
+  };
+
+  const encodeStoredData = (str, pw) => {
+    return new Promise((resolve, reject) => {
+      createAdapter()
+      .encrypt(str, pw)
+      .catch((err) => {
+        console.log('encodeStoredData error', err);
+        resolve(false);
+      })
+      .then(encryptedString => {
+        resolve(encryptedString);
+      });
+    });
+  };
+
   global.app = {
-    isDev: process.argv.indexOf('devmode') > -1,
+    isDev,
     noFWCheck: true,
     blockchainAPI: process.argv.indexOf('api=spv') > -1 || process.argv.indexOf('api=nspv') > -1 ? 'spv' : 'insight',
     isNspv: process.argv.indexOf('api=nspv') > -1,
+    helpers: {
+      decodeStoredData,
+      encodeStoredData,
+    },
   };
 
   // and load the index.html of the app.
-  if (process.argv.indexOf('devmode') > -1) {
+  if (isDev) {
     mainWindow.maximize();
     mainWindow.loadURL('http://localhost:3000/');
   } else {
@@ -85,36 +134,6 @@ function createWindow() {
   ipcLedger.setMainWindow(mainWindow);
   ipcSPV.setMainWindow(mainWindow);
   ipcNSPV.setMainWindow(mainWindow);
-
-  ipcMain.on('getAddress', (e, {ruid, derivationPath}) => {
-    console.log(derivationPath);
-
-    if (mainWindow) {
-      getAddress(derivationPath, false).then(result => {
-        mainWindow.webContents.send('getAddress', {ruid, result});
-      });
-    }
-  });
-
-  ipcMain.on('createPaymentTransactionNew', (e, {ruid, txData}) => {
-    console.log(txData);
-
-    if (mainWindow) {
-      createPaymentTransactionNew(txData).then(result => {
-        mainWindow.webContents.send('createPaymentTransactionNew', {ruid, result});
-      });
-    }
-  });
-
-  ipcMain.on('splitTransaction', (e, {ruid, txData}) => {
-    console.log(txData);
-
-    if (mainWindow) {
-      splitTransaction(txData).then(result => {
-        mainWindow.webContents.send('splitTransaction', {ruid, result});
-      });
-    }
-  });
 }
 
 // This method will be called when Electron has finished
@@ -126,7 +145,7 @@ app.on('ready', createWindow);
 app.on('window-all-closed', function() {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin' || process.argv.indexOf('devmode') > -1) {
+  if (process.platform !== 'darwin' || isDev) {
     app.quit();
   }
 });
@@ -142,7 +161,7 @@ app.on('activate', function() {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 app.on('browser-window-focus', (event, win) => {
-  if (!win.isDevToolsOpened() && process.argv.indexOf('devmode') > -1) {
+  if (!win.isDevToolsOpened() && isDev) {
     win.openDevTools();
   }
 });

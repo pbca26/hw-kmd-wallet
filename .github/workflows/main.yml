@@ -47,7 +47,7 @@ jobs:
         name: gui
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'
+        node-version: '16'
         check-latest: true
 
     - name: Unpack GUI
@@ -99,7 +99,7 @@ jobs:
         name: gui
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'
+        node-version: '16'
         check-latest: true
 
     - name: Unpack GUI
@@ -119,6 +119,8 @@ jobs:
 
     - name: Build Electron App
       run: |
+        sudo apt-get install libusb-1.0-0-dev
+        sudo apt install libudev-dev
         cd electron
         npm install
         npm run dist
@@ -157,7 +159,7 @@ jobs:
         name: gui
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'
+        node-version: '16'
         check-latest: true
 
     - name: Unpack GUI

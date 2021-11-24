@@ -3,7 +3,7 @@ import './BetaWarning.scss';
 
 const BetaWarning = () => (
   <nav
-    className="Beta-warning navbar is-fixed-top"
+    className="Beta-warning"
     role="navigation"
     aria-label="main navigation">
     <div className="container">

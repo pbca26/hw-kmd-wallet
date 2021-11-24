@@ -2,9 +2,21 @@
   .modal-content {
     width: 100%;
   }
+
+  .table {
+    th {
+      font-weight: 500;
+    }
+  }
 }
 
-.claim-rewards-btn,
 .check-utxos-btn {
-  margin: 1.25rem 1.25rem 2.25rem 1.25rem;
+  margin-top: 30px !important;
+  margin-bottom: 0 !important;
+  margin-left: 20px;
+  padding-left: 0.25em !important;
+
+  i {
+    font-size: 18px;
+  }
 }

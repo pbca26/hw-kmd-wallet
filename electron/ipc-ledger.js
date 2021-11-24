@@ -1,7 +1,8 @@
 require('babel-polyfill');
-const TransportNodeHid = require('@ledgerhq/hw-transport-node-hid').default;
+const TransportNodeHid = require('@ledgerhq/hw-transport-node-hid-noevents').default;
 const AppBtc = require('@ledgerhq/hw-app-btc').default;
 const {ipcMain} = require('electron');
+const isDev = process.argv.indexOf('devmode') > -1;
 
 let mainWindow;
 
@@ -22,7 +23,7 @@ function getAddress(derivationPath, verify) {
       );
     })
     .catch(e => {
-      console.warn(e);
+      if (isDev) console.warn(e);
       return -777;
     });
 }
@@ -64,7 +65,7 @@ function createPaymentTransactionNew(txData) {
       );
     })
     .catch(e => {
-      console.warn(e);
+      if (isDev) console.warn(e);
       return -777;
     });
 }
@@ -89,18 +90,18 @@ function splitTransaction(txData) {
         hasExtraData,
         additionals,
       );
-      console.log(txSplit);
+      if (isDev) console.log(txSplit);
       transport.close();
       return txSplit;
     })
     .catch(e => {
-      console.warn(e);
+      if (isDev) console.warn(e);
       return -777;
     });
 }
 
 ipcMain.on('getAddress', (e, {derivationPath, ruid}) => {
-  console.log(derivationPath);
+  if (isDev) console.log(derivationPath);
 
   if (mainWindow) {
     getAddress(derivationPath, false).then(result => {
@@ -110,7 +111,7 @@ ipcMain.on('getAddress', (e, {derivationPath, ruid}) => {
 });
 
 ipcMain.on('createPaymentTransactionNew', (e, {txData, ruid}) => {
-  console.log(txData);
+  if (isDev) console.log(txData);
 
   if (mainWindow) {
     createPaymentTransactionNew(txData).then(result => {
@@ -120,7 +121,7 @@ ipcMain.on('createPaymentTransactionNew', (e, {txData, ruid}) => {
 });
 
 ipcMain.on('splitTransaction', (e, {txData, ruid}) => {
-  console.log(txData);
+  if (isDev) console.log(txData);
 
   if (mainWindow) {
     splitTransaction(txData).then(result => {

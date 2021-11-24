@@ -1,17 +1,19 @@
 import React from 'react';
 import Transactions from './Transactions';
 import SendCoinButton from './SendCoinButton';
-import ReceiveCoinButton from './ReceiveCoinButton';
 import {TX_FEE} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
-import UtxosModal from './UtxosModal';
 import ClaimRewardsButton from './ClaimRewardsButton';
+import CoinSettingsModal from './CoinSettingsModal';
+import UtxosModal from './UtxosModal';
 import './Accounts.scss';
 import './Account.scss';
 import {
   isElectron,
   appData,
 } from './Electron';
+import {writeLog} from './Debug';
+import {getLocalStorageVar} from './lib/localstorage-util';
 
 class Account extends React.Component {
   state = this.initialState;
@@ -26,8 +28,7 @@ class Account extends React.Component {
       amount: '',
       sendTo: '',
       // debug options
-      showXpub: null,
-      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('enable-verify') > -1,
+      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('enable-verify') > -1 || getLocalStorageVar('settings') && getLocalStorageVar('settings').enableDebugTools,
     };
   }
 
@@ -49,26 +50,14 @@ class Account extends React.Component {
     });
   }
 
-  handleRewardClaim = txid => {
-    this.setState({
-      isClaimed: true,
-      claimTxid: txid,
-      showXpub: null,
-    });
-  };
-
-  showXpub(index) {
-    this.setState({
-      showXpub: index === this.state.showXpub ? null : index,
-    });
-  }
-
   render() {
     const {
       account,
       tiptime,
       vendor,
-      coin
+      coin,
+      setActiveAccount,
+      activeAccount,
     } = this.props;
     const {
       accountIndex,
@@ -78,188 +67,121 @@ class Account extends React.Component {
       claimableAmount,
       xpub,
     } = account;
-
-    console.warn('account', account);
-
     const {isClaimed} = this.state;
-
-    console.warn('utxos', utxos);
-    console.warn('history', history);
+    
+    writeLog('account', account);
+    writeLog('utxos', utxos);
+    writeLog('history', history);
 
     return (
-      <div className={`Account column is-full ${isClaimed ? 'isclaimed' : ''}`}>
-        <div className="box">
-          <div className="content">
-            <h2>
-              Account {accountIndex + 1}
-              <div className="balance">
-                {humanReadableSatoshis(balance)} {coin}
-              </div>
-            </h2>
-            <ReceiveCoinButton
-              account={account}
-              vendor={vendor}
-              address={this.state.address}
-              coin={coin}>
-              Receive
-            </ReceiveCoinButton>
-            {coin === 'KMD' &&
-             balance > 0 &&
-              <UtxosModal
-                utxos={utxos}
-                tiptime={tiptime} />
+      <tr
+        key={`operations-${accountIndex + 1}`}
+        onClick={() => setActiveAccount(accountIndex)}
+        className={activeAccount !== null && accountIndex === activeAccount || activeAccount === null ? (activeAccount === null ? '' : 'no-hover') : 'hidden'}>
+        <td>
+          <img src={`coins/${coin}.png`} />
+          <span className="account-name">{coin} {accountIndex + 1}</span>
+        </td>
+        <td>
+          <span className="amount">{balance > 0 ? humanReadableSatoshis(balance) : ''}</span>
+        </td>
+        {coin === 'KMD' &&
+          <td>
+            <span className="rewards">{balance > 0 && claimableAmount > 0 ? humanReadableSatoshis(claimableAmount) : ''}</span>
+            {account.isRewardsOverdue &&
+              <span
+               className="kmd-rewards-account-overdue-badge"
+               title="Rewards claim overdue!">
+               <i>!</i>
+              </span>
             }
-            {coin === 'KMD' &&
-             claimableAmount > 0 &&
-              <ClaimRewardsButton
-                account={account}
-                handleRewardClaim={this.handleRewardClaim}
-                vendor={vendor}
-                address={this.state.address}
-                balance={balance}
-                syncData={this.props.syncData}
-                coin={coin}
-                tiptime={tiptime}
-                claimableAmount={claimableAmount} />
-            }
-            {(history.historyParsed.length === 0) && (
-              <React.Fragment>
-                <span style={{'padding': '10px 20px 20px 20px'}}>No history</span>
-              </React.Fragment>
-            )}
-            {(history.historyParsed.length > 0) && (
-              <React.Fragment>
-                <h4>Transactions</h4>
-                <Transactions
-                  transactions={history.historyParsed}
-                  coin={coin} />
-              </React.Fragment>
-            )}
-            {account.addresses &&
-             account.addresses.length > 0 &&
-              <div style={this.state.address ? {'padding': '10px 20px 20px 20px'} : {'padding': '10px 20px 30px 20px'}}>
-                Send change to
-                <select
-                  style={{'marginLeft': '10px'}}
-                  className="account-index-selector"
-                  name="address"
-                  value={this.state.address}
-                  onChange={(event) => this.updateInput(event)}>
-                  <option
-                    key="rewards-output-address-default"
-                    value="">
-                    Unused address (default)
-                  </option>
-                  {account.addresses.slice(0, 10).map((item, index) => (
-                    <option
-                      key={`rewards-output-address-${index}`}
-                      value={item.address}>
-                      {item.address}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            }
-            {this.state.address &&
-              <div style={{'padding': '0 20px 30px 20px'}}>
-                <strong>Warning:</strong> sending coins to a non-default address will break so called pseudo anonimity (one time address usage) and link your addresses together! This is not recommended option.
-              </div>
-            }
-            {balance > 0 &&
-              <div
-                className="send-form"
-                style={{'padding': '20px 20px 30px 20px'}}>
-                <div>
-                  Amount <input
-                    style={{'marginLeft': '10px'}}
-                    type="text"
-                    className="form-control edit"
-                    name="amount"
-                    onChange={this.updateInput}
-                    value={this.state.amount}
-                    placeholder="Enter an amount"
-                    autoComplete="off"
-                    required />
-                  <button
-                    className="button is-light send-max"
-                    onClick={() => this.setSendToMaxAmount(balance)}>
-                    Max
-                  </button>
-                </div>
-                <div style={{'margin': '30px 0 20px 0'}}>
-                  Send to <input
-                    style={{'marginLeft': '10px'}}
-                    type="text"
-                    className="form-control edit"
-                    name="sendTo"
-                    onChange={this.updateInput}
-                    value={this.state.sendTo}
-                    placeholder="Enter an address"
-                    autoComplete="off"
-                    required />
-                </div>
-              </div>
-            }
-            {this.state.isDebug &&
-              <button
-                className="button is-primary"
-                onClick={() => this.showXpub(accountIndex)}>
-                {this.state.showXpub >=0 && this.state.showXpub === accountIndex ? 'Hide Xpub' : 'Show Xpub'}
-              </button>
-            }
-            {this.state.showXpub >=0 &&
-             this.state.showXpub === accountIndex &&
-              <div style={{
-                'padding': '20px',
-                'wordBreak': 'break-all'
-              }}>
-                <strong>Xpub:</strong> {xpub}
-              </div>
-            }
-            {balance > 0 &&
-              <SendCoinButton
-                account={account}
-                handleRewardClaim={this.handleRewardClaim}
-                vendor={vendor}
-                address={this.state.address}
-                balance={balance}
-                sendTo={this.state.sendTo}
-                amount={this.state.amount}
-                syncData={this.props.syncData}
-                tiptime={tiptime}
-                coin={coin}>
-                Send
-              </SendCoinButton>
-            }
-          </div>
-        </div>
-      </div>
+          </td>
+        }
+      </tr>
     );
   }
 }
 
 const Accounts = ({
-  accounts,
+  coins,
+  activeCoin,
   tiptime,
   vendor,
   syncData,
-  coin
+  coin,
+  setActiveAccount,
+  activeAccount,
+  removeCoin,
+  enableAccount,
 }) => (
-  <div className="Accounts">
-    <div className="container">
-      <div className="columns is-multiline">
-        {accounts.map((account) => (
-          <Account
-            key={account.accountIndex}
-            account={account}
-            tiptime={tiptime}
-            vendor={vendor}
-            syncData={syncData}
-            coin={coin}
-            />
-        ))}
+  <div className="container content">
+    <div className="accounts-block">
+      <h4>
+        {activeAccount !== null ? 'Account details' : 'Accounts' }
+      </h4>
+      {activeAccount === null &&
+        <CoinSettingsModal
+          activeCoin={activeCoin}
+          removeCoin={removeCoin}
+          syncData={syncData}
+          enableAccount={enableAccount}
+          accounts={coins[activeCoin].accounts} />
+      }
+      <div className="accounts">
+        <table>
+          <thead>
+            <tr>
+              <th>{activeAccount !== null ? '' : 'Account'}</th>
+              <th>Amount</th>
+              {activeCoin === 'KMD' &&
+                <th>Rewards</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            {coins[activeCoin].accounts.filter((acc) => acc.enabled).map((account) => (
+              <Account
+                key={account.accountIndex}
+                account={account}
+                tiptime={tiptime}
+                vendor={vendor}
+                syncData={syncData}
+                coin={activeCoin}
+                activeAccount={activeAccount}
+                setActiveAccount={setActiveAccount}
+                />
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
+    {activeCoin === 'KMD' &&
+     activeAccount !== null &&
+     coins[activeCoin].accounts[activeAccount].balance > 0 &&
+     coins[activeCoin].accounts[activeAccount].enabled &&
+      <div className="text-center">
+        {coins[activeCoin].accounts[activeAccount].claimableAmount > 0 &&
+          <ClaimRewardsButton
+            account={coins[activeCoin].accounts[activeAccount]}
+            handleRewardClaim={this.handleRewardClaim}
+            vendor={vendor}
+            balance={coins[activeCoin].accounts[activeAccount].balance}
+            syncData={syncData}
+            coin={coin}
+            tiptime={tiptime}
+            isClaimRewardsOnly={true}
+            claimableAmount={coins[activeCoin].accounts[activeAccount].claimableAmount} />
+        }
+        <UtxosModal
+          utxos={coins[activeCoin].accounts[activeAccount].utxos}
+          tiptime={tiptime} />
+      </div>
+    }
+    <Transactions
+      accounts={coins[activeCoin].accounts.filter((acc) => acc.enabled)}
+      activeAccount={activeAccount}
+      coin={activeCoin}
+      />
   </div>
 );
 

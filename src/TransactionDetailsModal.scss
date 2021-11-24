@@ -1,0 +1,44 @@
+.Modal-operation-details {
+  .direction {
+    margin-top: 10px;
+    position: relative;
+    font-weight: 500;
+  }
+  .amount {
+    margin-top: 10px;
+  }
+  .table {
+    margin-top: 40px;
+    font-size: 15px;
+
+    strong {
+      font-weight: 500;
+      font-size: 15px;
+    }
+  }
+  table tr td {
+    padding: 15px 0 !important;
+
+    &.text-left {
+      text-align: left !important;
+    }
+    &.no-border {
+      border-bottom: none;
+      padding-bottom: 0 !important;
+    }
+  }
+  .modal-action-block {
+    padding-top: 15px;
+
+    a {
+      text-decoration: none;
+    }
+    .button {
+      i {
+        font-size: 14px;
+        color: #fff !important;
+        margin-left: 10px;
+      }
+    }
+  }
+}

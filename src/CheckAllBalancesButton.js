@@ -2,7 +2,7 @@ import React from 'react';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import hw from './lib/hw';
 import accountDiscovery, {clearPubkeysCache} from './lib/account-discovery';
-import blockchain, {setExplorerUrl, getInfo} from './lib/blockchain';
+import blockchain, {blockchainAPI} from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
 import {TX_FEE, VENDOR} from './constants';
 import ActionListModal from './ActionListModal';
@@ -19,8 +19,8 @@ const headings = [
   'Balance',
 ];
 const coinsToCheckDev = [
-  'RICK',
-  'MORTY',
+  //'RICK',
+  //'MORTY',
   'KMD',
 ];
 
@@ -30,8 +30,11 @@ class CheckAllBalancesButton extends React.Component {
   state = this.initialState;
   
   get initialState() {
+    this.confirm = this.confirm.bind(this);
+
     return {
       isCheckingRewards: false,
+      isInProgress: false,
       error: false,
       coin: '',
       balances: [],
@@ -50,7 +53,7 @@ class CheckAllBalancesButton extends React.Component {
         },
         finished: {
           icon: 'fas fa-check',
-          description: <div>All coin balances are checked.</div>,
+          description: <div>All coins are checked.</div>,
           state: null
         },
       },
@@ -72,16 +75,18 @@ class CheckAllBalancesButton extends React.Component {
   });
 
   scanAddresses = async () => {
-    const coinTickers = Object.keys(coins);
+    const coinTickers = this.props.coins;
     let balances = [];
     cancel = false;
     
     await asyncForEach(coinTickers, async (coin, index) => {
-      if (!cancel && (!this.state.isDebug || (this.state.isDebug && coinsToCheckDev.indexOf(coin) > -1))) {
+      if (!cancel) {
         const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
-          return getInfo(value);
+          return blockchain[blockchainAPI].getInfo(value);
         }));
         let isExplorerEndpointSet = false;
+        let longestBlockHeight = 0;
+        let apiEndPointIndex = 0;
     
         console.warn('checkExplorerEndpoints', getInfoRes);
         
@@ -89,13 +94,20 @@ class CheckAllBalancesButton extends React.Component {
           if (getInfoRes[i] &&
               getInfoRes[i].hasOwnProperty('info') &&
               getInfoRes[i].info.hasOwnProperty('version')) {
-            console.warn(`${coin} set api endpoint to ${coins[coin].api[i]}`);
-            setExplorerUrl(coins[coin].api[i]);
-            isExplorerEndpointSet = true;
-    
-            break;
+            if (getInfoRes[i].info.blocks > longestBlockHeight) {
+              longestBlockHeight = getInfoRes[i].info.blocks;
+              apiEndPointIndex = i;
+            }
           }
         }
+
+        console.warn(`${coin} set api endpoint to ${coins[coin].api[apiEndPointIndex]}`);
+        blockchain[blockchainAPI].setExplorerUrl(coins[coin].api[apiEndPointIndex]);
+        isExplorerEndpointSet = true;
+    
+        this.setState({
+          explorerEndpoint: coins[coin].api[apiEndPointIndex],
+        });
 
         if (isExplorerEndpointSet) {
           this.setState({
@@ -104,6 +116,7 @@ class CheckAllBalancesButton extends React.Component {
             coin,
             progress: ` (${index + 1}/${coinTickers.length})`,
             balances,
+            isInProgress: true,
           });
 
           let currentAction;
@@ -119,8 +132,8 @@ class CheckAllBalancesButton extends React.Component {
             currentAction = 'approve';
             updateActionState(this, currentAction, 'loading');
             let [accounts, tiptime] = await Promise.all([
-              accountDiscovery(this.props.vendor, this.props.coin),
-              blockchain.getTipTime()
+              accountDiscovery(this.props.vendor, coin),
+              blockchain[blockchainAPI].getTipTime()
             ]);
 
             tiptime = this.props.checkTipTime(tiptime);
@@ -133,20 +146,20 @@ class CheckAllBalancesButton extends React.Component {
 
             for (let i = 0; i < accounts.length; i++) {
               balanceSum += accounts[i].balance;
-              rewardsSum += accounts[i].rewards; 
+              rewardsSum += accounts[i].rewards;
             }
 
-            if (balanceSum) {
-              balances.push({
-                coin,
-                balance: balanceSum,
-                rewards: rewardsSum,
-              });
-            }
+            balances.push({
+              coin,
+              balance: balanceSum,
+              rewards: rewardsSum,
+              accounts,
+            });
 
             this.setState({
               balances,
-            });            
+              isInProgress: index === coinTickers.length - 1 ? false : true,
+            });
             //this.setState({...this.initialState});
           } catch (error) {
             console.warn(error);
@@ -166,6 +179,7 @@ class CheckAllBalancesButton extends React.Component {
       clearPubkeysCache();
 
       this.setState({
+        isInProgress: false,
         error: false,
         progress: '',
         coin: '',
@@ -173,9 +187,17 @@ class CheckAllBalancesButton extends React.Component {
         emptyBalances: !this.state.balances.length,
       });
     }
+
+    console.warn(this.state);
     
-    setExplorerUrl(this.props.explorerEndpoint);
+    blockchain[blockchainAPI].setExplorerUrl(this.props.explorerEndpoint);
   };
+
+  confirm() {
+    this.props.handleScanData({coins: this.state.balances});
+    this.props.closeParent();
+    this.resetState();
+  } 
 
   renderCoinBalances() {
     const balances = this.state.balances;
@@ -222,14 +244,14 @@ class CheckAllBalancesButton extends React.Component {
         </button>
         <ActionListModal
           title={`Scanning Blockchain ${this.state.coin}${this.state.progress}`}
-          isCloseable={true}
+          isCloseable={!this.state.isInProgress}
           actions={actions}
           error={error}
           handleClose={this.resetState}
-          show={isCheckingRewards}>
-          <p>
-            Exporting public keys from your {VENDOR[this.props.vendor]} device, scanning the blockchain for funds, and calculating any claimable rewards. Please approve any public key export requests on your device.
-          </p>
+          show={isCheckingRewards}
+          className="Scan-balances-modal"
+          childrenPosition="bottom"
+          topText={`Exporting public keys from your ${VENDOR[this.props.vendor]} device, scanning the blockchain for funds, and calculating any claimable rewards. Please approve any public key export requests on your device.`}>
           {this.state.balances &&
            this.state.balances.length > 0 &&
             <React.Fragment>{this.renderCoinBalances()}</React.Fragment>
@@ -238,6 +260,14 @@ class CheckAllBalancesButton extends React.Component {
             <p>
               <strong>No active balances are found</strong>
             </p>
+          }
+          {!this.state.isInProgress &&
+            this.state.balances.length > 0 &&
+            <button
+              className="button is-primary"
+              onClick={this.confirm}>
+              Confirm
+            </button>
           }
         </ActionListModal>
       </React.Fragment>

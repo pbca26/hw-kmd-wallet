@@ -515,7 +515,7 @@ const broadcastTx = async(coin, rawtx) => {
   });
 };
 
-pcMain.on('spvGetAddress', (e, {ruid, coin, address}) => {
+ipcMain.on('spvGetAddress', (e, {ruid, coin, address}) => {
   if (mainWindow) {
     console.warn(`${coin} spvGetAddress called`);
     getAddress(coin, address).then(result => {

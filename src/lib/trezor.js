@@ -1,5 +1,6 @@
 import TrezorConnect from 'trezor-connect';
 import {KOMODO} from '../constants';
+import {writeLog} from '../Debug';
 
 const init = () => {
   // this will work only on localhost
@@ -35,7 +36,7 @@ const getUniqueInputs = utxos => {
     }
   }
 
-  console.warn(`total utxos ${utxos.length} | unique utxos ${uniqueTxids.length}`);
+  writeLog(`total utxos ${utxos.length} | unique utxos ${uniqueTxids.length}`);
   
   return uniqueInputs;
 };
@@ -110,7 +111,8 @@ const createTransaction = async (utxos, outputs, isKMD) => {
         }),
         bin_outputs: refTx.outputs.map((output) => {
           return {
-            amount: Number((Number(output.value).toFixed(8) * 100000000).toFixed(0)),
+            amount: output.hasOwnProperty('satoshis') ? output.satoshis.toString() : output.value.replace('.', ''),
+            //amount: output.value.replace('.', ''),
             script_pubkey: output.scriptPubKey.hex,
           };
         }),
@@ -146,10 +148,10 @@ const createTransaction = async (utxos, outputs, isKMD) => {
   .then((res) => {
     if (res.payload.hasOwnProperty('error')) {
       if (window.location.href.indexOf('devmode') > -1) {
-        console.warn('trezor tx obj', tx);
-        console.warn('trezor signTransaction error', res);
+        writeLog('trezor tx obj', tx);
+        writeLog('trezor signTransaction error', res);
       }
-      return null;
+      return {err: res.payload};
     } else {
       return res.payload.serializedTx;
     }

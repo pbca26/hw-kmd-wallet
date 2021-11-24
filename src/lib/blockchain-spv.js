@@ -4,6 +4,7 @@ import {
   ipcRenderer,
   isElectron,
 } from '../Electron';
+import {writeLog} from '../Debug';
 
 let coin = 'kmd';
 let data = {};
@@ -11,50 +12,50 @@ let pendingCalls = {};
 let ruid = 0;
 let intervals = {};
 
-setInterval(() => {
-  console.warn('pendingCalls', pendingCalls);
-}, 1000);
-
 if (isElectron) {
+  setInterval(() => {
+    writeLog('pendingCalls', pendingCalls);
+  }, 1000);
+  
   ipcRenderer.on('spvGetAddress', (event, arg) => {
-    console.warn('spvGetAddress arg', arg);
-    if (arg === -777) console.warn('spvGetAddress', 'failed!');
+    writeLog('spvGetAddress arg', arg);
+    if (arg === -777) writeLog('spvGetAddress', 'failed!');
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('spvGetUtxo', (event, arg) => {
-    console.warn('spvGetUtxo arg', arg);
-    if (arg === -777) console.warn('spvGetUtxo', 'failed!');
+    writeLog('spvGetUtxo arg', arg);
+    if (arg === -777) writeLog('spvGetUtxo', 'failed!');
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('spvGetHistory', (event, arg) => {
-    console.warn('spvGetHistory arg', arg);
-    if (arg === -777) console.warn('spvGetHistory', 'failed!');
+    writeLog('spvGetHistory arg', arg);
+    if (arg === -777) writeLog('spvGetHistory', 'failed!');
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('spvGetCurrentBlock', (event, arg) => {
-    console.warn('spvGetCurrentBlock arg', arg);
-    if (arg === -777) console.warn('spvGetCurrentBlock', 'failed!');
+    writeLog('spvGetCurrentBlock arg', arg);
+    if (arg === -777) writeLog('spvGetCurrentBlock', 'failed!');
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('spvGetRawTransaction', (event, arg) => {
-    console.warn('spvGetRawTransaction arg', arg);
-    if (arg === -777) console.warn('spvGetRawTransaction', 'failed!');
+    writeLog('spvGetRawTransaction arg', arg);
+    if (arg === -777) writeLog('spvGetRawTransaction', 'failed!');
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('spvGetTransaction', (event, arg) => {
-    console.warn('spvGetTransaction arg', arg);
-    if (arg === -777) console.warn('spvGetTransaction', 'failed!');
+    writeLog('spvGetTransaction arg', arg);
+    if (arg === -777) writeLog('spvGetTransaction', 'failed!');
     else data[arg.ruid] = arg.result;
   });
 
   ipcRenderer.on('spvBroadcastTransaction', (event, arg) => {
-    console.warn('spvBroadcastTransaction arg', arg);
-    if (arg === -777) console.warn('spvBroadcastTransaction', 'failed!');
+    writeLog('spvBroadcastTransaction arg', arg);
+    if (arg === -777) writeLog('spvBroadcastTransaction', 'failed!');
     else data[arg.ruid] = arg.result;
   });
 }
@@ -63,11 +64,11 @@ if (isElectron) {
 const getData = (ruid, payload) => {
   return new Promise((resolve, reject) => {
     if (!data[ruid]) {
-      console.warn(`data ruid ${ruid} not available yet, set interval`, ruid);
+      writeLog(`data ruid ${ruid} not available yet, set interval`, ruid);
 
       intervals[ruid] = setInterval((ruid) => {
         if (data[ruid]) {
-          console.warn(`data ruid ${ruid} available, clear interval`, data[ruid]);
+          writeLog(`data ruid ${ruid} available, clear interval`, data[ruid]);
           clearInterval(intervals[ruid]);
           delete pendingCalls[ruid];
           resolve(data[ruid]);
@@ -76,7 +77,7 @@ const getData = (ruid, payload) => {
         }
       }, 100, ruid);
     } else {
-      console.warn(`data ruid ${ruid} available`, data[ruid]);
+      writeLog(`data ruid ${ruid} available`, data[ruid]);
       delete pendingCalls[ruid];
       resolve(data[ruid]);
     }
@@ -88,13 +89,13 @@ const setCoin = (name) => {
 };
 
 const getAddress = address => {
-  console.warn(`spv ${coin}`, `getAddress for ${address}`);
+  writeLog(`spv ${coin}`, `getAddress for ${address}`);
   ruid++;
   ipcRenderer.send('spvGetAddress', {coin, address, ruid});
 
   return new Promise(async(resolve, reject) => {
     const _data = await getData(ruid, {coin, type: 'getAddress', address});
-    console.warn('spvGetAddress ready', _data);
+    writeLog('spvGetAddress ready', _data);
     resolve(_data);
   });
 }
@@ -104,13 +105,13 @@ const getAddress = address => {
 //const getHistory = addresses => get(`addrs/txs`, {addrs: addresses.join(',')});
 
 const getHistory = addresses => {
-  console.warn(`spv ${coin}`, `getHistory for ${addresses.join(',')}`);
+  writeLog(`spv ${coin}`, `getHistory for ${addresses.join(',')}`);
   ruid++;
   ipcRenderer.send('spvGetHistory', {coin, addresses, ruid});
 
   return new Promise(async(resolve, reject) => {
     const _data = await getData(ruid, {coin, type: 'getHistory', addresses});
-    console.warn('spvGetHistory ready', _data);
+    writeLog('spvGetHistory ready', _data);
     resolve(_data);
   });
 
@@ -118,13 +119,13 @@ const getHistory = addresses => {
 }
 
 const getUtxos = addresses => {
-  console.warn(`spv ${coin}`, `getUtxo for ${addresses.join(',')}`);
+  writeLog(`spv ${coin}`, `getUtxo for ${addresses.join(',')}`);
   ruid++;
   ipcRenderer.send('spvGetUtxo', {coin, addresses, ruid});
 
   return new Promise(async(resolve, reject) => {
     const _data = await getData(ruid, {coin, type: 'getUtxos', addresses, ruid});
-    console.warn('spvGetUtxo ready', _data);
+    writeLog('spvGetUtxo ready', _data);
     resolve(_data);
   });
 
@@ -132,13 +133,13 @@ const getUtxos = addresses => {
 }
 
 const getTransaction = txid => {
-  console.warn(`spv ${coin}`, 'getTransaction');
+  writeLog(`spv ${coin}`, 'getTransaction');
   ruid++;
   ipcRenderer.send('spvGetTransaction', {coin, ruid, txid});
 
   return new Promise(async(resolve, reject) => {
     const _data = await getData(ruid, {coin, type: 'getTransaction', txid});
-    console.warn('spvGetTransaction ready', _data);
+    writeLog('spvGetTransaction ready', _data);
     resolve(_data);
   });
 
@@ -146,13 +147,13 @@ const getTransaction = txid => {
 };
 
 const getRawTransaction = txid => {
-  console.warn(`spv ${coin}`, 'getRawTransaction');
+  writeLog(`spv ${coin}`, 'getRawTransaction');
   ruid++;
   ipcRenderer.send('spvGetRawTransaction', {coin, ruid, txid});
 
   return new Promise(async(resolve, reject) => {
     const _data = await getData(ruid, {coin, type: 'getRawTransaction', txid});
-    console.warn('spvGetRawTransaction ready', _data);
+    writeLog('spvGetRawTransaction ready', _data);
     resolve({rawtx: _data});
   });
 
@@ -166,25 +167,25 @@ const getRawTransaction = txid => {
   return block.time;
 };*/
 const getTipTime = async () => {
-  console.warn(`spv ${coin}`, 'getTipTime');
+  writeLog(`spv ${coin}`, 'getTipTime');
   ruid++;
   ipcRenderer.send('spvGetCurrentBlock', {coin, ruid});
 
   return new Promise(async(resolve, reject) => {
     const _data = await getData(ruid, {coin, type: 'getTipTime'});
-    console.warn('spvGetCurrentBlock ready', _data);
+    writeLog('spvGetCurrentBlock ready', _data);
     resolve(_data.timestamp);
   });
 };
 
 const broadcast = async (rawtx) => {
-  console.warn(`spv ${coin}`, 'broadcast');
+  writeLog(`spv ${coin}`, 'broadcast');
   ruid++;
   ipcRenderer.send('spvBroadcastTransaction', {coin, ruid, rawtx});
 
   return new Promise(async(resolve, reject) => {
     const _data = await getData(ruid);
-    console.warn('spvBroadcastTransaction ready', _data);
+    writeLog('spvBroadcastTransaction ready', _data);
     resolve(_data);
   });
 };
