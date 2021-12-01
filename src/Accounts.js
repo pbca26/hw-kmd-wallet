@@ -163,7 +163,6 @@ const Accounts = ({
         {coins[activeCoin].accounts[activeAccount].claimableAmount > 0 &&
           <ClaimRewardsButton
             account={coins[activeCoin].accounts[activeAccount]}
-            handleRewardClaim={this.handleRewardClaim}
             vendor={vendor}
             balance={coins[activeCoin].accounts[activeAccount].balance}
             syncData={syncData}
@@ -180,8 +179,7 @@ const Accounts = ({
     <Transactions
       accounts={coins[activeCoin].accounts.filter((acc) => acc.enabled)}
       activeAccount={activeAccount}
-      coin={activeCoin}
-      />
+      coin={activeCoin} />
   </div>
 );
 

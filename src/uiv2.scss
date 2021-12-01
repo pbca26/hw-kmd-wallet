@@ -793,3 +793,11 @@ select:-moz-focusring {
     font-size: 0.75rem;
   }
 }
+
+.Modal-about {
+  a,
+  a:hover {
+    text-decoration: underline;
+    color: #121958 !important;
+  }
+}

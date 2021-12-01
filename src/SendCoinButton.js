@@ -412,7 +412,6 @@ class SendCoinButton extends React.Component {
           }
           updateActionState(this, currentAction, true);
 
-          this.props.handleRewardClaim(txid);
           this.setState({
             success: 
               <React.Fragment>

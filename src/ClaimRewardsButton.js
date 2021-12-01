@@ -9,12 +9,10 @@ const ClaimRewardsButton = ({
   syncData,
   coin,
   tiptime,
-  handleRewardClaim,
   claimableAmount,
 }) => (
   <SendCoinButton
     account={account}
-    handleRewardClaim={handleRewardClaim}
     vendor={vendor}
     balance={balance}
     syncData={syncData}

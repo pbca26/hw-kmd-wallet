@@ -112,7 +112,7 @@ const coins = {
     ],
   },
   RICK: {
-    explorer: 'https://rick.kmd.dev/',
+    explorer: 'https://rick.explorer.dexstats.info/',
     api: [
       'https://explorer.komodoplatform.com:10000/rick/api/',
       'https://rick.explorer.dexstats.info/insight-api-komodo/',
@@ -120,7 +120,7 @@ const coins = {
     ],
   },
   MORTY: {
-    explorer: 'https://morty.kmd.dev/',
+    explorer: 'https://morty.explorer.dexstats.info/',
     api: [
       'https://morty.explorer.dexstats.info/insight-api-komodo/',
       'https://explorer.komodoplatform.com:10000/morty/api/',

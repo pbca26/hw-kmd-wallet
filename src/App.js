@@ -697,7 +697,6 @@ class App extends React.Component {
             vendor={this.state.vendor}
             accounts={this.state.activeCoin ? this.state.coins[this.state.activeCoin].accounts : []}
             syncData={this.syncData}
-            handleRewardClaim={this.handleRewardClaim}
             loginModalClosed={this.state.loginModalClosed}
             setVendor={this.setVendor} />
 
