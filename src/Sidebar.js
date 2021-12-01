@@ -4,6 +4,10 @@ import SendCoinButton from './SendCoinButton';
 import ReceiveCoinButton from './ReceiveCoinButton';
 import SettingsModal from './SettingsModal';
 import {writeLog} from './Debug';
+import {
+  isElectron,
+  shell,
+} from './Electron';
 
 class Sidebar extends React.Component {
   state = this.initialState;
@@ -54,7 +58,14 @@ class Sidebar extends React.Component {
               setVendor={this.props.setVendor} />
           }
           <li>
-            <a href="https://github.com/pbca26/hw-kmd-wallet/issues/new"><i className="fa fa-life-ring"></i></a>
+            {isElectron &&
+              <a onClick={() => shell.openExternal('https://github.com/pbca26/hw-kmd-wallet/issues/new')}><i className="fa fa-life-ring"></i></a>
+            }
+            {!isElectron &&
+              <a
+                target="_blank"
+                href="https://github.com/pbca26/hw-kmd-wallet/issues/new"><i className="fa fa-life-ring"></i></a>
+            }
           </li>
           <AboutModal />
         </ul>
