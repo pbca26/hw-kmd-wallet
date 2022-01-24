@@ -13,6 +13,7 @@ import {
   isElectron,
   appData,
 } from './Electron';
+import {writeLog} from './Debug';
 
 const headings = [
   'Coin',
@@ -88,7 +89,7 @@ class CheckAllBalancesButton extends React.Component {
         let longestBlockHeight = 0;
         let apiEndPointIndex = 0;
     
-        console.warn('checkExplorerEndpoints', getInfoRes);
+        writeLog('checkExplorerEndpoints', getInfoRes);
         
         for (let i = 0; i < coins[coin].api.length; i++) {
           if (getInfoRes[i] &&
@@ -101,7 +102,7 @@ class CheckAllBalancesButton extends React.Component {
           }
         }
 
-        console.warn(`${coin} set api endpoint to ${coins[coin].api[apiEndPointIndex]}`);
+        writeLog(`${coin} set api endpoint to ${coins[coin].api[apiEndPointIndex]}`);
         blockchain[blockchainAPI].setExplorerUrl(coins[coin].api[apiEndPointIndex]);
         isExplorerEndpointSet = true;
     
@@ -114,7 +115,7 @@ class CheckAllBalancesButton extends React.Component {
             ...this.initialState,
             isCheckingRewards: true,
             coin,
-            progress: ` (${index + 1}/${coinTickers.length})`,
+            progress: coinTickers.length > 1 ? ` (${index + 1}/${coinTickers.length})` : '',
             balances,
             isInProgress: true,
           });
@@ -162,7 +163,7 @@ class CheckAllBalancesButton extends React.Component {
             });
             //this.setState({...this.initialState});
           } catch (error) {
-            console.warn(error);
+            writeLog(error);
             updateActionState(this, currentAction, false);
             this.setState({error: error.message});
           }
@@ -188,7 +189,7 @@ class CheckAllBalancesButton extends React.Component {
       });
     }
 
-    console.warn(this.state);
+    writeLog(this.state);
     
     blockchain[blockchainAPI].setExplorerUrl(this.props.explorerEndpoint);
   };

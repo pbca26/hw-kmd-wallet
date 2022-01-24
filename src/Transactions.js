@@ -115,6 +115,7 @@ class Transactions extends React.Component {
             <TransactionViewModal
               coin={coin}
               tx={this.state.txDetails}
+              activeAccount={activeAccount}
               />
           </div>
         }

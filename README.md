@@ -7,7 +7,7 @@
 ## Supported browsers
 Current version is tested to work in Chrome. Other browser like Opera or Firefox might not work well in WEB USB mode.
 
-Also, you can consult with this page to see if your browser is capable to commuicate with Ledger/Trezor device [U2F](https://caniuse.com/#feat=u2f), [WEBUSB](https://caniuse.com/#feat=webusb).
+Also, you can consult with this page to see if your browser is capable to commuicate with Ledger/Trezor device [WEBUSB](https://caniuse.com/#feat=webusb).
 
 ## Usage on Ledger
 

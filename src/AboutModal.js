@@ -5,6 +5,10 @@ import {
   repository,
   version,
 } from '../package.json';
+import {
+  isElectron,
+  shell,
+} from './Electron';
 //import './AboutModal.scss';
 
 class AboutModal extends React.Component {
@@ -28,11 +32,30 @@ class AboutModal extends React.Component {
     });
   }
 
+  renderLink(href, title) {
+    return (
+      <React.Fragment>
+        {isElectron &&
+          <a onClick={() => shell.openExternal(href)}>{title}</a>
+        }
+        {!isElectron &&
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href={href}>{title}</a>
+        }
+      </React.Fragment>
+    );
+  }
+
   render() {
     return (
       <React.Fragment>
         <li onClick={() => this.open()}>
           <i className="fa fa-copyright"></i>
+          {this.props.sidebarSize === 'full' &&
+            <span className="sidebar-item-title">About</span>
+          }
         </li>
         <Modal
           title="About"
@@ -41,12 +64,12 @@ class AboutModal extends React.Component {
           isCloseable={true}
           className="Modal-about">
           <p>
-            <strong>KMD hardware wallet</strong> by <a target="_blank" rel="noopener noreferrer" href="https://github.com/atomiclabs">Atomic Labs</a> and <a target="_blank" rel="noopener noreferrer" href="https://github.com/komodoplatform">Komodo Platform</a>.
+            <strong>KMD hardware wallet</strong> by {this.renderLink('https://github.com/atomiclabs', 'Atomic Labs')} and {this.renderLink('https://github.com/komodoplatform', 'Komodo Platform')}.
           </p>
           <p>
-            The <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}`}>source code</a> is licensed under <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}/blob/master/LICENSE`}>MIT</a>.
+            The {this.renderLink(`https://github.com/${repository}`, 'source code')} is licensed under {this.renderLink(`https://github.com/${repository}/blob/master/LICENSE`, 'MIT')}.
             <br />
-            View the <a target="_blank" rel="noopener noreferrer" href={`https://github.com/${repository}#usage`}>README</a> for usage instructions.
+            View the {this.renderLink(`https://github.com/${repository}#usage`, 'README')} for usage instructions.
           </p>
         </Modal>
       </React.Fragment>

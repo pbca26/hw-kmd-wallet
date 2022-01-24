@@ -62,4 +62,15 @@ export const SETTINGS = {
     10: '10 (default)',
   },
   ACCOUNT_INDEX_LIMIT: 30,
+  SIDEBAR: {
+    'full': 'Full size',
+    'short': 'Compact size (icons only)',
+  },
+  AUTOLOCK: {
+    0: 'Never',
+    300: '5 min',
+    600: '10 min',
+    1800: '30 min',
+    3200: '60 min',
+  },
 };

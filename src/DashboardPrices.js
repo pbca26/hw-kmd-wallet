@@ -1,19 +1,4 @@
-// TODO: pull prices from CG or similar
-
 import React from 'react';
-const assets = [{
-  coin: 'VRSC',
-  price: 1.2,
-  change: 30,
-}, {
-  coin: 'DEX',
-  price: 20,
-  change: 1.5,
-}, {
-  coin: 'KMD',
-  price: 3.5,
-  change: -6.5,
-}];
 
 class DashboardPrices extends React.Component {
   state = this.initialState;
@@ -24,6 +9,10 @@ class DashboardPrices extends React.Component {
   };
 
   render() {
+    const coins = ['KMD', 'VRSC', 'TOKEL'];
+    const {prices} = this.props;
+    const coinPriceTickers = Object.keys(prices);
+
     return (
       <div className="assets-price-block">
         <h4>Assets</h4>
@@ -32,22 +21,38 @@ class DashboardPrices extends React.Component {
             <thead>
               <tr>
                 <th>Currency</th>
-                <th>Price</th>
-                <th>Change</th>
+                <th>Price, $</th>
+                <th>Change, %</th>
               </tr>
             </thead>
-            <tbody>
-              {assets.map((item, index) => (
-                <tr key={`prices-${item.coin}`}>
-                  <td>
-                    <img src={`coins/${item.coin}.png`} />
-                    <span className="coin-name">{item.coin}</span>
-                  </td>
-                  <td>{item.price}</td>
-                  <td>{item.change}</td>
-                </tr>
-              ))}
-            </tbody>
+            {!coinPriceTickers.length &&
+              <tbody>
+                {coins.map((item, index) => (
+                  <tr key={`prices-${item}`}>
+                    <td>
+                      <img src={`coins/${item}.png`} />
+                      <span className="coin-name">{item}</span>
+                    </td>
+                    <td>...</td>
+                    <td>...</td>
+                  </tr>
+                ))}
+              </tbody>
+            }
+            {coinPriceTickers.length > 0 &&
+              <tbody>
+                {coinPriceTickers.map((item, index) => (
+                  <tr key={`prices-${item}`}>
+                    <td>
+                      <img src={`coins/${item}.png`} />
+                      <span className="coin-name">{item}</span>
+                    </td>
+                    <td>{prices[item].price}</td>
+                    <td>{prices[item].perc}</td>
+                  </tr>
+                ))}
+              </tbody>
+            }
           </table>
         </div>
       </div>

@@ -13,79 +13,98 @@ if (!localStorage.getItem(rootVar)) {
 export const resetLocalStorage = () => {
   pw = null;
 
+  if (isElectron) {
+    helpers.setPW();
+  }
+  localStorageCache = {};
   localStorage.setItem(rootVar, '');
 };
 
 export const setLocalStoragePW = (_pw) => {
   pw = _pw;
 
+  localStorageCache = {};
+
+  if (isElectron) {
+    helpers.setPW(_pw);
+  }
   //writeLog('localStorage pw set to: ', pw);
 };
 
 export const decodeStoredData = () => {
-  if (!isElectron) {
+  if (!pw) {
     return new Promise((resolve, reject) => {
-      if (localStorage.getItem(rootVar).length) {
-        createAdapter()
-        .decrypt(localStorage.getItem(rootVar), pw)
-        .catch((err) => {
-          resolve(false);
-        })
-        .then(decryptedString => {
-          //writeLog('decryptedString', decryptedString);
-          
-          localStorageCache = decryptedString ? JSON.parse(decryptedString) : {};
-          resolve(true);
-        });
-      } else {
-        resolve(false);
-      }
+      resolve(false);
     });
   } else {
-    return new Promise((resolve, reject) => {
-      if (localStorage.getItem(rootVar).length) {
-        helpers.decodeStoredData(localStorage.getItem(rootVar), pw)
-        .catch((err) => {
+    if (!isElectron) {
+      return new Promise((resolve, reject) => {
+        if (localStorage.getItem(rootVar).length) {
+          createAdapter()
+          .decrypt(localStorage.getItem(rootVar), pw)
+          .catch((err) => {
+            resolve(false);
+          })
+          .then(decryptedString => {
+            //writeLog('decryptedString', decryptedString);
+            //writeLog('decryptedString', JSON.parse(decryptedString));
+            
+            localStorageCache = decryptedString ? JSON.parse(decryptedString) : {};
+            resolve(true);
+          });
+        } else {
           resolve(false);
-        })
-        .then(decryptedString => {
-          //writeLog('decryptedString', decryptedString);
-          
-          localStorageCache = decryptedString ? JSON.parse(decryptedString) : {};
-          resolve(true);
-        });
-      } else {
-        resolve(false);
-      }
-    });
+        }
+      });
+    } else {
+      return new Promise((resolve, reject) => {
+        if (localStorage.getItem(rootVar).length) {
+          helpers.decodeStoredData(localStorage.getItem(rootVar), pw)
+          .catch((err) => {
+            resolve(false);
+          })
+          .then(decryptedString => {
+            //writeLog('decryptedString', decryptedString);
+            
+            localStorageCache = decryptedString ? JSON.parse(decryptedString) : {};
+            resolve(true);
+          });
+        } else {
+          resolve(false);
+        }
+      });
+    }
   }
 };
 
 export const encodeStoredData = (str) => {
-  if (!isElectron) {
-    createAdapter()
-    .encrypt(str, pw)
-    .catch((err) => {
-      writeLog('encodeStoredData error', err);
-    })
-    .then(encryptedString => {
-      localStorage.setItem(rootVar, encryptedString);
-    });
-  } else {
-    helpers.encodeStoredData(str, pw)
-    .catch((err) => {
-      writeLog('encodeStoredData error', err);
-    })
-    .then(encryptedString => {
-      //writeLog('encryptedString', encryptedString);
-      localStorage.setItem(rootVar, encryptedString);
-    });
+  if (pw) {
+    if (!isElectron) {
+      createAdapter()
+      .encrypt(str, pw)
+      .catch((err) => {
+        writeLog('encodeStoredData error', err);
+      })
+      .then(encryptedString => {
+        localStorage.setItem(rootVar, encryptedString);
+      });
+    } else {
+      helpers.encodeStoredData(str, pw)
+      .catch((err) => {
+        writeLog('encodeStoredData error', err);
+      })
+      .then(encryptedString => {
+        //writeLog('encryptedString', encryptedString);
+        localStorage.setItem(rootVar, encryptedString);
+      });
+    }
   }
 };
 
 export const setLocalStorageVar = (name, json) => {
   return new Promise((resolve, reject) => {
     let _var = {};
+    //writeLog('localStorageCache', localStorageCache);
     
     try {
       _var = localStorageCache[name] || {};
@@ -97,10 +116,10 @@ export const setLocalStorageVar = (name, json) => {
       _var[key] = json[key];
     }
 
-    //writeLog('_var', _var);
+    writeLog('_var', _var);
 
-    localStorageCache[name] = json;
-
+    localStorageCache[name] = Array.isArray(json) ? json : Object.assign({}, localStorageCache[name], _var);
+    
     encodeStoredData(JSON.stringify(localStorageCache));
     resolve(true);
   });

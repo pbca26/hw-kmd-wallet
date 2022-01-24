@@ -3,23 +3,36 @@ import Modal from './Modal';
 import CheckAllBalancesButton from './CheckAllBalancesButton';
 import apiEndpoints from './lib/coins';
 import './AddCoinModal.scss';
+import {setConfigVar} from './lib/account-discovery';
 
 class SelectCoinModal extends React.Component {
   state = this.initialState;
   
   get initialState() {
     this.close = this.close.bind(this);
-
+    this.setAirdropDiscovery = this.setAirdropDiscovery.bind(this);
+    this.isAirdropCoins = this.isAirdropCoins.bind(this);
+    
     return {
       isClosed: true,
+      enableAirdropDiscovery: false,
       selectedCoins: [],
       coinsList: [],
     };
   };
 
+  setAirdropDiscovery() {
+    setConfigVar('discoveryGapLimit', !this.state.enableAirdropDiscovery ? 100 : 20);
+
+    this.setState({
+      enableAirdropDiscovery: !this.state.enableAirdropDiscovery,
+    });
+  }
+
   close() {
     this.setState({
       isClosed: true,
+      enableAirdropDiscovery: false,
       selectedCoins: [],
       coinsList: [],
     });
@@ -51,7 +64,17 @@ class SelectCoinModal extends React.Component {
     });
   }
 
+  isAirdropCoins() {
+    const selectCoins = this.state.selectedCoins;
+
+    for (let i = 0; i < selectCoins.length; i++) {
+      if (apiEndpoints[selectCoins[i]].airdrop) return true;
+    }
+  }
+
   render() {
+    console.warn(this.state.selectedCoins);
+
     return (
       <React.Fragment>
         <div
@@ -82,6 +105,29 @@ class SelectCoinModal extends React.Component {
           </div>
           {this.state.selectedCoins.length > 0 &&
             <div className="modal-action-block center">
+              {this.isAirdropCoins() &&
+                <div className="select-coin-airdrop-settings">
+                  <span className="slider-text">Enable airdrop funds discovery</span>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      name="enableAirdropDiscovery"
+                      value={this.state.enableAirdropDiscovery}
+                      checked={this.state.enableAirdropDiscovery}
+                      readOnly />
+                    <span
+                      className="slider round"
+                      onClick={this.setAirdropDiscovery}></span>
+                  </label>
+                  {this.state.enableAirdropDiscovery &&
+                    <p>
+                      <small>
+                        <strong>Notice:</strong> advanced address discovery settings will result in longer processing time!
+                      </small>
+                    </p>
+                  }
+                </div>
+              }
               <CheckAllBalancesButton
                 handleScanData={this.props.handleScanData}
                 checkTipTime={this.props.checkTipTime}

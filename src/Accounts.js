@@ -11,9 +11,11 @@ import './Account.scss';
 import {
   isElectron,
   appData,
+  shell,
 } from './Electron';
 import {writeLog} from './Debug';
 import {getLocalStorageVar} from './lib/localstorage-util';
+import coinsList from './lib/coins';
 
 class Account extends React.Component {
   state = this.initialState;
@@ -155,6 +157,18 @@ const Accounts = ({
         </table>
       </div>
     </div>
+    {coinsList[activeCoin].airdrop &&
+      <div className="accounts-airdop-helper-link">
+        {isElectron &&
+          <a onClick={() => shell.openExternal('https://github.com/pbca26/hw-kmd-wallet/wiki/How-to-use-address-discovery-options-to-claim-airdrop-coins')}>Unable to find airdrop coins?</a>
+        }
+        {!isElectron &&
+          <a
+            target="_blank"
+            href="https://github.com/pbca26/hw-kmd-wallet/wiki/How-to-use-address-discovery-options-to-claim-airdrop-coins">Unable to find airdrop coins?</a>
+        }
+      </div>
+    }
     {activeCoin === 'KMD' &&
      activeAccount !== null &&
      coins[activeCoin].accounts[activeAccount].balance > 0 &&
@@ -163,7 +177,6 @@ const Accounts = ({
         {coins[activeCoin].accounts[activeAccount].claimableAmount > 0 &&
           <ClaimRewardsButton
             account={coins[activeCoin].accounts[activeAccount]}
-            handleRewardClaim={this.handleRewardClaim}
             vendor={vendor}
             balance={coins[activeCoin].accounts[activeAccount].balance}
             syncData={syncData}
@@ -180,8 +193,7 @@ const Accounts = ({
     <Transactions
       accounts={coins[activeCoin].accounts.filter((acc) => acc.enabled)}
       activeAccount={activeAccount}
-      coin={activeCoin}
-      />
+      coin={activeCoin} />
   </div>
 );
 

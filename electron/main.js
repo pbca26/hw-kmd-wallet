@@ -22,12 +22,13 @@ const {createAdapter} = require('iocane');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let pw;
 
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1024,
+    height: 768,
     webPreferences: {
       nativeWindowOpen: true, // <-- important for trezor
       nodeIntegration: true,
@@ -36,6 +37,7 @@ function createWindow() {
     },
   });
 
+  // TODO: refactor
   require("@electron/remote/main").enable(mainWindow.webContents);
 
   require(path.join(__dirname, 'menu'));
@@ -57,7 +59,7 @@ function createWindow() {
     { role: 'selectall' },
   ]);
 
-  const decodeStoredData = (str, pw) => {
+  const decodeStoredData = (str/*, pw*/) => {
     return new Promise((resolve, reject) => {
       if (str.length) {
         createAdapter()
@@ -76,7 +78,7 @@ function createWindow() {
     });
   };
 
-  const encodeStoredData = (str, pw) => {
+  const encodeStoredData = (str/*, pw*/) => {
     return new Promise((resolve, reject) => {
       createAdapter()
       .encrypt(str, pw)
@@ -90,6 +92,13 @@ function createWindow() {
     });
   };
 
+  const getPW = () => {
+    return pw;
+  };
+  const setPW = (_pw) => {
+    pw = _pw;
+  };
+
   global.app = {
     isDev,
     noFWCheck: true,
@@ -98,6 +107,8 @@ function createWindow() {
     helpers: {
       decodeStoredData,
       encodeStoredData,
+      getPW,
+      setPW,
     },
   };
 
@@ -124,7 +135,7 @@ function createWindow() {
   });
 
   // Emitted when the window is closed.
-  mainWindow.on('closed', function() {
+  mainWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
@@ -142,7 +153,7 @@ function createWindow() {
 app.on('ready', createWindow);
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin' || isDev) {
@@ -150,7 +161,7 @@ app.on('window-all-closed', function() {
   }
 });
 
-app.on('activate', function() {
+app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {

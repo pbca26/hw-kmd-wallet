@@ -66,66 +66,66 @@ const transactionsHistory = {
   "decoded": {
     "partial": [
       {
-        "amount":0.15989999,
-        "confirmations":0,
-        "date":"pending",
-        "height":"unknown",
-        "timestamp":"pending",
-        "txid":"1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
-        "type":"received"
+        "amount": 0.15989999,
+        "confirmations": 0,
+        "date": "pending",
+        "height": "unknown",
+        "timestamp": "pending",
+        "txid": "1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
+        "type": "received"
       }
     ],
     "received": [
       {
-        "amount":0.15989999,
-        "confirmations":580297,
-        "date":"15 Nov 2017 11:26",
-        "height":100,
-        "timestamp":1510734416,
-        "txid":"1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
-        "type":"received"
+        "amount": 0.15989999,
+        "confirmations": 580297,
+        "date": "15 Nov 2017 11:26",
+        "height": 100,
+        "timestamp": 1510734416,
+        "txid": "1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
+        "type": "received"
       }
     ],
     "receivedNoAddress": [
       {
-        "amount":0.0001,
+        "amount": 0.0001,
         "confirmations": 580297,
-        "date":"15 Nov 2017 11:26",
-        "height":100,
-        "timestamp":1510734416,
-        "txid":"1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
-        "type":"sent"
+        "date": "15 Nov 2017 11:26",
+        "height": 100,
+        "timestamp": 1510734416,
+        "txid": "1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
+        "type": "sent"
       }
     ],
     "sent": [
       {
-        "type":"sent",
-        "amount":0.9999,
-        "timestamp":1520734416,
-        "date":"11 Mar 2018 05:13",
-        "txid":"1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
-        "height":110,
-        "confirmations":580297
+        "type": "sent",
+        "amount": 0.9999,
+        "timestamp": 1520734416,
+        "date": "11 Mar 2018 05:13",
+        "txid": "1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
+        "height": 110,
+        "confirmations": 580297
       }
     ],
     "sortedASC": [
       {
-        "amount":0.9999,
-        "confirmations":580297,
-        "date":"11 Mar 2018 05:13",
-        "height":110,
-        "timestamp":1520734416,
-        "txid":"1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
-        "type":"sent"
+        "amount": 0.9999,
+        "confirmations": 580297,
+        "date": "11 Mar 2018 05:13",
+        "height": 110,
+        "timestamp": 1520734416,
+        "txid": "1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
+        "type": "sent"
       },
       {
-        "amount":0.15989999,
-        "confirmations":580297,
-        "date":"15 Nov 2017 11:26",
-        "height":100,
-        "timestamp":1510734416,
-        "txid":"1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
-        "type":"received"
+        "amount": 0.15989999,
+        "confirmations": 580297,
+        "date": "15 Nov 2017 11:26",
+        "height": 100,
+        "timestamp": 1510734416,
+        "txid": "1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
+        "type": "received"
       }
     ]
   },

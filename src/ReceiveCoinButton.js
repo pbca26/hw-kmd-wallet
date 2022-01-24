@@ -189,6 +189,9 @@ class ReceiveCoinButton extends React.Component {
       <React.Fragment>
         <li onClick={this.open}>
           <i className="fa fa-paper-plane plane-icon-invert"></i>
+          {this.props.sidebarSize === 'full' &&
+            <span className="sidebar-item-title">Receive</span>
+          }
         </li>
         <ActionListModal
           title="Receive coin"

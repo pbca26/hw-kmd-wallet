@@ -4,7 +4,7 @@
 
     li,
     li:hover {
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       border: none;
       text-align: left;
       cursor: default;
@@ -21,5 +21,11 @@
 
   .slider-text {
     margin-right: 20px;
+  }
+
+  .settings-modal-import-area {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
   }
 }

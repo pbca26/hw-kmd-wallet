@@ -7,8 +7,8 @@
   color: #fff;
   z-index: 100;
 
-  ul {
-    li {
+  > ul {
+    > li {
       text-align: center;
       padding: 20px 0;
       border-left: solid 4px #121958;
@@ -17,6 +17,11 @@
         font-size: 22px;
         position: relative;
         left: -4px;
+      }
+
+      * > i,
+      > i {
+        width: 30px !important;
       }
 
       &:hover {
@@ -30,6 +35,8 @@
 
       .plane-icon-invert {
         transform: rotate(175deg);
+
+        left: -10px;
       }
     }
   }
@@ -37,6 +44,33 @@
   a,
   a:hover {
     color: #fff !important;
+  }
+
+  &.sidebar-full {
+    width: 200px;
+
+    > ul {
+      > li {
+        text-align: left;
+        padding-left: 20px;
+
+        .sidebar-item-title {
+          position: relative;
+          left: 5px;
+          top: -2px;
+        }
+      }
+    }
+  }
+
+  .sidebar-item-no-pad {
+    padding: 0;
+
+    a {
+      display: block;
+      padding: 20px 0;
+      text-decoration: none;
+    }
   }
 }
 
@@ -122,6 +156,10 @@
   .vendor-trezor,
   .vendor-ledger {
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  &.main-full {
+    margin-left: 200px;
   }
 }
 
@@ -310,6 +348,15 @@
 .dashboard {
   .hw-graphic {
     top: 60% !important;
+  }
+
+  .container.content.content-init-hw-vendor {
+    padding-top: 30px !important;
+    text-align: left;
+  
+    .hw-graphic {
+      top: -45px !important;
+    }
   }
 }
 
@@ -654,6 +701,7 @@ select.minimal:focus {
   background-size: 5px 5px, 5px 5px, 1px 2em;
   background-repeat: no-repeat;
   outline: none;
+  cursor: pointer;
 }
 
 select:-moz-focusring {
@@ -792,4 +840,73 @@ select:-moz-focusring {
     margin-right: 5px;
     font-size: 0.75rem;
   }
+}
+
+.Modal-about {
+  a,
+  a:hover {
+    text-decoration: underline;
+    color: #121958 !important;
+  }
+}
+
+.login-modal {
+  .settings-modal-trigger-block {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    right: 13px;
+    cursor: pointer;
+    font-size: 1.2em;
+  }
+}
+
+.download-desktop-block {
+  text-align: center;
+  padding-top: 50px;
+
+  a:hover {
+    text-decoration: none;
+  }
+  button {
+    padding: 15px;
+    height: 2.5rem;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+    background: #fff !important;
+
+    i {
+      padding-right: 7px;
+      position: relative;
+      top: -2px;
+    }
+  }
+}
+
+.accounts-airdop-helper-link {
+  margin-top: 20px;
+  text-align: center;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.sync-progress-icon {
+  animation: rotate 2s linear 0s infinite normal;
+  font-size: 0.9em;
+  position: absolute;
+  left: 200px;
+}
+
+.scroll {
+  overflow-y: auto !important;
+}
+
+.no-scroll {
+  overflow-y: hidden !important;
 }

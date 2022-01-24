@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "hw-kmd-wallet-electron",
-  "version": "0.2.9",
+  "version": "0.3.1",
   "description": "Komodo Hardware Wallet Electron App",
   "main": "main.js",
   "scripts": {
@@ -23,10 +23,10 @@
   "author": "Komodo Platform",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^15.2.0",
+    "electron": "15.3.5",
     "electron-builder": "22.13.1",
     "electron-devtools-installer": "^3.2.0",
-    "electron-rebuild": "^3.2.3"
+    "electron-rebuild": "3.2.3"
   },
   "dependencies": {
     "@electron/remote": "^2.0.1",

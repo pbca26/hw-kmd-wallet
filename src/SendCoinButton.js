@@ -275,9 +275,10 @@ class SendCoinButton extends React.Component {
           if (hwUnusedAddress !== unusedAddress) {
             throw new Error(`${VENDOR[this.props.vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
           }
-          updateActionState(this, currentAction, true);
         }
 
+        updateActionState(this, currentAction, true);
+        
         let txData = transactionBuilder(
           coin === 'KMD' ? Object.assign({}, KOMODO, {kmdInterest: true}) : KOMODO,
           isClaimRewardsOnly ? balance - TX_FEE * 2 : this.state.amountIn < humanReadableSatoshis(balance) ? toSats(this.state.amountIn) + TX_FEE : toSats(this.state.amountIn),
@@ -412,7 +413,6 @@ class SendCoinButton extends React.Component {
           }
           updateActionState(this, currentAction, true);
 
-          this.props.handleRewardClaim(txid);
           this.setState({
             success: 
               <React.Fragment>
@@ -528,6 +528,9 @@ class SendCoinButton extends React.Component {
         {!this.props.isClaimRewardsOnly &&
           <li onClick={this.initSendCoinForm}>
             <i className="fa fa-paper-plane"></i>
+            {this.props.sidebarSize === 'full' &&
+              <span className="sidebar-item-title">Send</span>
+            }
           </li>
         }
         {!this.state.step &&

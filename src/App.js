@@ -21,6 +21,9 @@ import hw from './lib/hw';
 import {
   getLocalStorageVar,
   setLocalStorageVar,
+  resetLocalStorage,
+  setLocalStoragePW,
+  decodeStoredData,
 } from './lib/localstorage-util';
 import {
   LEDGER_FW_VERSIONS,
@@ -38,6 +41,7 @@ import {
   isElectron,
   appData,
   ipcRenderer,
+  helpers,
 } from './Electron';
 import {writeLog} from './Debug';
 import initSettings from './lib/init-settings';
@@ -50,9 +54,11 @@ import HWFirmwareRequirements from './HWFirmwareRequirementsModal';
 import Sidebar from './Sidebar';
 import LoginModal from './LoginModal';
 import getRewardEndDate from './lib/get-reward-end-date';
+import {getPrices} from './lib/prices';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
 const MAX_TIP_TIME_DIFF = 3600 * 24;
+let syncDataInterval, autoLogoutTimer;
 
 class App extends React.Component {
   state = this.initialState;
@@ -66,6 +72,8 @@ class App extends React.Component {
     this.closeLoginModal = this.closeLoginModal.bind(this);
     this.enableAccount = this.enableAccount.bind(this);
     this.addAccount = this.addAccount.bind(this);
+    this.triggerSidebarSizeChange = this.triggerSidebarSizeChange.bind(this);
+    this.updateExplorerEndpoint = this.updateExplorerEndpoint.bind(this);
 
     return {
       accounts: [],
@@ -81,14 +89,27 @@ class App extends React.Component {
       loginModalClosed: false,
       coins: {},
       lastOperations: [],
+      prices: {},
       theme: 'tdark',
+      isAuth: false,
+      sidebarSizeChanged: false,
+      syncInProgress: false,
+      explorerEndpointOverride: {},
       //coins: getLocalStorageVar('coins') ? getLocalStorageVar('coins') : {},
       //lastOperations: getLocalStorageVar('lastOperations') ? getLocalStorageVar('lastOperations') : [],
       //theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
     };
   }
 
+  triggerSidebarSizeChange() {
+    this.setState({
+      sidebarSizeChanged: !this.state.sidebarSizeChanged,
+    });
+  }
+
   closeLoginModal(pw) {
+    const self = this;
+
     this.setState({
       loginModalClosed: true,
     });
@@ -101,17 +122,41 @@ class App extends React.Component {
     } else {
       document.getElementById('body').className = getLocalStorageVar('settings').theme;
     }
-
+    
     this.setState({
+      isAuth: true,
       coins: getLocalStorageVar('coins') ? getLocalStorageVar('coins') : {},
-      lastOperations: getLocalStorageVar('lastOperations') ? getLocalStorageVar('lastOperations') : [],
+      lastOperations: getLocalStorageVar('lastOperations') && Array.isArray(getLocalStorageVar('lastOperations')) ? getLocalStorageVar('lastOperations') : [],
       theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
       vendor: getLocalStorageVar('settings') && getLocalStorageVar('settings').vendor ? getLocalStorageVar('settings').vendor : null,
+    });
+    
+    this.setupAutoLock();
+    document.getElementById('body')
+    .addEventListener('click', function() {
+      //writeLog('add global click event to handle autolock');
+      
+      self.setupAutoLock();
     });
 
     setTimeout(() => {
       this.syncData();
     });
+  }
+
+  setupAutoLock() {
+    if (autoLogoutTimer) {
+      clearTimeout(autoLogoutTimer);
+    } else {
+      if (getLocalStorageVar('settings') &&
+          getLocalStorageVar('settings').autolock) {
+        writeLog(`set autolock to ${getLocalStorageVar('settings').autolock}s`);
+        autoLogoutTimer = setTimeout(() => {
+          writeLog('autolock triggered');
+          this.resetState('logout');
+        }, getLocalStorageVar('settings').autolock * 1000);
+      }
+    }
   }
 
   removeCoin(coin) {
@@ -179,9 +224,20 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+      // init app data decryption and login if PW is set
+    if (isElectron &&
+        helpers.getPW()) {
+      const _pw = helpers.getPW();
+      setLocalStoragePW(_pw);
+      decodeStoredData()
+      .then(() => {
+        this.closeLoginModal(_pw);
+      });
+    }
+
     document.title = `Komodo Hardware Wallet (v${version})`;
     if (!isElectron || (isElectron && !appData.isNspv)) {
-      setInterval(() => {
+      syncDataInterval = setInterval(() => {
         if (!this.state.syncInProgress) {
           writeLog('auto sync called');
           this.syncData();
@@ -277,13 +333,18 @@ class App extends React.Component {
   }
 
   updateExplorerEndpoint(e) {
+    writeLog(`set ${this.state.coin} api endpoint to ${e.target.value}`);
+
+    let explorerEndpointOverride = this.state.explorerEndpointOverride;
+    explorerEndpointOverride[this.state.coin] = e.target.value;
+
     this.setState({
-      [e.target.name]: e.target.value,
+      explorerEndpointOverride,
     });
 
-    writeLog('set api endpoint to ' + e.target.value);
-
-    blockchain[blockchainAPI].setExplorerUrl(e.target.value);
+    setTimeout(() => {
+      console.warn(this.state);
+    }, 100)
   }
 
   checkExplorerEndpoints = async () => {
@@ -324,9 +385,20 @@ class App extends React.Component {
     }, 50);
   };
 
-  resetState = () => {
+  resetState = (clearData) => {
+    clearInterval(syncDataInterval);
     this.setVendor();
-    this.setState(this.initialState);
+
+    if (clearData &&
+        clearData !== 'logout') {
+      resetLocalStorage();
+      document.getElementById('body').removeEventListener('click');
+    } else if (
+      clearData &&
+      clearData === 'logout') {
+      setLocalStoragePW();
+    }
+    this.setState(Object.assign({}, this.initialState, {loginModalClosed: false}));
     // TODO: auto-close connection after idle time
     hw.ledger.resetTransport();
 
@@ -399,42 +471,60 @@ class App extends React.Component {
   }
 
   syncData = async (_coin) => {
+    const coinTickers = _coin ? [_coin] : Object.keys(this.state.coins);
+    
+    getPrices(coinTickers)
+    .then((prices) => {
+      this.setState({
+        prices,
+      });
+    });
+
     if (!this.state.isFirstRun || this.isCoinData()) {
       writeLog('sync data called');
+      this.setState({
+        syncInProgress: true,
+      });      
 
-      const coinTickers = _coin ? [_coin] : Object.keys(this.state.coins);
       const coins = apiEndpoints;
       let balances = [];
-      
-      await asyncForEach(coinTickers, async (coin, index) => {
-        writeLog(coin)
-        const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
-          return blockchain[blockchainAPI].getInfo(value);
-        }));
-        let isExplorerEndpointSet = false;
-        let longestBlockHeight = 0;
-        let apiEndPointIndex = 0;
     
-        writeLog('checkExplorerEndpoints', getInfoRes);
+      await asyncForEach(coinTickers, async (coin, index) => {
+        let isExplorerEndpointSet = false;
+        writeLog(coin);
         
-        for (let i = 0; i < coins[coin].api.length; i++) {
-          if (getInfoRes[i] &&
-              getInfoRes[i].hasOwnProperty('info') &&
-              getInfoRes[i].info.hasOwnProperty('version')) {
-            if (getInfoRes[i].info.blocks > longestBlockHeight) {
-              longestBlockHeight = getInfoRes[i].info.blocks;
-              apiEndPointIndex = i;
+        if (this.state.explorerEndpointOverride.hasOwnProperty(coin)) {
+          writeLog(`${coin} set api endpoint to ${this.state.explorerEndpointOverride[coin]}`);
+          blockchain[blockchainAPI].setExplorerUrl(this.state.explorerEndpointOverride[coin]);
+          isExplorerEndpointSet = true;
+        } else {
+          const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
+            return blockchain[blockchainAPI].getInfo(value);
+          }));
+          let longestBlockHeight = 0;
+          let apiEndPointIndex = 0;
+      
+          writeLog('checkExplorerEndpoints', getInfoRes);
+          
+          for (let i = 0; i < coins[coin].api.length; i++) {
+            if (getInfoRes[i] &&
+                getInfoRes[i].hasOwnProperty('info') &&
+                getInfoRes[i].info.hasOwnProperty('version')) {
+              if (getInfoRes[i].info.blocks > longestBlockHeight) {
+                longestBlockHeight = getInfoRes[i].info.blocks;
+                apiEndPointIndex = i;
+              }
             }
           }
-        }
 
-        writeLog(`${coin} set api endpoint to ${coins[coin].api[apiEndPointIndex]}`);
-        blockchain[blockchainAPI].setExplorerUrl(coins[coin].api[apiEndPointIndex]);
-        isExplorerEndpointSet = true;
-    
-        this.setState({
-          explorerEndpoint: coins[coin].api[apiEndPointIndex],
-        });
+          writeLog(`${coin} set api endpoint to ${coins[coin].api[apiEndPointIndex]}`);
+          blockchain[blockchainAPI].setExplorerUrl(coins[coin].api[apiEndPointIndex]);
+          isExplorerEndpointSet = true;
+      
+          this.setState({
+            explorerEndpoint: coins[coin].api[apiEndPointIndex],
+          });
+        }
 
         if (isExplorerEndpointSet) {
           writeLog('app vendor', this.state.vendor);
@@ -506,6 +596,12 @@ class App extends React.Component {
     
     for (let coin in coins) {
       for (let j = 0; j < coins[coin].accounts.length; j++) {
+        for (let a = 0; a < coins[coin].accounts[j].utxos.length; a++) {
+          if (Number(coins[coin].accounts[j].utxos[a].confirmations) < 0) {
+            writeLog(`${coin} utxo data is incorrect for acc ${j}`);
+          }
+        }
+
         for (let a = 0; a < coins[coin].accounts[j].history.historyParsed.length; a++) {
           lastOperations.push({
             coin: coin,
@@ -532,6 +628,7 @@ class App extends React.Component {
       lastOperations,
       tiptime,
       isFirstRun: false,
+      syncInProgress: false,
     });
 
     setLocalStorageVar('coins', coins);
@@ -574,7 +671,7 @@ class App extends React.Component {
       });
     }
 
-    setLocalStorageVar('settings', {vendor});
+    if (vendor) setLocalStorageVar('settings', {vendor});
   }
 
   setTheme(name) {
@@ -590,7 +687,9 @@ class App extends React.Component {
       <div className={`App isPristine${!isElectron && window.location.href.indexOf('disable-mobile') === -1 ? ' Responsive' : ''}`}>
         <LoginModal
           closeLoginModal={this.closeLoginModal}
-          isClosed={this.state.loginModalClosed} />
+          resetState={this.resetState}
+          isClosed={this.state.loginModalClosed}
+          isAuth={this.state.isAuth} />
         <Header>
           <div className="navbar-brand">
             <div className="navbar-item">
@@ -622,8 +721,12 @@ class App extends React.Component {
           setActiveAccount={this.setActiveAccount}
           vendor={this.state.vendor}
           loginModalClosed={this.state.loginModalClosed}
-          setVendor={this.state.setVendor} />
-        <section className="main">
+          setVendor={this.state.setVendor}
+          resetState={this.resetState}
+          isAuth={this.state.isAuth}
+          triggerSidebarSizeChange={this.triggerSidebarSizeChange}
+          updateExplorerEndpoint={this.updateExplorerEndpoint} />
+        <section className={'main main-' + (getLocalStorageVar('settings').sidebarSize || 'short')}>
           <React.Fragment>
             <div className="container content text-center">
               <h2>{this.state.coin === voteCoin ? 'Cast your VOTEs' : 'Manage your coins'} from a hardware wallet device.</h2>
@@ -678,6 +781,11 @@ class App extends React.Component {
                 {this.state.vendor &&
                   <strong>{VENDOR[this.state.vendor]} KMD HW {this.state.coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
                 }
+                {this.state.syncInProgress &&
+                  <i
+                    className="fa fa-redo-alt sync-progress-icon"
+                    title="Sync in progress..."></i>
+                }
                 {/*<SettingsModal
                   updateExplorerEndpoint={this.updateExplorerEndpoint}
                   coin={this.state.coin} 
@@ -697,9 +805,12 @@ class App extends React.Component {
             vendor={this.state.vendor}
             accounts={this.state.activeCoin ? this.state.coins[this.state.activeCoin].accounts : []}
             syncData={this.syncData}
-            handleRewardClaim={this.handleRewardClaim}
             loginModalClosed={this.state.loginModalClosed}
-            setVendor={this.setVendor} />
+            setVendor={this.setVendor}
+            isAuth={this.state.isAuth}
+            resetState={this.resetState}
+            triggerSidebarSizeChange={this.triggerSidebarSizeChange}
+            updateExplorerEndpoint={this.updateExplorerEndpoint} />
 
           {this.state.explorerEndpoint === false &&
             <ConnectionError />
@@ -713,7 +824,7 @@ class App extends React.Component {
               updateLedgerFWVersion={this.updateLedgerFWVersion} />
           }
 
-          <section className={`main${testCoins.indexOf(this.state.coin) === -1 ? ' beta-warning-fix' : ''}`}>
+          <section className={`main${testCoins.indexOf(this.state.coin) === -1 ? ' beta-warning-fix' : ''}${' main-' + (getLocalStorageVar('settings').sidebarSize || 'short')}`}>
             <div className="container content text-center">
               {testCoins.indexOf(this.state.coin) === -1 &&
                 <BetaWarning />
@@ -734,8 +845,31 @@ class App extends React.Component {
                   }
                   {this.isCoinData() &&
                     <div className="bottom-blocks">
-                      <DashboardPrices />
+                      <DashboardPrices
+                        prices={this.state.prices}
+                        coins={this.state.coins} />
                       <DashboardOperations lastOperations={this.state.lastOperations} />
+                    </div>
+                  }
+                  {!this.isCoinData() &&
+                    <div className="container content content-init-hw-vendor">
+                      <HWFirmwareRequirements vendor={this.state.vendor} />
+                      <img
+                        className="hw-graphic"
+                        src={`${this.state.vendor}-logo.png`}
+                        alt={VENDOR[this.state.vendor]} />
+                    </div>
+                  }
+                  {!isElectron &&
+                    <div className="download-desktop-block">
+                      <a
+                        href="https://github.com/pbca26/hw-kmd-wallet/releases"
+                        target="_blank">
+                        <button
+                          className="button is-light">
+                          <i className="fa fa-download"></i>Download for desktop
+                        </button>
+                      </a>
                     </div>
                   }
                 </React.Fragment>
@@ -743,13 +877,6 @@ class App extends React.Component {
             </div>
             {!this.isCoinData() ? (
               <React.Fragment>
-                <div className="container content">
-                  <HWFirmwareRequirements vendor={this.state.vendor} />
-                </div>
-                <img
-                  className="hw-graphic"
-                  src={`${this.state.vendor}-logo.png`}
-                  alt={VENDOR[this.state.vendor]} />
                 <div className="trezor-webusb-container"></div>
                 {/*!isMobile &&
                  this.state.vendor === 'ledger' &&

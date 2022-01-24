@@ -1,6 +1,7 @@
 import React from 'react';
 import Modal from './Modal';
 import './SettingsModal.scss';
+import SettingsModal from './SettingsModal';
 import {
   setLocalStoragePW,
   decodeStoredData,
@@ -37,17 +38,20 @@ class LoginModal extends React.Component {
   close() {
     setLocalStoragePW(this.state.password);
     
-    if (!localStorage.getItem('hw-wallet')) {
+    if (!localStorage.getItem('hw-wallet') ||
+        localStorage.getItem('hw-wallet') === 'null') {
       this.props.closeLoginModal(this.state.password);
       
       this.setState({
         password: '',
+        error: false,
       });
     } else {
       decodeStoredData().then((res) => {
         if (res) {          
           this.setState({
             password: '',
+            error: false,
           });
 
           this.props.closeLoginModal(this.state.password);
@@ -73,10 +77,14 @@ class LoginModal extends React.Component {
     return (
       <React.Fragment>
         <Modal
-          title={!localStorage.getItem('hw-wallet') ? 'Create password' :  'Authorization'}
+          title={!localStorage.getItem('hw-wallet') || localStorage.getItem('hw-wallet') === 'null' ? 'Create password' :  'Authorization'}
           show={this.props.isClosed === false}
           isCloseable={false}
-          className="settings-modal">
+          className="settings-modal login-modal">
+          <SettingsModal
+            resetState={this.props.resetState}
+            isAuth={this.state.isAuth}
+            coin="KMD" />
           Password <input
             style={{'marginLeft': '10px','padding': '5px', 'width': 'calc(100% - 100px)'}}
             type="password"
@@ -84,7 +92,7 @@ class LoginModal extends React.Component {
             name="password"
             onChange={this.updateInput}
             value={this.state.password}
-            placeholder={!localStorage.getItem('hw-wallet') ? 'Create a password to encrypt app data' : 'Enter a password to unlock the app'}
+            placeholder={!localStorage.getItem('hw-wallet') || localStorage.getItem('hw-wallet') === 'null' ? 'Create a password to encrypt app data' : 'Enter a password to unlock the app'}
             autoComplete="off"
             required />
           <p style={{'paddingTop': '20px'}}>Password is required in order to safely store and recover sensitive data such as XPUB keys, cached address transactions and balances.</p>

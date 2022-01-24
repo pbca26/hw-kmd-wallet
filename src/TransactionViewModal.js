@@ -58,7 +58,7 @@ class TransactionDetailsModal extends React.Component {
                     <td>
                       <strong>Account</strong>
                     </td>
-                    <td>{coin} {tx.accountIndex + 1}</td>
+                    <td>{coin} {(tx.accountIndex || this.props.activeAccount) + 1}</td>
                   </tr>
                   <tr>
                     <td>
@@ -91,9 +91,7 @@ class TransactionDetailsModal extends React.Component {
               <div className="modal-action-block center">
                 {isElectron &&
                   <a onClick={() => shell.openExternal(`${coins[coin].explorer}tx/${tx.txid}`)}>
-                    <button
-                      className="button is-primary"
-                      onClick={this.confirm}>
+                    <button className="button is-primary">
                       Open in explorer <i className="fa fa-external-link-alt"></i>
                     </button>
                   </a>
@@ -102,9 +100,7 @@ class TransactionDetailsModal extends React.Component {
                   <a
                     target="_blank"
                     href={`${coins[coin].explorer}tx/${tx.txid}`}>
-                    <button
-                      className="button is-primary"
-                      onClick={this.confirm}>
+                    <button className="button is-primary">
                       Open in explorer <i className="fa fa-external-link-alt"></i>
                     </button>
                   </a>

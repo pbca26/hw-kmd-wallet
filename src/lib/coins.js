@@ -7,6 +7,9 @@ const coins = {
       'https://explorer.komodoplatform.com:10000/kmd/api/',
       'https://kmd.explorer.dexstats.info/insight-api-komodo/',
     ],
+    prices: {
+      coinpaprika: 'kmd-komodo',
+    },
   },
   AXO: {
     explorer: 'https://axo.explorer.dexstats.info/',
@@ -99,6 +102,9 @@ const coins = {
   MCL: {
     explorer: 'https://mcl.explorer.dexstats.info/',
     api: ['https://mcl.explorer.dexstats.info/insight-api-komodo/'],
+    prices: {
+      coinpaprika: 'mcl-marmara-credit-loops',
+    },
   },
   LABS: {
     explorer: 'https://labs.explorer.dexstats.info/',
@@ -110,9 +116,10 @@ const coins = {
       'https://explorer.komodoplatform.com:10000/vote2021/api/',
       'https://vote2021.explorer.dexstats.info/insight-api-komodo/',
     ],
+    airdrop: true,
   },
   RICK: {
-    explorer: 'https://rick.kmd.dev/',
+    explorer: 'https://rick.explorer.dexstats.info/',
     api: [
       'https://explorer.komodoplatform.com:10000/rick/api/',
       'https://rick.explorer.dexstats.info/insight-api-komodo/',
@@ -120,7 +127,7 @@ const coins = {
     ],
   },
   MORTY: {
-    explorer: 'https://morty.kmd.dev/',
+    explorer: 'https://morty.explorer.dexstats.info/',
     api: [
       'https://morty.explorer.dexstats.info/insight-api-komodo/',
       'https://explorer.komodoplatform.com:10000/morty/api/',
@@ -134,6 +141,9 @@ const coins = {
       'https://vrsc.explorer.dexstats.info/insight-api-komodo/',
       'https://insight.vrsc.0x03.services/insight-api-komodo/',
     ],
+    prices: {
+      coinpaprika: 'vrsc-verus-coin',
+    },
   },
   WSB: {
     explorer: 'https://wsb.explorer.dexstats.info/',
@@ -141,6 +151,7 @@ const coins = {
       'https://wsb.explorer.dexstats.info/insight-api-komodo/',
       'https://explorer.komodoplatform.com:10000/wsb/api/',
     ],
+    airdrop: true,
   },
   SPACE: {
     explorer: 'https://space.explorer.dexstats.info/',
@@ -149,6 +160,9 @@ const coins = {
   CLC: {
     explorer: 'https://clc.explorer.dexstats.info/',
     api: ['https://clc.explorer.dexstats.info/insight-api-komodo/'],
+    prices: {
+      coinpaprika: 'clc-collider-coin',
+    },
   },
   SOULJA: {
     explorer: 'https://soulja.explorer.dexstats.info/',
@@ -164,6 +178,9 @@ const coins = {
       'https://gleec.explorer.dexstats.info/insight-api-komodo/',
       'https://gleec.xyz/insight-api-komodo/',
     ],
+    prices: {
+      coinpaprika: 'gleec-gleec-coin',
+    },
   },
   TOKEL: {
     explorer: 'https://tokel.explorer.dexstats.info/',
@@ -171,6 +188,10 @@ const coins = {
       'https://tokel.explorer.dexstats.info/insight-api-komodo/',
       'https://explorer.komodoplatform.com:10000/tokel/api/',
     ],
+    airdrop: true,
+    prices: {
+      coinpaprika: 'tkl-tokel',
+    },
   },
   TKLTEST: {
     explorer: 'https://tkltest.explorer.dexstats.info/',
