@@ -149,7 +149,7 @@ class SendCoinButton extends React.Component {
 
     if (Number(amount) > balance) {
       error = 'insufficient balance';
-    } else if (Number(amount) < humanReadableSatoshis(TX_FEE)) {
+    } else if (coin !== 'TKLTEST' && Number(amount) < humanReadableSatoshis(TX_FEE)) {
       error = `amount is too small, min is ${humanReadableSatoshis(TX_FEE)} ${coin}`;
     } else if (!Number(amount) || Number(amount) < 0) {
       error = 'wrong amount format';

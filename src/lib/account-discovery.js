@@ -1,6 +1,6 @@
 import hw from './hw';
 import blockchain, {blockchainAPI} from './blockchain';
-import getAddress from './get-address';
+import getAddress, {getPK} from './get-address';
 import bitcoin from 'bitcoinjs-lib';
 import parseHistory from './history-parser';
 import asyncForEach from './async';
@@ -11,6 +11,7 @@ import {
 } from '../Electron';
 import {writeLog} from '../Debug';
 import TrezorUtxoLib from '@trezor/utxo-lib';
+import {TOKEL_ADDR} from '../constants';
 
 let pubKeysCache = {};
 let isFirstRun = {};
@@ -58,6 +59,8 @@ const walkDerivationPath = async node => {
 
     for (let i = 0; i < addressConcurrency; i++) {
       const address = getAddress(node.derive(addressIndex).publicKey);
+      const pk = getPK(node.derive(addressIndex).publicKey);
+      //console.warn(`${address}, PK`, pk.pubkey.toString('hex'));
 
       addressApiRequests.push(blockchain[blockchainAPI].getAddress(address));
       addresses.push({address, addressIndex});
@@ -228,7 +231,7 @@ const accountDiscovery = async (vendor, coin, _accounts) => {
   // TODO
   if (isElectron && appData.isNspv) {
     writeLog('accountDiscovery accountIndex', accountIndex);
-    const account = await getAccountAddresses(accountIndex, vendor);
+    let account = await getAccountAddresses(accountIndex, vendor);
     
     if (account.addresses.length === 0) {
       account.utxos = [];
@@ -261,6 +264,12 @@ const accountDiscovery = async (vendor, coin, _accounts) => {
         const account = await getAccountAddresses(accountIndex, vendor, _accounts && _accounts[accountIndex] ? _accounts[accountIndex].xpub : null);
         writeLog('accountDiscovery accountIndex', accountIndex);
         
+        if (coin === 'TKLTEST' && accountIndex === 0) {
+          if (account.addresses[0].address === TOKEL_ADDR.normal) {
+            account.addresses[0].address = 'CcVRzuuNhwALm2NhDm8kU3YwaetjqAiqYx'; // normal addr RPhYHZ8emPmfTYQNdkYDKJfJYuwruZB8px
+          }
+        }
+
         if (account.addresses.length === 0) {
           account.utxos = [];
           account.history = {
@@ -273,6 +282,7 @@ const accountDiscovery = async (vendor, coin, _accounts) => {
           accounts.push(account);
           if (config.accountIndex === 0 && accountIndex >= 2) break;
         } else {
+          console.warn('addresses', account.addresses);
           account.utxos = await getAddressUtxos(account.addresses);
           account.history = await getAddressHistory(account.addresses); 
           account.accountIndex = accountIndex;

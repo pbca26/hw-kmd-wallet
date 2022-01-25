@@ -74,3 +74,8 @@ export const SETTINGS = {
     3200: '60 min',
   },
 };
+export const TOKEL_ADDR = {
+  normal: 'RPhYHZ8emPmfTYQNdkYDKJfJYuwruZB8px',
+  cc: 'CcVRzuuNhwALm2NhDm8kU3YwaetjqAiqYx',
+  pubkey: '03aacf9d629d1c2f494b0d9eef5c67d8bcd6027d60084847d133c480c92dba1219',
+};

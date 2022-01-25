@@ -6,4 +6,9 @@ const getAddress = publicKey => bitcoin.payments.p2pkh({
   network: KOMODO
 }).address;
 
+export const getPK = publicKey => bitcoin.payments.p2pkh({
+  pubkey: publicKey,
+  network: KOMODO
+});
+
 export default getAddress;
