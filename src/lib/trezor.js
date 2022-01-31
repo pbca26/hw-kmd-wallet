@@ -171,6 +171,21 @@ const getXpub = async derivationPath => {
   return xpub;
 };
 
+const signMessage = async (path, message, reverseString) => {
+  if (reverseString) {
+    const buf = new Buffer.from(message, 'hex');
+    message = buf.reverse().toString('hex');
+  }
+
+  const res = await TrezorConnect.signMessage({
+    path,
+    message,
+  });
+
+  console.warn('trezor sign message res', res);
+  return res;
+};
+
 const trezor = {
   getDevice,
   isAvailable,
@@ -178,6 +193,7 @@ const trezor = {
   createTransaction,
   getXpub,
   init,
+  signMessage,
 };
 
 export default trezor;

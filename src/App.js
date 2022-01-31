@@ -100,6 +100,11 @@ class App extends React.Component {
     };
   }
 
+  signMessage = async () => {
+    await hw[this.state.vendor].signMessage("m/44'/141'/0'/0/0", '971a4474534d291a1a5afdac6bcaf371ae619106a0444e47526b5026442980e4', true);
+    await hw[this.state.vendor].signMessage("m/44'/141'/0'/0/0", 'c436b229c51aa51ddf4f3de6b97427e2231e43d6a55864641859ba8418795baa', true);
+  }
+
   triggerSidebarSizeChange() {
     this.setState({
       sidebarSizeChanged: !this.state.sidebarSizeChanged,
@@ -835,7 +840,10 @@ class App extends React.Component {
                     explorerEndpoint={this.state.explorerEndpoint} />
                   {this.isCoinData() &&
                    window.location.href.indexOf('devmode') > -1 &&
-                    <button onClick={() => this.syncData()}>Sync coin data</button>
+                    <React.Fragment>
+                      <button onClick={() => this.syncData()}>Sync coin data</button>
+                      <button onClick={this.signMessage}>Sign message</button>
+                    </React.Fragment>
                   }
                   {this.isCoinData() &&
                     <div className="bottom-blocks">
