@@ -172,9 +172,15 @@ const getXpub = async derivationPath => {
 };
 
 const signMessage = async (path, message, reverseString) => {
+  let out = {};
+
   if (reverseString) {
+    writeLog('original message', message);
+    out.originalMessage = message;
     const buf = new Buffer.from(message, 'hex');
     message = buf.reverse().toString('hex');
+    writeLog('reversed message', message);
+    out.reversedMessage = message;
   }
 
   const res = await TrezorConnect.signMessage({
@@ -183,7 +189,10 @@ const signMessage = async (path, message, reverseString) => {
   });
 
   console.warn('trezor sign message res', res);
-  return res;
+
+  out.trezorResponse = res.payload;
+
+  return out;
 };
 
 const trezor = {

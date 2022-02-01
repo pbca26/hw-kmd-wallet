@@ -101,8 +101,13 @@ class App extends React.Component {
   }
 
   signMessage = async () => {
-    await hw[this.state.vendor].signMessage("m/44'/141'/0'/0/0", '971a4474534d291a1a5afdac6bcaf371ae619106a0444e47526b5026442980e4', true);
-    await hw[this.state.vendor].signMessage("m/44'/141'/0'/0/0", 'c436b229c51aa51ddf4f3de6b97427e2231e43d6a55864641859ba8418795baa', true);
+    const sig1 = await hw[this.state.vendor].signMessage("m/44'/141'/0'/0/9", 'f05f6a7f376437e7dd93953e3b287e475fd00a661fd4c8f5e7760c19e66082c2', true);
+    const sig2 = await hw[this.state.vendor].signMessage("m/44'/141'/0'/0/0", 'c090cf282e4ce95da97ba8e8fddaa6442ce20c5746d4f92aadf468adc1298e7f', true);
+  
+    writeLog('sig1', sig1);
+    writeLog('sig2', sig2);
+    writeLog('sig1', JSON.stringify(sig1));
+    writeLog('sig2', JSON.stringify(sig2));
   }
 
   triggerSidebarSizeChange() {
