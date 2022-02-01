@@ -179,6 +179,8 @@ const signMessage = async (path, message, reverseString) => {
     out.originalMessage = message;
     message = buf.reverse().toString('hex');
     out.reversedMessage = message;
+  } else {
+    out.message = message;
   }
 
   const res = await TrezorConnect.signMessage({
