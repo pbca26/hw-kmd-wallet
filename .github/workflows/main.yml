@@ -47,7 +47,7 @@ jobs:
         name: gui
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'
+        node-version: '16'
         check-latest: true
 
     - name: Unpack GUI
@@ -99,7 +99,7 @@ jobs:
         name: gui
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'
+        node-version: '16'
         check-latest: true
 
     - name: Unpack GUI
@@ -159,7 +159,7 @@ jobs:
         name: gui
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'
+        node-version: '16'
         check-latest: true
 
     - name: Unpack GUI

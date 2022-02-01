@@ -9,22 +9,18 @@ const ClaimRewardsButton = ({
   syncData,
   coin,
   tiptime,
-  handleRewardClaim,
   claimableAmount,
-  address,
 }) => (
   <SendCoinButton
     account={account}
-    handleRewardClaim={handleRewardClaim}
     vendor={vendor}
     balance={balance}
     syncData={syncData}
-    address={address}
     coin={coin}
     isClaimRewardsOnly={true}
     tiptime={tiptime}
     className="claim-rewards-btn">
-    Claim {humanReadableSatoshis(Math.max(0, claimableAmount))} rewards
+    <i className="fa fa-donate"></i> Claim {humanReadableSatoshis(Math.max(0, claimableAmount))} rewards
   </SendCoinButton>
 );
 

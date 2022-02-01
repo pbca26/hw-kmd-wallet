@@ -1,13 +1,13 @@
 import React from 'react';
-import getKomodoRewards from './lib/get-komodo-rewards';
 import hw from './lib/hw';
-import accountDiscovery from './lib/account-discovery';
-import blockchain from './lib/blockchain';
+import accountDiscovery, {getAccountXpub} from './lib/account-discovery';
+import blockchain, {blockchainAPI} from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
 import {TX_FEE, VENDOR} from './constants';
 import ActionListModal from './ActionListModal';
+import {writeLog} from './Debug';
 
-class CheckBalanceButton extends React.Component {
+class AddAccount extends React.Component {
   state = this.initialState;
 
   get initialState() {
@@ -31,20 +31,7 @@ class CheckBalanceButton extends React.Component {
 
   resetState = () => this.setState(this.initialState);
 
-  calculateRewardData = ({accounts, tiptime}) => accounts.map(account => {
-    account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
-    account.rewards = account.utxos.reduce((rewards, utxo) => rewards + getKomodoRewards({tiptime, ...utxo}), 0);
-    account.claimableAmount = account.rewards - TX_FEE * 2;
-
-    return account;
-  });
-
   scanAddresses = async () => {
-    this.props.handleRewardData({
-      accounts: [],
-      tiptime: []
-    });
-
     this.setState({
       ...this.initialState,
       isCheckingRewards: true,
@@ -62,27 +49,20 @@ class CheckBalanceButton extends React.Component {
 
       currentAction = 'approve';
       updateActionState(this, currentAction, 'loading');
-      let [accounts, tiptime] = await Promise.all([
-        accountDiscovery(this.props.vendor, this.props.coin),
-        blockchain.getTipTime()
-      ]);
 
-      tiptime = this.props.checkTipTime(tiptime);
+      writeLog('add acc', this.props.accounts.length);
 
-      accounts = this.calculateRewardData({accounts, tiptime});
-      if (accounts.length === 0) {
-        throw new Error('No account balances found.');
-      }
+      const xpub = await getAccountXpub(this.props.accounts.length, this.props.vendor);
+
+      writeLog('xpub', xpub);
+
       updateActionState(this, currentAction, true);
 
-      this.props.handleRewardData({
-        accounts,
-        tiptime
-      });
+      this.props.addAccount(this.props.accounts.length, xpub);
 
       this.setState({...this.initialState});
     } catch (error) {
-      console.warn(error);
+      writeLog(error);
       updateActionState(this, currentAction, false);
       this.setState({error: error.message});
     }
@@ -97,19 +77,20 @@ class CheckBalanceButton extends React.Component {
 
     return (
       <React.Fragment>
-        <button
-          className="button is-primary"
+        <span
+          className={`coin-add-account-modal-trigger ${this.props.activeAccount !== null ? ' single' : ''}`}
           onClick={this.scanAddresses}>
-          {this.props.children}
-        </button>
+          <i className="fa fa-plus"></i>
+        </span>
         <ActionListModal
-          title="Scanning Blockchain"
+          title={`Add ${this.props.coin} account`}
           actions={actions}
           error={error}
           handleClose={this.resetState}
-          show={isCheckingRewards}>
+          show={isCheckingRewards}
+          className="Scan-balances-modal">
           <p>
-            Exporting public keys from your {VENDOR[this.props.vendor]} device, scanning the blockchain for funds, and calculating any claimable rewards. Please approve any public key export requests on your device.
+            Exporting a public key from your {VENDOR[this.props.vendor]} device. Please approve the public key export request on your device.
           </p>
         </ActionListModal>
       </React.Fragment>
@@ -118,4 +99,4 @@ class CheckBalanceButton extends React.Component {
 
 }
 
-export default CheckBalanceButton;
+export default AddAccount;

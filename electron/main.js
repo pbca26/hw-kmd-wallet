@@ -1,5 +1,6 @@
 // Modules to control application life and create native browser window
 require('babel-polyfill');
+require('@electron/remote/main').initialize();
 const TransportNodeHid = require('@ledgerhq/hw-transport-node-hid-noevents').default;
 const AppBtc = require('@ledgerhq/hw-app-btc').default;
 
@@ -12,111 +13,32 @@ const {
 } = require('electron');
 const path = require('path');
 const url = require('url');
-
-function getAddress(derivationPath, verify) {
-  return TransportNodeHid.open('')
-    .then(transport => {
-      transport.setDebugMode(true);
-      const appBtc = new AppBtc(transport);
-      return appBtc.getWalletPublicKey(derivationPath, verify).then(r =>
-        transport
-          .close()
-          .catch(e => {})
-          .then(() => r)
-      );
-    })
-    .catch(e => {
-      console.warn(e);
-      return -777;
-    });
-}
-
-function createPaymentTransactionNew(txData) {
-  const {
-    inputs,
-    associatedKeysets,
-    changePath,
-    outputScript,
-    lockTime,
-    sigHashType,
-    segwit,
-    initialTimestamp,
-    additionals,
-    expiryHeight,
-  } = txData;
-
-  return TransportNodeHid.open('')
-    .then(transport => {
-      transport.setDebugMode(true);
-      const appBtc = new AppBtc(transport);
-      return appBtc.createPaymentTransactionNew(
-        inputs,
-        associatedKeysets,
-        changePath,
-        outputScript,
-        lockTime,
-        sigHashType,
-        segwit,
-        initialTimestamp,
-        additionals,
-        expiryHeight,
-      ).then(r =>
-        transport
-          .close()
-          .catch(e => {})
-          .then(() => r)
-      );
-    })
-    .catch(e => {
-      console.warn(e);
-      return -777;
-    });
-}
-
-function splitTransaction(txData) {
-  const {
-    transactionHex,
-    isSegwitSupported,
-    hasTimestamp,
-    hasExtraData,
-    additionals,
-  } = txData;
-
-  return TransportNodeHid.open('')
-    .then(transport => {
-      transport.setDebugMode(true);
-      const appBtc = new AppBtc(transport);
-      const txSplit = appBtc.splitTransaction(
-        transactionHex,
-        isSegwitSupported,
-        hasTimestamp,
-        hasExtraData,
-        additionals,
-      );
-      console.log(txSplit);
-      transport.close();
-      return txSplit;
-    })
-    .catch(e => {
-      console.warn(e);
-      return -777;
-    });
-}
+const ipcLedger = require('./ipc-ledger');
+const ipcSPV = require('./spv');
+const ipcNSPV = require('./nspv');
+const isDev = process.argv.indexOf('devmode') > -1;
+const {createAdapter} = require('iocane');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let pw;
 
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1024,
+    height: 768,
     webPreferences: {
       nativeWindowOpen: true, // <-- important for trezor
       nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
     },
   });
+
+  // TODO: refactor
+  require("@electron/remote/main").enable(mainWindow.webContents);
 
   require(path.join(__dirname, 'menu'));
 
@@ -137,13 +59,61 @@ function createWindow() {
     { role: 'selectall' },
   ]);
 
+  const decodeStoredData = (str/*, pw*/) => {
+    return new Promise((resolve, reject) => {
+      if (str.length) {
+        createAdapter()
+        .decrypt(str, pw)
+        .catch((err) => {
+          console.log('decodeStoredData error', err);
+          resolve(false);
+        })
+        .then(decryptedString => {
+          //console.log('decryptedString', decryptedString);
+          resolve(decryptedString);
+        });
+      } else {
+        resolve(false);
+      }
+    });
+  };
+
+  const encodeStoredData = (str/*, pw*/) => {
+    return new Promise((resolve, reject) => {
+      createAdapter()
+      .encrypt(str, pw)
+      .catch((err) => {
+        console.log('encodeStoredData error', err);
+        resolve(false);
+      })
+      .then(encryptedString => {
+        resolve(encryptedString);
+      });
+    });
+  };
+
+  const getPW = () => {
+    return pw;
+  };
+  const setPW = (_pw) => {
+    pw = _pw;
+  };
+
   global.app = {
-    isDev: process.argv.indexOf('devmode') > -1,
+    isDev,
     noFWCheck: true,
+    blockchainAPI: process.argv.indexOf('api=spv') > -1 || process.argv.indexOf('api=nspv') > -1 ? 'spv' : 'insight',
+    isNspv: process.argv.indexOf('api=nspv') > -1,
+    helpers: {
+      decodeStoredData,
+      encodeStoredData,
+      getPW,
+      setPW,
+    },
   };
 
   // and load the index.html of the app.
-  if (process.argv.indexOf('devmode') > -1) {
+  if (isDev) {
     mainWindow.maximize();
     mainWindow.loadURL('http://localhost:3000/');
   } else {
@@ -165,42 +135,16 @@ function createWindow() {
   });
 
   // Emitted when the window is closed.
-  mainWindow.on('closed', function() {
+  mainWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null;
   });
 
-  ipcMain.on('getAddress', (e, {ruid, derivationPath}) => {
-    console.log(derivationPath);
-
-    if (mainWindow) {
-      getAddress(derivationPath, false).then(result => {
-        mainWindow.webContents.send('getAddress', {ruid, result});
-      });
-    }
-  });
-
-  ipcMain.on('createPaymentTransactionNew', (e, {ruid, txData}) => {
-    console.log(txData);
-
-    if (mainWindow) {
-      createPaymentTransactionNew(txData).then(result => {
-        mainWindow.webContents.send('createPaymentTransactionNew', {ruid, result});
-      });
-    }
-  });
-
-  ipcMain.on('splitTransaction', (e, {ruid, txData}) => {
-    console.log(txData);
-
-    if (mainWindow) {
-      splitTransaction(txData).then(result => {
-        mainWindow.webContents.send('splitTransaction', {ruid, result});
-      });
-    }
-  });
+  ipcLedger.setMainWindow(mainWindow);
+  ipcSPV.setMainWindow(mainWindow);
+  ipcNSPV.setMainWindow(mainWindow);
 }
 
 // This method will be called when Electron has finished
@@ -209,15 +153,15 @@ function createWindow() {
 app.on('ready', createWindow);
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin' || process.argv.indexOf('devmode') > -1) {
+  if (process.platform !== 'darwin' || isDev) {
     app.quit();
   }
 });
 
-app.on('activate', function() {
+app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
@@ -228,7 +172,7 @@ app.on('activate', function() {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 app.on('browser-window-focus', (event, win) => {
-  if (!win.isDevToolsOpened() && process.argv.indexOf('devmode') > -1) {
-      win.openDevTools();
+  if (!win.isDevToolsOpened() && isDev) {
+    win.openDevTools();
   }
 });

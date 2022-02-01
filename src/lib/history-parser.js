@@ -1,13 +1,14 @@
 import {secondsToString} from './time';
 import {sortTransactions} from './sort';
 import compose from './compose';
+import {writeLog} from '../Debug';
 
 const parse = ([txs, addr, options]) => {
   let txHistory = [];
   let addresses = [];
 
   if (options && options.hasOwnProperty('debug')) {
-    console.warn('parsehistory txs', txs);
+    writeLog('parsehistory txs', txs);
   }
   
   for (let i = 0; i < txs.length; i++) {
@@ -15,10 +16,10 @@ const parse = ([txs, addr, options]) => {
     let vinSum = 0, voutSum = 0;
 
     if (options && options.hasOwnProperty('debug')) {
-      console.log('--- vin -->');
-      console.log(txs[i].vin);
-      console.log('--- vout -->');
-      console.log(txs[i].vout);
+      writeLog('--- vin -->');
+      writeLog(txs[i].vin);
+      writeLog('--- vout -->');
+      writeLog(txs[i].vout);
     }
     
     for (let j = 0; j < txs[i].vin.length; j++) {
@@ -38,13 +39,13 @@ const parse = ([txs, addr, options]) => {
 
       if (addr.indexOf(txs[i].vout[j].scriptPubKey.addresses[0]) > -1) {
         voutSum += Number(txs[i].vout[j].value);
-        console.warn('vout', JSON.stringify(txs[i].vout[j]));
+        writeLog('vout', JSON.stringify(txs[i].vout[j]));
       }
     }
   
     if (options && options.hasOwnProperty('debug')) {
-      console.log(`vinsum: ${vinSum}`);
-      console.log(`voutSum: ${voutSum}`);
+      writeLog(`vinsum: ${vinSum}`);
+      writeLog(`voutSum: ${voutSum}`);
     }
 
     tx = {
@@ -53,7 +54,7 @@ const parse = ([txs, addr, options]) => {
       timestamp: txs[i].height === -1 ? Math.floor(Date.now() / 1000) : txs[i].blocktime || 'pending',
       date: txs[i].blocktime ? secondsToString(txs[i].blocktime) : 'pending',
       txid: txs[i].txid || 'unknown',
-      height: txs[i].height === -1 ? 0 : txs[i].height,
+      height: txs[i].height === -1 ? 0 : txs[i].height || 'unknown',
       confirmations: txs[i].confirmations || 0,
     };
 
@@ -73,12 +74,28 @@ const parse = ([txs, addr, options]) => {
 };
 
 const sort = (txHistory) => {
+  let _txHistory;
+
+  if (txHistory.length && !txHistory.txid) {
+    txHistory[0] = sortTransactions(txHistory[0], 'timestamp');
+
+    return txHistory;
+  }
+
   return sortTransactions(txHistory, 'timestamp');
 };
 
 const limit = (txHistory) => {
+  let _txHistory;
+
+  if (txHistory.length && !txHistory.txid) {
+    txHistory[0] = txHistory[0].slice(0, 10);
+
+    return txHistory;
+  }
+
   if (txHistory.length > 10) {
-    txHistory = txHistory.slice(0, 9);
+    txHistory = txHistory.slice(0, 10);
   }
 
   return txHistory;

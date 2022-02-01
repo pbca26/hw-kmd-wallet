@@ -22,6 +22,7 @@ module.exports = {
       path.resolve(paths.appNodeModules, 'u2f-api'),
       path.resolve(paths.appNodeModules, 'asn1.js'),
       path.resolve(paths.appNodeModules, 'bech32'),
+      path.resolve(paths.appNodeModules, 'webrtc-adapter'),
       path.resolve(paths.appNodeModules, '@trezor/utxo-lib'),
       path.resolve(paths.appNodeModules, '@ledgerhq/hw-app-btc'),
       path.resolve(paths.appNodeModules, '@ledgerhq/hw-transport/lib-es'),

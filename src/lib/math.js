@@ -1,5 +1,5 @@
 // ref: https://github.com/pbca26/agama-wallet-lib/blob/master/src/utils.js#L131
-const convertExponentialToDecimal = (exponentialNumber) => {
+const convertExponentialToDecimal = (exponentialNumber, returnAsString) => {
   // sanity check - is it exponential number
   const str = exponentialNumber.toString();
   if (str.indexOf('e') !== -1) {
@@ -7,10 +7,10 @@ const convertExponentialToDecimal = (exponentialNumber) => {
     // Unfortunately I can not return 1e-8 as 0.00000001, because even if I call parseFloat() on it,
     // it will still return the exponential representation
     // So I have to use .toFixed()
-    const result = exponentialNumber.toFixed(exponent);
+    const result = returnAsString ? exponentialNumber.toFixed(exponent).toString() : exponentialNumber.toFixed(exponent);
     return result;
   } else {
-    return exponentialNumber;
+    return returnAsString ? exponentialNumber.toString() : exponentialNumber;
   }
 }
 
@@ -38,5 +38,6 @@ const maxSpendBalance = (utxoList, fee) => {
 module.exports = {
   fromSats,
   toSats,
-  maxSpendBalance
+  maxSpendBalance,
+  convertExponentialToDecimal,
 };

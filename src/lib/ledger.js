@@ -5,18 +5,19 @@ import createXpub from './create-xpub';
 import transport from './ledger-transport';
 import {isElectron} from '../Electron';
 import ledgerIpcWrapper from './ledger-ipc-wrapper';
+import {writeLog} from '../Debug';
 
 let ledgerFWVersion = 'default';
 export let ledgerTransport;
 
 const setLedgerTransport = (transport) => {
   ledgerTransport = transport;
-  console.warn(ledgerTransport);
+  writeLog(ledgerTransport);
 };
 
 const setLedgerFWVersion = name => {
   ledgerFWVersion = name;
-  console.warn(ledgerFWVersion);
+  writeLog(ledgerFWVersion);
 };
 
 const getLedgerFWVersion = () => {
@@ -32,7 +33,7 @@ const resetTransport = () => {
 
 let getDevice = async () => {
   let newTransport;
-  let transportType = 'u2f'; // default
+  let transportType = 'webusb'; // default
 
   if (window.location.href.indexOf('ledger-webusb') > -1 ||
       ledgerFWVersion === 'webusb') {

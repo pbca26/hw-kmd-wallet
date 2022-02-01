@@ -2,6 +2,8 @@
 @import './App.scss';
 @import './dark-theme.scss';
 @import './light-theme.scss';
+//@import './Responsive.scss'; // old responsive rules mess up new styling
+@import './uiv2.scss';
 
 html,
 body {
@@ -16,6 +18,7 @@ body {
 
 html {
   background: inherit !important;
+  overflow-y: inherit !important;
 }
 
 .vendor-trezor,
@@ -62,5 +65,16 @@ html {
     &.light.active {
       border: solid 1px rgba(168, 168, 168, 0.822);
     }
+  }
+}
+
+.button.is-primary {
+  background: #093ec3e0 !important;
+  color: #fff !important;
+}
+
+.modal-action-block {
+  &.center {
+    text-align: center;
   }
 }

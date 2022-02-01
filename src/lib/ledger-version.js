@@ -1,5 +1,6 @@
 import hw from './hw';
 import {ledgerTransport} from './ledger';
+import {writeLog} from '../Debug';
 
 const RECHECK_TIMEOUT = 1000;
 let getLedgerDeviceInfoInterval, getLedgerAppInfoInterval;
@@ -55,7 +56,7 @@ const getLedgerDeviceInfo = async() => {
           const transport = await hw.ledger.transportOptions.webusb.create();
           hw.ledger.setLedgerTransport(transport);
         }
-        console.warn(e);
+        writeLog(e);
       }
     }, RECHECK_TIMEOUT);
   });

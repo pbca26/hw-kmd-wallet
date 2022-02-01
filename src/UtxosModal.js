@@ -3,6 +3,7 @@ import Modal from './Modal';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import humanRewardEndDate from './lib/human-reward-end-date';
+import blockchain, {blockchainAPI} from './lib/blockchain';
 import Boolean from './Boolean';
 import './UtxosModal.scss';
 
@@ -18,7 +19,8 @@ const headings = [
 
 class UtxosModal extends React.Component {
   state = {
-    isClosed: true
+    isClosed: true,
+    tiptime: 0,
   };
 
   close() {
@@ -27,21 +29,28 @@ class UtxosModal extends React.Component {
     });
   }
 
-  open() {
+  open = async() => {
     this.setState({
       isClosed: false
+    });
+
+    const tiptime = await blockchain[blockchainAPI].getTipTime();
+    this.setState({
+      isClosed: false,
+      tiptime,
     });
   }
 
   render() {
-    const {utxos, tiptime} = this.props;
+    const {utxos} = this.props;
+    const {tiptime} = this.state;
 
     return (
       <React.Fragment>
         <button
-          className="button is-primary check-utxos-btn"
+          className="button del-btn check-utxos-btn"
           onClick={() => this.open()}>
-          Check UTXOs
+          <i className="fa fa-wrench"></i>
         </button>
         <Modal
           title="Check KMD UTXOs"
@@ -55,11 +64,6 @@ class UtxosModal extends React.Component {
                 {headings.map(heading => <th key={heading}>{heading}</th>)}
               </tr>
             </thead>
-            <tfoot>
-              <tr>
-                {headings.map(heading => <th key={heading}>{heading}</th>)}
-              </tr>
-            </tfoot>
             <tbody>
               {utxos.map(utxo => (
                 <tr

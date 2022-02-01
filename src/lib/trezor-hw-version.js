@@ -1,4 +1,5 @@
 import TrezorConnect from 'trezor-connect';
+import {writeLog} from '../Debug';
 
 const RECHECK_TIMEOUT = 1000;
 
@@ -28,10 +29,10 @@ const trezorCheckFW = async () => {
             model,
           });
         } else {
-          console.warn('unable to check trezor firmware version');
+          writeLog('unable to check trezor firmware version');
         }
       } else {
-        console.warn('unable to check trezor firmware version');
+        writeLog('unable to check trezor firmware version');
       }
     }, RECHECK_TIMEOUT);
   });

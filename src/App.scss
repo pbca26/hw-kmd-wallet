@@ -9,6 +9,32 @@
   flex-direction: column;
   min-width: 600px;
 
+  .download-desktop-block {
+    text-align: center;
+    padding-bottom: 20px;
+
+    a:hover {
+      text-decoration: none;
+    }
+    button {
+      padding: 15px;
+      height: 2.5rem;
+      
+      i {
+        padding-right: 7px;
+        position: relative;
+        top: -2px;
+      }
+    }
+  }
+
+  .add-pwa-button {
+    position: absolute;
+    top: 8px;
+    left: calc(100% - 180px);
+    z-index: 1000;
+  }
+
   .col-warning {
     color: #ffc107;
   }
@@ -18,7 +44,7 @@
     padding-top: 5.4em;
 
     &.beta-warning-fix {
-      padding-top: 7.4em;
+      padding-top: 0;
     }
 
     .ws--nowrap {

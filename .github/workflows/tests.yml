@@ -1,0 +1,25 @@
+name: HWKMDTestsCI
+
+on: 
+  push:
+    branches:
+    - master
+    - dev
+    - ui-refactor
+
+jobs:
+  linux-run-tests:
+    name: Unit tests
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12'
+        check-latest: true
+
+    - name: Install deps
+      run: npm install
+
+    - name: Run tests
+      run:  env TZ='Europe/Moscow' npm run test

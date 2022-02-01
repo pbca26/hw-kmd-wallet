@@ -11,9 +11,7 @@ const TxidLink = ({txid, coin}) => !isElectron ? (
     rel="noopener noreferrer"
     href={`${explorerLink[coin].explorer}tx/${txid}`}>{txid}</a>
 ) : (
-  <a
-    href="#"
-    onClick={() => shell.openExternal(`${explorerLink[coin].explorer}tx/${txid}`)}>{txid}</a>
+  <a onClick={() => shell.openExternal(`${explorerLink[coin].explorer}tx/${txid}`)}>{txid}</a>
 );
 
 export default TxidLink;

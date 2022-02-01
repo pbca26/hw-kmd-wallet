@@ -20,7 +20,8 @@ export const voteCoin = 'VOTE2020';
 export const testCoins = [
   'RICK',
   'MORTY',
-  'VOTE2020'
+  'VOTE2020',
+  'TKLTEST',
 ];
 export const LEDGER_FW_VERSIONS = {
   nano_s: {
@@ -52,4 +53,24 @@ export const LEDGER_DEVICE_HEX_ENUM = {
   '31100003': 's',
   '31100004': 's',
   '33000004': 'x',
+};
+export const SETTINGS = {
+  DISCOVERY_GAP_LIMIT: 200,
+  DISCOVERY_ADDRESS_CONCURRENCY: {
+    2: 2,
+    5: 5,
+    10: '10 (default)',
+  },
+  ACCOUNT_INDEX_LIMIT: 30,
+  SIDEBAR: {
+    'full': 'Full size',
+    'short': 'Compact size (icons only)',
+  },
+  AUTOLOCK: {
+    0: 'Never',
+    300: '5 min',
+    600: '10 min',
+    1800: '30 min',
+    3200: '60 min',
+  },
 };
