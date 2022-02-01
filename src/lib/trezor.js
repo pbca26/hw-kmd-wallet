@@ -175,20 +175,17 @@ const signMessage = async (path, message, reverseString) => {
   let out = {};
 
   if (reverseString) {
-    writeLog('original message', message);
-    out.originalMessage = message;
     const buf = new Buffer.from(message, 'hex');
+    out.originalMessage = message;
     message = buf.reverse().toString('hex');
-    writeLog('reversed message', message);
     out.reversedMessage = message;
   }
 
   const res = await TrezorConnect.signMessage({
+    coin: 'kmd',
     path,
     message,
   });
-
-  console.warn('trezor sign message res', res);
 
   out.trezorResponse = res.payload;
 
