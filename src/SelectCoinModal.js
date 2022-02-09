@@ -98,7 +98,7 @@ class SelectCoinModal extends React.Component {
                 {this.state.selectedCoins.indexOf(coinTicker) > -1 &&
                   <i className="fa fa-check-circle check-icon"></i>
                 }
-                <img src={`coins/${coinTicker}.png`} />
+                <img src={apiEndpoints[coinTicker].icon ? `coins/${apiEndpoints[coinTicker].icon}.png` : `coins/${coinTicker}.png`} />
                 <span className="block-coin-icons-tile-name">{coinTicker}</span>
               </div>
             ))}

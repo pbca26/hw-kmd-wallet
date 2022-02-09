@@ -396,7 +396,7 @@ class App extends React.Component {
     if (clearData &&
         clearData !== 'logout') {
       resetLocalStorage();
-      document.getElementById('body').removeEventListener('click');
+      document.getElementById('body').removeEventListener('click', null);
     } else if (
       clearData &&
       clearData === 'logout') {

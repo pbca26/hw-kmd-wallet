@@ -200,6 +200,11 @@ const coins = {
       'https://explorer.komodoplatform.com:10000/tkltest/api/',
     ],
   },
+  TKLTESTSIG: {
+    explorer: 'https://tkltest.explorer.dexstats.info/',
+    api: ['https://explorer.komodoplatform.com:10000/tkltestsig/api/',],
+    icon: 'TKLTEST',
+  },
   // SHARK: '',
   /* coins below need special handling due to no overwinter support
   ZILLA: {

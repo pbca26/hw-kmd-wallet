@@ -34,7 +34,7 @@ class CoinsSelector extends React.Component {
               className="inline-coin-icons-tile"
               key={`coins-${coinTicker}`}
               onClick={() => this.props.setActiveCoin(coinTicker)}>
-              <img src={`coins/${coinTicker}.png`} />
+              <img src={apiEndpoints[coinTicker].icon ? `coins/${apiEndpoints[coinTicker].icon}.png` : `coins/${coinTicker}.png`} />
               {coinTicker === 'KMD' &&
                this.checkKMDRewards() > 0 &&
                <div
