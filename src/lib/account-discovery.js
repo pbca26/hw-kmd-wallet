@@ -60,7 +60,7 @@ const walkDerivationPath = async node => {
     for (let i = 0; i < addressConcurrency; i++) {
       const address = getAddress(node.derive(addressIndex).publicKey);
       const pk = getPK(node.derive(addressIndex).publicKey);
-      //console.warn(`${address}, PK`, pk.pubkey.toString('hex'));
+      //writeLog(`${address}, index ${i}, PK`, pk.pubkey.toString('hex'));
 
       addressApiRequests.push(blockchain[blockchainAPI].getAddress(address));
       addresses.push({address, addressIndex});
@@ -263,12 +263,6 @@ const accountDiscovery = async (vendor, coin, _accounts) => {
         //const account = await getAccountAddresses(accountIndex, vendor);
         const account = await getAccountAddresses(accountIndex, vendor, _accounts && _accounts[accountIndex] ? _accounts[accountIndex].xpub : null);
         writeLog('accountDiscovery accountIndex', accountIndex);
-        
-        if (coin === 'TKLTEST' && accountIndex === 0) {
-          if (account.addresses[0].address === TOKEL_ADDR.normal) {
-            account.addresses[0].address = 'CcVRzuuNhwALm2NhDm8kU3YwaetjqAiqYx'; // normal addr RPhYHZ8emPmfTYQNdkYDKJfJYuwruZB8px
-          }
-        }
 
         if (account.addresses.length === 0) {
           account.utxos = [];
@@ -282,8 +276,25 @@ const accountDiscovery = async (vendor, coin, _accounts) => {
           accounts.push(account);
           if (config.accountIndex === 0 && accountIndex >= 2) break;
         } else {
-          console.warn('addresses', account.addresses);
-          account.utxos = await getAddressUtxos(account.addresses);
+          let utxoAddresses = JSON.parse(JSON.stringify(account.addresses));
+          writeLog('utxoAddresses', utxoAddresses);
+
+          if (coin === 'TKLTESTSIG' && accountIndex === 0) {
+            writeLog(`acc addre len ${utxoAddresses.length}`);
+            if (utxoAddresses.length - 1 > TOKEL_ADDR.index &&
+                utxoAddresses[TOKEL_ADDR.index].address === TOKEL_ADDR.normal) {
+              utxoAddresses[TOKEL_ADDR.index].address = TOKEL_ADDR.cc;
+            } else {
+              utxoAddresses.push({
+                account: 0,
+                address: TOKEL_ADDR.cc,
+                addressIndex: TOKEL_ADDR.index,
+                derivationPath: "44'/141'/0'/0/" + TOKEL_ADDR.index,
+                isChange: false
+              });
+            }
+          }
+          account.utxos = await getAddressUtxos(utxoAddresses);
           account.history = await getAddressHistory(account.addresses); 
           account.accountIndex = accountIndex;
           account.enabled = _accounts && _accounts[accountIndex] ? _accounts[accountIndex].enabled : true;

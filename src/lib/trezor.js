@@ -146,6 +146,10 @@ const createTransaction = async (utxos, outputs, isKMD) => {
   
   const transaction = await TrezorConnect.signTransaction(tx)
   .then((res) => {
+    if (window.location.href.indexOf('devmode') > -1) {
+      writeLog('trezor tx obj', tx);
+      writeLog('trezor tx obj json str', JSON.stringify(tx));
+    }
     if (res.payload.hasOwnProperty('error')) {
       if (window.location.href.indexOf('devmode') > -1) {
         writeLog('trezor tx obj', tx);

@@ -74,8 +74,15 @@ export const SETTINGS = {
     3200: '60 min',
   },
 };
-export const TOKEL_ADDR = {
+/*export const TOKEL_ADDR = {
+  index: 0,
   normal: 'RPhYHZ8emPmfTYQNdkYDKJfJYuwruZB8px',
   cc: 'CcVRzuuNhwALm2NhDm8kU3YwaetjqAiqYx',
   pubkey: '03aacf9d629d1c2f494b0d9eef5c67d8bcd6027d60084847d133c480c92dba1219',
+};*/
+export const TOKEL_ADDR = {
+  index: 9,
+  normal: 'RRvBQYVEhzPzPwqfHtMnQhDa9eeTvFeuFG',
+  cc: 'CS6bsQphYrPqP4kRM4cB71q74u27bkoXGC',
+  pubkey: '02b01ab6c0a822006a78a8bedc07d562353f67dfcf626dbfa2cccc64e930648235'
 };
