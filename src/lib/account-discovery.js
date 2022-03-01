@@ -159,13 +159,12 @@ const getAddressUtxos = async addresses => {
   }));
 };
 
-const getAddressHistory = async addresses => {
+const getAddressHistory = async (addresses, coin) => {
   const history = await blockchain[blockchainAPI].getHistory(addresses.map(a => a.address));
-
   return {
     addresses: addresses,
     allTxs: history.items,
-    historyParsed: parseHistory(history.items, addresses.map(a => a.address)),
+    historyParsed: parseHistory(history.items, addresses.map(a => a.address), {coin}),
   };
 };
 
@@ -242,7 +241,7 @@ const accountDiscovery = async (vendor, coin, _accounts) => {
       accounts.push(account);
     } else {
       account.utxos = await getAddressUtxos(account.addresses);
-      account.history = await getAddressHistory(account.addresses); 
+      account.history = await getAddressHistory(account.addresses, coin); 
       account.accountIndex = accountIndex;
       account.enabled = true;
     }
@@ -274,7 +273,7 @@ const accountDiscovery = async (vendor, coin, _accounts) => {
           if (config.accountIndex === 0 && accountIndex >= 2) break;
         } else {
           account.utxos = await getAddressUtxos(account.addresses);
-          account.history = await getAddressHistory(account.addresses); 
+          account.history = await getAddressHistory(account.addresses, coin); 
           account.accountIndex = accountIndex;
           account.enabled = _accounts && _accounts[accountIndex] ? _accounts[accountIndex].enabled : true;
           accounts.push(account);

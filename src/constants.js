@@ -74,3 +74,4 @@ export const SETTINGS = {
     3200: '60 min',
   },
 };
+export const CACHE_MAX_LIFETIME = 10 * 60;

@@ -73,8 +73,6 @@ class SelectCoinModal extends React.Component {
   }
 
   render() {
-    console.warn(this.state.selectedCoins);
-
     return (
       <React.Fragment>
         <div

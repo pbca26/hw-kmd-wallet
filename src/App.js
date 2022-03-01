@@ -291,7 +291,7 @@ class App extends React.Component {
 
     const currentTimestamp = Date.now() / 1000;
     const secondsDiff = Math.floor(Number(currentTimestamp) - Number(tiptime));
-
+    
     if (Math.abs(secondsDiff) < MAX_TIP_TIME_DIFF) {      
       return tiptime;
     } else {
@@ -341,10 +341,6 @@ class App extends React.Component {
     this.setState({
       explorerEndpointOverride,
     });
-
-    setTimeout(() => {
-      console.warn(this.state);
-    }, 100)
   }
 
   checkExplorerEndpoints = async () => {
@@ -392,7 +388,7 @@ class App extends React.Component {
     if (clearData &&
         clearData !== 'logout') {
       resetLocalStorage();
-      document.getElementById('body').removeEventListener('click');
+      document.getElementById('body').removeEventListener('click', null);
     } else if (
       clearData &&
       clearData === 'logout') {
@@ -578,7 +574,7 @@ class App extends React.Component {
             this.handleScanData({
               coins: balances,
               tiptime,
-            })
+            });
           }
         }
       });
@@ -592,6 +588,7 @@ class App extends React.Component {
 
     for (var i = 0; i < newCoins.length; i++) {
       coins[newCoins[i].coin] = newCoins[i];
+      coins[newCoins[i].coin].lastChecked = Date.now();
     }
     
     for (let coin in coins) {
@@ -689,7 +686,8 @@ class App extends React.Component {
           closeLoginModal={this.closeLoginModal}
           resetState={this.resetState}
           isClosed={this.state.loginModalClosed}
-          isAuth={this.state.isAuth} />
+          isAuth={this.state.isAuth}
+          triggerSidebarSizeChange={this.triggerSidebarSizeChange} />
         <Header>
           <div className="navbar-brand">
             <div className="navbar-item">
@@ -810,7 +808,9 @@ class App extends React.Component {
             isAuth={this.state.isAuth}
             resetState={this.resetState}
             triggerSidebarSizeChange={this.triggerSidebarSizeChange}
-            updateExplorerEndpoint={this.updateExplorerEndpoint} />
+            updateExplorerEndpoint={this.updateExplorerEndpoint}
+            coins={this.state.coins}
+            checkTipTime={this.checkTipTime} />
 
           {this.state.explorerEndpoint === false &&
             <ConnectionError />
@@ -929,7 +929,8 @@ class App extends React.Component {
                     syncData={this.syncData}
                     removeCoin={this.removeCoin}
                     enableAccount={this.enableAccount}
-                    addAccount={this.addAccount} />
+                    addAccount={this.addAccount}
+                    checkTipTime={this.checkTipTime} />
                 }
               </React.Fragment>
             )}

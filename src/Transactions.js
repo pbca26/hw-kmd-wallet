@@ -105,7 +105,7 @@ class Transactions extends React.Component {
                           {coin} {tx.accountIndex + 1}
                         </td>
                       }
-                      <td className={tx.type === 'received' ? 'amount-increase' : 'amount-decrease'}>{tx.type === 'received' ? '+' + tx.amount : '-' + tx.amount}</td>
+                      <td className={tx.type === 'received' || tx.type === 'rewards' ? 'amount-increase' : 'amount-decrease'}>{tx.type === 'received' || tx.type === 'rewards' ? '+' + tx.amount : '-' + tx.amount}</td>
                       {/*<td>{tx.confirmations}</td>*/}
                     </tr>
                   ))}

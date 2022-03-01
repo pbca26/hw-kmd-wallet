@@ -27,13 +27,10 @@ const getCoinpaprikaPrices = async (coin) => {
 };
 
 export const getPrices = async(userCoinTickers) => {
-  //try {
+  try {
     const defaultCoins = ['KMD', 'VRSC', 'TOKEL'];
     let pricePromises = [];
     let prices = {};
-
-    console.warn('userCoinTickers', userCoinTickers);
-    console.warn('coinPaprikaTickers', coinPaprikaTickers);
 
     for (let i = 0; i < userCoinTickers.length && pricePromises.length < 3; i++) {
       if (coinPaprikaTickers.indexOf(userCoinTickers[i]) > -1) {
@@ -67,7 +64,7 @@ export const getPrices = async(userCoinTickers) => {
 
     //console.warn('prices', prices);
     return prices;
-  /*} catch (e) {
+  } catch (e) {
     return null;
-  }*/
+  }
 };
