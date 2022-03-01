@@ -14,7 +14,7 @@ const parse = ([txs, addr, options]) => {
   
   for (let i = 0; i < txs.length; i++) {
     let tx = {};
-    let vinSum = 0, voutSum = 0;
+    let vinSum = 0, voutSum = 0, txVin = 0, txVout = 0;
 
     if (options && options.hasOwnProperty('debug')) {
       writeLog('--- vin -->');
@@ -24,6 +24,8 @@ const parse = ([txs, addr, options]) => {
     }
     
     for (let j = 0; j < txs[i].vin.length; j++) {
+      txVin += Number(txs[i].vin[j].value);
+
       if (addresses.indexOf(txs[i].vin[j].addr) === -1) {
         addresses.push(txs[i].vin[j].addr);
       }
@@ -34,6 +36,8 @@ const parse = ([txs, addr, options]) => {
     }
 
     for (let j = 0; j < txs[i].vout.length; j++) {
+      txVout += Number(txs[i].vout[j].value);
+
       if (addresses.indexOf(txs[i].vout[j].scriptPubKey.addresses[0]) === -1) {
         addresses.push(txs[i].vout[j].scriptPubKey.addresses[0]);
       }
@@ -64,7 +68,7 @@ const parse = ([txs, addr, options]) => {
     if (options &&
         options.coin &&
         options.coin.toUpperCase() === 'KMD' &&
-        (Number(vinSum - voutSum) < 0) &&
+        (Number(txVin - txVout) < 0) &&
         myOutAddress) {
       tx.type = 'rewards';
     } else if (vinSum && !voutSum) {
