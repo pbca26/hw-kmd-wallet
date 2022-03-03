@@ -6,6 +6,7 @@ import {writeLog} from '../Debug';
 const parse = ([txs, addr, options]) => {
   let txHistory = [];
   let addresses = [];
+  let myOutAddress = false;
 
   if (options && options.hasOwnProperty('debug')) {
     writeLog('parsehistory txs', txs);
@@ -13,7 +14,7 @@ const parse = ([txs, addr, options]) => {
   
   for (let i = 0; i < txs.length; i++) {
     let tx = {};
-    let vinSum = 0, voutSum = 0;
+    let vinSum = 0, voutSum = 0, txVin = 0, txVout = 0;
 
     if (options && options.hasOwnProperty('debug')) {
       writeLog('--- vin -->');
@@ -23,6 +24,8 @@ const parse = ([txs, addr, options]) => {
     }
     
     for (let j = 0; j < txs[i].vin.length; j++) {
+      if (txs[i].vin[j].value) txVin += Number(txs[i].vin[j].value);
+
       if (addresses.indexOf(txs[i].vin[j].addr) === -1) {
         addresses.push(txs[i].vin[j].addr);
       }
@@ -33,6 +36,8 @@ const parse = ([txs, addr, options]) => {
     }
 
     for (let j = 0; j < txs[i].vout.length; j++) {
+      if (txs[i].vout[j].value) txVout += Number(txs[i].vout[j].value);
+
       if (addresses.indexOf(txs[i].vout[j].scriptPubKey.addresses[0]) === -1) {
         addresses.push(txs[i].vout[j].scriptPubKey.addresses[0]);
       }
@@ -40,6 +45,7 @@ const parse = ([txs, addr, options]) => {
       if (addr.indexOf(txs[i].vout[j].scriptPubKey.addresses[0]) > -1) {
         voutSum += Number(txs[i].vout[j].value);
         writeLog('vout', JSON.stringify(txs[i].vout[j]));
+        myOutAddress = true;
       }
     }
   
@@ -59,9 +65,13 @@ const parse = ([txs, addr, options]) => {
     };
 
     // TODO: dectect send to self txs
-    if /*(vinSum && voutSum) {
-      tx.type = 'self';
-    } else if */(vinSum && !voutSum) {
+    if (options &&
+        options.coin &&
+        options.coin.toUpperCase() === 'KMD' &&
+        (Number(txVin - txVout) < 0) &&
+        myOutAddress) {
+      tx.type = 'rewards';
+    } else if (vinSum && !voutSum) {
       tx.type = 'sent';
     } else if (!vinSum && voutSum) {
       tx.type = 'received';

@@ -23,7 +23,7 @@ class DashboardOperations extends React.Component {
                 <span className="date">{item.date}</span>
               </div>
               <div className="item-right-pane">
-                <span className="amount">{item.amount}</span>
+                <span className={item.type === 'received' || item.type === 'rewards' ? 'amount-increase' : 'amount-decrease'}>{item.type === 'received' || item.type === 'rewards' ? '+' + item.amount : '-' + item.amount}</span>
               </div>
             </div>
           ))}
