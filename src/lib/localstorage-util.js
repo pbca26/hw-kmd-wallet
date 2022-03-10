@@ -101,7 +101,7 @@ export const encodeStoredData = (str) => {
   }
 };
 
-export const setLocalStorageVar = (name, json) => {
+export const setLocalStorageVar = (name, json, replace) => {
   return new Promise((resolve, reject) => {
     let _var = {};
     //writeLog('localStorageCache', localStorageCache);
@@ -112,14 +112,18 @@ export const setLocalStorageVar = (name, json) => {
       writeLog(e);
     }
 
-    for (let key in json) {
-      _var[key] = json[key];
+    if (replace) {
+      localStorageCache[name] = json;
+    } else {
+      for (let key in json) {
+        _var[key] = json[key];
+      }
+      
+      localStorageCache[name] = Array.isArray(json) ? json : Object.assign({}, localStorageCache[name], _var);
     }
-
-    writeLog('_var', _var);
-
-    localStorageCache[name] = Array.isArray(json) ? json : Object.assign({}, localStorageCache[name], _var);
     
+    writeLog('_var', _var);
+        
     encodeStoredData(JSON.stringify(localStorageCache));
     resolve(true);
   });
