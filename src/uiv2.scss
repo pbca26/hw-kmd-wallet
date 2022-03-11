@@ -669,6 +669,14 @@
     position: relative;
     top: 2px;
   }
+  .notification.is-success {
+    word-break: break-all;
+
+    .copy-btn {
+      height: 24px !important;
+      top: 4px !important;
+    }
+  }
 }
 
 .Modal-coin-settings {

@@ -188,7 +188,7 @@ class App extends React.Component {
       activeCoin: null,
     });
 
-    setLocalStorageVar('coins', coins);
+    setLocalStorageVar('coins', coins, true);
     setLocalStorageVar('lastOperations', lastOperations);
   }
 
@@ -541,26 +541,6 @@ class App extends React.Component {
             rewardsSum += accounts[i].rewards; 
           }
 
-          if (coin === 'KMD') {
-            writeLog('check if any KMD rewards are overdue');
-
-            for (let i = 0; i < accounts.length; i++) {
-              //writeLog(accounts[i].utxos);
-              for (let j = 0; j < accounts[i].utxos.length; j++) {
-                const rewardEndDate = getRewardEndDate({locktime: accounts[i].utxos[j].locktime, height: 7777776});
-
-                writeLog('rewardEndDate', rewardEndDate, ' vs ', Date.now());
-
-                if (Date.now() > rewardEndDate) {
-                  writeLog('account', i, 'rewards overdue');
-                  accounts[i].isRewardsOverdue = true;
-                } else {
-                  accounts[i].isRewardsOverdue = false;
-                }
-              }
-            }
-          }
-
           balances.push({
             coin,
             balance: balanceSum,
@@ -608,6 +588,26 @@ class App extends React.Component {
             txid: coins[coin].accounts[j].history.historyParsed[a].txid,
             timestamp: coins[coin].accounts[j].history.historyParsed[a].timestamp,
           });
+        }
+      }
+
+      if (coin === 'KMD') {
+        writeLog('check if any KMD rewards are overdue');
+
+        for (let i = 0; i < coins[coin].accounts.length; i++) {
+          //writeLog(coins[coin].accounts[i].utxos);
+          for (let j = 0; j < coins[coin].accounts[i].utxos.length; j++) {
+            const rewardEndDate = getRewardEndDate({locktime: coins[coin].accounts[i].utxos[j].locktime, height: 7777776});
+
+            writeLog('rewardEndDate', rewardEndDate, ' vs ', Date.now());
+
+            if (Date.now() > rewardEndDate) {
+              writeLog('account', i, 'rewards overdue');
+              coins[coin].accounts[i].isRewardsOverdue = true;
+            } else {
+              coins[coin].accounts[i].isRewardsOverdue = false;
+            }
+          }
         }
       }
     }

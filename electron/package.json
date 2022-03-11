@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "hw-kmd-wallet-electron",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Komodo Hardware Wallet Electron App",
   "main": "main.js",
   "scripts": {
