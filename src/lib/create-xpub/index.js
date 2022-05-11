@@ -1,5 +1,5 @@
 const bs58check = require('bs58check');
-const ow = require('./ow/dist');
+const {default: ow} = require('ow');
 const {sha256, ripemd160} = require('./hash.js');
 
 const XPUB = 0x0488B21E;
@@ -35,11 +35,11 @@ const getPublicKeyFingerprint = publicKey => {
 };
 
 const createXpub = ({networkVersion = XPUB, depth, childNumber, chainCode, publicKey}) => {
-	ow(networkVersion, ow.number.label('networkVersion'));
-	ow(depth, ow.number.label('depth'));
-	ow(childNumber, ow.number.label('childNumber'));
-	ow(chainCode, ow.string.label('chainCode'));
-	ow(publicKey, ow.string.label('publicKey'));
+	ow(networkVersion, 'networkVersion', ow.number);
+	ow(depth, 'depth', ow.number);
+	ow(childNumber, 'childNumber', ow.number);
+	ow(chainCode, 'chainCode', ow.string);
+	ow(publicKey, 'publicKey', ow.string);
 
 	publicKey = compressPublicKey(publicKey);
 	const fingerprint = getPublicKeyFingerprint(publicKey);

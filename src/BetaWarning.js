@@ -4,7 +4,6 @@ import './BetaWarning.scss';
 const BetaWarning = () => (
   <nav
     className="Beta-warning"
-    role="navigation"
     aria-label="main navigation">
     <div className="container">
       <span>

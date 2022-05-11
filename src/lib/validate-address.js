@@ -1,7 +1,7 @@
 import {KOMODO} from './../constants';
-import bitcoin from 'bitcoinjs-lib';
+import bitcoin from '@trezor/utxo-lib';
 
-const checkPublicAddress = (address) => {
+const checkPublicAddress = address => {
   try {
     const b58check = bitcoin.address.fromBase58Check(address);
 

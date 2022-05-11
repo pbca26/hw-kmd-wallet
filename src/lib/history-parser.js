@@ -2,11 +2,14 @@ import {secondsToString} from './time';
 import {sortTransactions} from './sort';
 import compose from './compose';
 import {writeLog} from '../Debug';
+import {SETTINGS, TX_FEE} from '../constants';
+import {fromSats} from './math';
+
+let maxTxHistoryLength = SETTINGS.HISTORY_LENGTH_DEFAULT;
 
 const parse = ([txs, addr, options]) => {
   let txHistory = [];
   let addresses = [];
-  let myOutAddress = false;
 
   if (options && options.hasOwnProperty('debug')) {
     writeLog('parsehistory txs', txs);
@@ -14,6 +17,7 @@ const parse = ([txs, addr, options]) => {
   
   for (let i = 0; i < txs.length; i++) {
     let tx = {};
+    let myOutAddress = false, myInAddress = false;
     let vinSum = 0, voutSum = 0, txVin = 0, txVout = 0;
 
     if (options && options.hasOwnProperty('debug')) {
@@ -32,6 +36,7 @@ const parse = ([txs, addr, options]) => {
 
       if (addr.indexOf(txs[i].vin[j].addr) > -1) {
         vinSum += Number(txs[i].vin[j].value);
+        myInAddress = true;
       }
     }
 
@@ -54,9 +59,10 @@ const parse = ([txs, addr, options]) => {
       writeLog(`voutSum: ${voutSum}`);
     }
 
+    const amount = Math.abs(Number(Number(Math.abs(vinSum) - Math.abs(voutSum)).toFixed(8)));
     tx = {
       type: 'sent',
-      amount: Math.abs(Number(Number(Math.abs(vinSum) - Math.abs(voutSum) - 0.0001).toFixed(8))),
+      amount: Math.abs(amount - fromSats(TX_FEE)) === 0 ? Number(Number(txs[i].vout[0].value).toFixed(8)) : amount,
       timestamp: txs[i].height === -1 ? Math.floor(Date.now() / 1000) : txs[i].blocktime || 'pending',
       date: txs[i].blocktime ? secondsToString(txs[i].blocktime) : 'pending',
       txid: txs[i].txid || 'unknown',
@@ -64,12 +70,12 @@ const parse = ([txs, addr, options]) => {
       confirmations: txs[i].confirmations || 0,
     };
 
-    // TODO: dectect send to self txs
+    // TODO: detect send to self txs
     if (options &&
         options.coin &&
         options.coin.toUpperCase() === 'KMD' &&
         (Number(txVin - txVout) < 0) &&
-        myOutAddress) {
+        myOutAddress && myInAddress) {
       tx.type = 'rewards';
     } else if (vinSum && !voutSum) {
       tx.type = 'sent';
@@ -83,9 +89,7 @@ const parse = ([txs, addr, options]) => {
   return txHistory;
 };
 
-const sort = (txHistory) => {
-  let _txHistory;
-
+const sort = txHistory => {
   if (txHistory.length && !txHistory.txid) {
     txHistory[0] = sortTransactions(txHistory[0], 'timestamp');
 
@@ -95,23 +99,22 @@ const sort = (txHistory) => {
   return sortTransactions(txHistory, 'timestamp');
 };
 
-const limit = (txHistory) => {
-  let _txHistory;
-
+const limit = txHistory => {
   if (txHistory.length && !txHistory.txid) {
-    txHistory[0] = txHistory[0].slice(0, 10);
+    txHistory[0] = txHistory[0].slice(0, maxTxHistoryLength);
 
     return txHistory;
   }
 
-  if (txHistory.length > 10) {
-    txHistory = txHistory.slice(0, 10);
+  if (txHistory.length > maxTxHistoryLength) {
+    txHistory = txHistory.slice(0, maxTxHistoryLength);
   }
 
   return txHistory;
 };
 
 const parsehistory = (txs, addr, options) => {
+  if (options && options.historyLength) maxTxHistoryLength = options.historyLength;
   return compose(limit, sort, parse)([txs, addr, options]);
 };
 

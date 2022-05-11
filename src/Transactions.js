@@ -1,10 +1,6 @@
 import React from 'react';
 import {sortTransactions} from './lib/sort';
 import TransactionViewModal from './TransactionViewModal';
-import {
-  isElectron,
-  shell,
-} from './Electron';
 import {writeLog} from './Debug';
 
 const headings = {
@@ -27,26 +23,18 @@ const getTransactionsHistory = (accounts, activeAccount) => {
   if (activeAccount === null) {
     for (let i = 0; i < accounts.length; i++) {
       writeLog(accounts[i]);
-      for (let a = 0; a < accounts[i].history.historyParsed.length; a++) {
-        const {
-          type,
-          date,
-          amount,
-          txid,
-          confirmations,
-          timestamp,
-        } = accounts[i].history.historyParsed[a];
 
-        lastOperations.push({
-          type,
-          date,
-          amount,
-          txid,
-          confirmations,
-          timestamp,
+      lastOperations = lastOperations.concat(accounts[i].history.historyParsed.map(item => {
+        return {
+          type: item.type,
+          date: item.date,
+          amount: item.amount,
+          txid: item.txid,
+          confirmations: item.confirmations,
+          timestamp: item.timestamp,
           accountIndex: accounts[i].accountIndex,
-        });
-      }
+        };
+      }));
     }
   } else {
     writeLog('accounts[activeAccount].history.historyParsed', accounts[activeAccount].history.historyParsed);
@@ -98,15 +86,18 @@ class Transactions extends React.Component {
                           <i className={`fa fa-long-arrow-alt-${tx.type === 'sent' ? 'up' : 'down'}`}></i>
                           {Number(tx.height) === -1 || Number(tx.height) === 0 || Number(tx.confirmations) === 0 ? 'pending' : tx.type}
                         </span>
-                        <span className="date">{Number(tx.height) === -1 || Number(tx.height) === 0 ? '' : tx.date === 'pending' ? 'Awaiting confirmations' : tx.date}</span>
+                        <span className="date">
+                          {Number(tx.height) === -1 || Number(tx.height) === 0 ? '' : tx.date === 'pending' ? 'Awaiting confirmations' : tx.date}
+                        </span>
                       </td>
                       {activeAccount === null &&
                         <td className="ws--nowrap">
                           {coin} {tx.accountIndex + 1}
                         </td>
                       }
-                      <td className={tx.type === 'received' || tx.type === 'rewards' ? 'amount-increase' : 'amount-decrease'}>{tx.type === 'received' || tx.type === 'rewards' ? '+' + tx.amount : '-' + tx.amount}</td>
-                      {/*<td>{tx.confirmations}</td>*/}
+                      <td className={tx.type === 'received' || tx.type === 'rewards' ? 'amount-increase' : 'amount-decrease'}>
+                        {tx.type === 'received' || tx.type === 'rewards' ? '+' + tx.amount : '-' + tx.amount}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -115,8 +106,7 @@ class Transactions extends React.Component {
             <TransactionViewModal
               coin={coin}
               tx={this.state.txDetails}
-              activeAccount={activeAccount}
-              />
+              activeAccount={activeAccount} />
           </div>
         }
       </React.Fragment>

@@ -4,16 +4,16 @@ import {writeLog} from '../Debug';
 const RECHECK_TIMEOUT = 1000;
 
 const trezorCheckFW = async () => {
-  return new Promise(async(resolve, reject) => {
-    const interval = setInterval(async() => {
+  return new Promise(async (resolve, reject) => {
+    const interval = setInterval(async () => {
       const result = await TrezorConnect.getFeatures();
 
       if (result &&
           result.success === true) {
-        if (result.payload.hasOwnProperty('major_version') &&
-            result.payload.hasOwnProperty('minor_version') &&
-            result.payload.hasOwnProperty('patch_version') &&
-            result.payload.hasOwnProperty('model')) {
+        if ('major_version' in result.payload &&
+            'minor_version' in result.payload &&
+            'patch_version' in result.payload &&
+            'model' in result.payload) {
           const {
             major_version,
             minor_version,

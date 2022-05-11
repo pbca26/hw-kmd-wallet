@@ -7,8 +7,8 @@ import {
   decodeStoredData,
   resetLocalStorage,
 } from './lib/localstorage-util';
-import {isElectron} from './Electron';
-import {writeLog} from './Debug';
+import {clearPubkeysCache} from './lib/account-discovery';
+//import {writeLog} from './Debug';
 
 class LoginModal extends React.Component {
   state = this.initialState;
@@ -47,7 +47,8 @@ class LoginModal extends React.Component {
         error: false,
       });
     } else {
-      decodeStoredData().then((res) => {
+      decodeStoredData()
+      .then((res) => {
         if (res) {          
           this.setState({
             password: '',
@@ -70,14 +71,17 @@ class LoginModal extends React.Component {
       error: false,
     });
 
+    clearPubkeysCache();
     resetLocalStorage();
   }
 
   render() {
+    const firstTimeUse = !localStorage.getItem('hw-wallet') || localStorage.getItem('hw-wallet') === 'null';
+
     return (
       <React.Fragment>
         <Modal
-          title={!localStorage.getItem('hw-wallet') || localStorage.getItem('hw-wallet') === 'null' ? 'Create password' :  'Authorization'}
+          title={firstTimeUse ? 'Create password' :  'Authorization'}
           show={this.props.isClosed === false}
           isCloseable={false}
           className="settings-modal login-modal">
@@ -85,18 +89,18 @@ class LoginModal extends React.Component {
             resetState={this.props.resetState}
             isAuth={this.state.isAuth}
             triggerSidebarSizeChange={this.props.triggerSidebarSizeChange}
+            setVendor={this.props.setVendor}
             coin="KMD" />
           Password <input
-            style={{'marginLeft': '10px','padding': '5px', 'width': 'calc(100% - 100px)'}}
             type="password"
-            className="form-control edit"
+            className="form-control edit login-modal-input-pw"
             name="password"
             onChange={this.updateInput}
             value={this.state.password}
-            placeholder={!localStorage.getItem('hw-wallet') || localStorage.getItem('hw-wallet') === 'null' ? 'Create a password to encrypt app data' : 'Enter a password to unlock the app'}
+            placeholder={firstTimeUse ? 'Create a password to encrypt app data' : 'Enter a password to unlock the app'}
             autoComplete="off"
             required />
-          <p style={{'paddingTop': '20px'}}>Password is required in order to safely store and recover sensitive data such as XPUB keys, cached address transactions and balances.</p>
+          <p className="login-modal-padding-top">Password is required in order to safely store and recover sensitive data such as XPUB keys, cached address transactions and balances.</p>
           {this.state.error &&
             <React.Fragment>
               <p className="login-error">Unable to decrypt, please try again or reset password.</p>
@@ -114,8 +118,7 @@ class LoginModal extends React.Component {
             </button>
             {this.state.error &&
               <button
-                style={{'float': 'right'}}
-                className="button del-btn"
+                className="button del-btn login-modal-float-right"
                 onClick={this.reset}>
                 Reset password <i className="fa fa-trash"></i>
               </button>

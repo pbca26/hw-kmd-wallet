@@ -43,7 +43,7 @@ class UtxosModal extends React.Component {
 
   render() {
     const {utxos} = this.props;
-    const {tiptime} = this.state;
+    const {tiptime, isClosed} = this.state;
 
     return (
       <React.Fragment>
@@ -54,7 +54,7 @@ class UtxosModal extends React.Component {
         </button>
         <Modal
           title="Check KMD UTXOs"
-          show={this.state.isClosed === false}
+          show={isClosed === false}
           handleClose={() => this.close()}
           isCloseable={true}
           className="Modal-utxos">

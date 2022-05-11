@@ -5,34 +5,6 @@ const {maxSpendBalance} = require('./math');
 // TODO: refactor
 
 const transactionBuilder = (network, value, fee, outputAddress, changeAddress, utxoList) => {
-  /*if (checkPublicAddress(outputAddress) !== true) {
-    throw new Error('Invalid output address');
-  }
-  
-  if (checkPublicAddress(changeAddress) !== true) {
-    throw new Error('Invalid change address');
-  }
-
-  /*if (!utils.isNumber(value) ||
-      !utils.isPositiveNumber(value) ||
-      !Number.isInteger(value)) {
-    throw new Error('Wrong value');
-  }
-
-  if (!fee.hasOwnProperty('perByte') &&
-      (!utils.isNumber(fee) ||
-      !utils.isPositiveNumber(fee) ||
-      !Number.isInteger(fee))) {
-    throw new Error('Wrong fee');
-  }
-
-  if (fee.hasOwnProperty('perByte') &&
-      (!utils.isNumber(fee.value) ||
-      !utils.isPositiveNumber(fee.value) ||
-      !Number.isInteger(fee.value))) {
-    throw new Error('Wrong fee');
-  }*/
-
   const inputValue = value;
 
   if (utxoList &&
@@ -42,22 +14,16 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
     const utxoListFormatted = [];
     const interestClaimThreshold = 200;
     let totalInterest = 0;
-    let utxoVerified = true;
 
     for (let i = 0; i < utxoList.length; i++) {
       let _utxo = {
         txid: utxoList[i].txid,
         vout: utxoList[i].vout,
         value: Number(utxoList[i].amountSats || utxoList[i].value),
-        verified: utxoList[i].verified ? utxoList[i].verified : false,
       };
 
       if (network.kmdInterest) {
         _utxo.interestSats = Number(utxoList[i].interestSats || utxoList[i].interest || 0);
-      }
-
-      if (utxoList[i].hasOwnProperty('dpowSecured')) {
-        _utxo.dpowSecured = utxoList[i].dpowSecured;
       }
 
       if (utxoList[i].hasOwnProperty('currentHeight')) {
@@ -86,7 +52,8 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
     const firstRun = coinselect(utxoListFormatted, targets, 0);
     let inputs = firstRun.inputs;
     let outputs = firstRun.outputs;
-
+    let _change = 0;
+    
     if (!outputs) {
       targets[0].value = targets[0].value - fee;
 
@@ -95,8 +62,6 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
       outputs = secondRun.outputs;
       fee = fee || secondRun.fee;
     }
-
-    let _change = 0;
 
     if (outputs &&
         outputs.length === 2) {
@@ -110,20 +75,11 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
     }
     
     if (outputs[0].value === value + fee) {
-      outputs[0].value === outputs[0].value - fee;
       targets[0].value = targets[0].value - fee;
     }
 
-    // check if any outputs are unverified
     if (inputs &&
         inputs.length) {
-      for (let i = 0; i < inputs.length; i++) {
-        if (!inputs[i].verified) {
-          utxoVerified = false;
-          break;
-        }
-      }
-
       for (let i = 0; i < inputs.length; i++) {
         if (Number(inputs[i].interestSats) > interestClaimThreshold) {
           totalInterest += Number(inputs[i].interestSats);
@@ -165,13 +121,11 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
       throw new Error('Can\'t find best fit utxo. Try lower amount.');
     }
     
-    let vinSum = 0;
+    let vinSum = 0, voutSum = 0;
 
     for (let i = 0; i < inputs.length; i++) {
       vinSum += inputs[i].value;
     }
-
-    let voutSum = 0;
     
     for (let i = 0; i < outputs.length; i++) {
       voutSum += outputs[i].value;
@@ -211,7 +165,6 @@ const transactionBuilder = (network, value, fee, outputAddress, changeAddress, u
       estimatedFee: _estimatedFee,
       balance: _maxSpendBalance,
       totalInterest,
-      utxoVerified,
     };
   }
   

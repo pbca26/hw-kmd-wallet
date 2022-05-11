@@ -15,7 +15,9 @@ const ActionListModal = ({
   ...modalProps
 }) => (
   <div className={`ActionListModal${className ? ' ' + className : ''}`}>
-    <Modal isCloseable={error || success} {...modalProps}>
+    <Modal
+      isCloseable={error || success}
+      {...modalProps}>
       {topText &&
         <p>{topText}</p>
       }
@@ -42,7 +44,9 @@ const ActionListModal = ({
                     <Boolean value={state} />
                   ) : state === 'loading' ? (
                     <span className="icon has-text-grey">
-                      <i className="fas fa-circle-notch fa-spin" aria-hidden="true"></i>
+                      <i
+                        className="fas fa-circle-notch fa-spin"
+                        aria-hidden="true"></i>
                     </span>
                   ) : null}
                 </div>

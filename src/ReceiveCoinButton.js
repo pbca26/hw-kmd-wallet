@@ -4,7 +4,7 @@ import updateActionState from './lib/update-action-state';
 import {
   FAUCET_URL,
   VENDOR,
-  SETTINGS,
+  COIN_DERIVATION_PATH,
 } from './constants';
 import ActionListModal from './ActionListModal';
 import getAddress from './lib/get-address';
@@ -75,13 +75,15 @@ class ReceiveCoinButton extends React.Component {
   getUnusedAddress = () => getAddress(getAccountNode(this.props.accounts[this.state.accountIndex].xpub).externalNode.derive(this.getUnusedAddressIndex()).publicKey);
 
   getNewAddress = async () => {
+    const {coin, vendor} = this.props;
+
     this.setState({
       error: false,
       success: false,
       actions: {
         connect: {
           icon: 'fab fa-usb',
-          description: this.props.vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
+          description: vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
           state: null
         },
         confirmAddress: {
@@ -97,9 +99,9 @@ class ReceiveCoinButton extends React.Component {
     try {
       currentAction = 'connect';
       updateActionState(this, currentAction, 'loading');
-      const hwIsAvailable = await hw[this.props.vendor].isAvailable();
+      const hwIsAvailable = await hw[vendor].isAvailable();
       if (!hwIsAvailable) {
-        throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
+        throw new Error(`${VENDOR[vendor]} device is unavailable!`);
       }
       updateActionState(this, currentAction, true);
 
@@ -109,11 +111,11 @@ class ReceiveCoinButton extends React.Component {
       const accountIndex = this.state.accountIndex;
 
       const unusedAddress = this.getUnusedAddress();
-      const derivationPath = `44'/141'/${accountIndex}'/0/${this.getUnusedAddressIndex()}`;
+      const derivationPath = `${COIN_DERIVATION_PATH}/${accountIndex}'/0/${this.getUnusedAddressIndex()}`;
       const verify = true;
-      const hwUnusedAddress = await hw[this.props.vendor].getAddress(derivationPath, verify);
+      const hwUnusedAddress = await hw[vendor].getAddress(derivationPath, verify);
       if (hwUnusedAddress !== unusedAddress) {
-        throw new Error(`${VENDOR[this.props.vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
+        throw new Error(`${VENDOR[vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
       }
       updateActionState(this, currentAction, true);
 
@@ -121,15 +123,12 @@ class ReceiveCoinButton extends React.Component {
         isExtractingNewAddress: false,
         success: 
           <React.Fragment>
-            <span style={{
-              'padding': '10px 0',
-              'display': 'block'
-            }}>
-              This your new <strong>{this.props.coin} {accountIndex + 1}</strong> deposit address
+            <span className="receive-coin-modal-success">
+              This your new <strong>{coin} {accountIndex + 1}</strong> deposit address
               <span className="new-address">
                 <strong>{unusedAddress}</strong>
                 <QRGenModal
-                  coin={this.props.coin}
+                  coin={coin}
                   address={unusedAddress}/>
                 <button
                   className="button is-light copy-btn"
@@ -137,20 +136,19 @@ class ReceiveCoinButton extends React.Component {
                   <i className="fa fa-copy"></i> <span className="copy-btn-text">Copy</span>
                 </button>
               </span>
-            {FAUCET_URL[this.props.coin] &&
-              <span style={{
-                'padding': '15px 0 0',
-                'display': 'block'
-              }}>
+            {FAUCET_URL[coin] &&
+              <span className="receive-coin-modal-faucet">
                 <strong>
                   {!isElectron &&
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
-                      href={`${FAUCET_URL[this.props.coin]}${unusedAddress}`}>Get funds from a faucet</a>
+                      href={`${FAUCET_URL[coin]}${unusedAddress}`}>Get funds from a faucet</a>
                   }
                   {isElectron &&
-                    <a onClick={() => shell.openExternal(`${FAUCET_URL[this.props.coin]}${unusedAddress}`)}>Get funds from a faucet</a>
+                    <a
+                      href="!#"
+                      onClick={() => shell.openExternal(`${FAUCET_URL[coin]}${unusedAddress}`)}>Get funds from a faucet</a>
                   }
                 </strong>
               </span>
@@ -173,55 +171,47 @@ class ReceiveCoinButton extends React.Component {
       isExtractingNewAddress,
       actions,
       error,
-      success
+      success,
     } = this.state;
-    let style;
+    const {coin, vendor, accounts, sidebarSize} = this.props;
 
     writeLog(this.props);
-
-    if (error) {
-      style = {
-        'paddingBottom': '50px',
-      };
-    }
 
     return (
       <React.Fragment>
         <li onClick={this.open}>
           <i className="fa fa-paper-plane plane-icon-invert"></i>
-          {this.props.sidebarSize === 'full' &&
+          {sidebarSize === 'full' &&
             <span className="sidebar-item-title">Receive</span>
           }
         </li>
         <ActionListModal
           title="Receive coin"
-          isCloseable={!this.state.isExtractingNewAddress}
+          isCloseable={!isExtractingNewAddress}
           actions={actions}
           error={error}
           success={success}
           handleClose={this.resetState}
           show={this.state.isClosed === false}
-          display={this.state.isExtractingNewAddress}
+          display={isExtractingNewAddress}
           className="Receive-modal">
           {!isExtractingNewAddress && !success &&
             <React.Fragment>
               <p>
                 Select an account to get a new address for.
               </p>
-              <div
-                className="receive-account-selector-block"
-                style={style}>
+              <div className={`receive-account-selector-block${error ? ' receive-coin-modal-padding-bottom' : ''}`}>
                 Account
                 <select
                   className="account-selector minimal"
                   name="accountIndex"
                   value={this.state.accountIndex}
                   onChange={(event) => this.updateAccountIndex(event)}>
-                  {this.props.accounts.map((account, index) => (
+                  {accounts.map((account, index) => (
                     <option
                       key={`account-${account}-${index}`}
                       value={index}>
-                      {this.props.coin} {index + 1}
+                      {coin} {index + 1}
                     </option>
                   ))}
                 </select>
@@ -235,7 +225,7 @@ class ReceiveCoinButton extends React.Component {
           }
           {isExtractingNewAddress &&
             <p>
-              Exporting a public key from your {VENDOR[this.props.vendor]} device. Please approve public key export request on your device.
+              Exporting a public key from your {VENDOR[vendor]} device. Please approve public key export request on your device.
             </p>
           }
         </ActionListModal>

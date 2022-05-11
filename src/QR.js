@@ -17,10 +17,9 @@ class QRModal extends React.Component {
   }
 
   handleScan(data) {
-    if (data !== null) {
-      if (this.props.mode === 'scan') {
-        this.props.setRecieverFromScan(data);
-      }
+    if (data !== null &&
+        this.props.mode === 'scan') {
+      this.props.setRecieverFromScan(data);
     }
   }
 
@@ -40,36 +39,36 @@ class QRModal extends React.Component {
     }
   }
 
+  qRCodeRender() {
+    return (
+      <QRCode
+        value={this.props.content}
+        size={Number(this.props.qrSize) || 198} />
+    );
+  }
+
+  qRCodeReaderRender() {
+    if (!this.state.errorShown) {
+      return (
+        <React.Fragment>
+          {!this.state.error &&
+            <QrReader
+              delay={250}
+              className="qr-reader-comp"
+              onError={this.handleError}
+              onScan={this.handleScan} />
+          }
+          {this.state.error}
+        </React.Fragment>
+      );
+    } else {
+      return null;
+    }
+  };
+
   render() {
-    return this.props.mode === 'scan' ? QRModalReaderRender.call(this) : QRModalRender.call(this);
+    return this.props.mode === 'scan' ? this.qRCodeReaderRender() : this.qRCodeRender();
   }
 }
 
 export default QRModal;
-
-const QRModalRender = function() {
-  return (
-    <QRCode
-      value={ this.props.content }
-      size={ Number(this.props.qrSize) || 198 } />
-  );
-};
-
-const QRModalReaderRender = function() {
-  if (!this.state.errorShown) {
-    return (
-      <React.Fragment>
-        { !this.state.error &&
-          <QrReader
-            delay={ 250 }
-            className="qr-reader-comp"
-            onError={ this.handleError }
-            onScan={ this.handleScan } />
-        }
-        { this.state.error }
-      </React.Fragment>
-    );
-  } else {
-    return null;
-  }
-};

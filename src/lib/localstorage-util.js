@@ -20,7 +20,7 @@ export const resetLocalStorage = () => {
   localStorage.setItem(rootVar, '');
 };
 
-export const setLocalStoragePW = (_pw) => {
+export const setLocalStoragePW = _pw => {
   pw = _pw;
 
   localStorageCache = {};
@@ -77,7 +77,7 @@ export const decodeStoredData = () => {
   }
 };
 
-export const encodeStoredData = (str) => {
+export const encodeStoredData = str => {
   if (pw) {
     if (!isElectron) {
       createAdapter()
@@ -129,6 +129,6 @@ export const setLocalStorageVar = (name, json, replace) => {
   });
 };
 
-export const getLocalStorageVar = (name) => {
+export const getLocalStorageVar = name => {
   return localStorageCache[name] ? localStorageCache[name] : {};
 };

@@ -1,4 +1,4 @@
-.Receive-modal {
+.Receive-modal .Modal {
   .account-selector {
     margin-left: 10px;
   }
@@ -13,5 +13,37 @@
   }
   .new-address {
     padding-top: 10px;
+    display: block;
+    
+    * {
+      color: #363636 !important;
+    }
+  }
+  .fa-qrcode {
+    margin-left: 10px;
+    font-size: 20px;
+    position: relative;
+    top: 1px;
+  }
+
+  .qr-gen-modal {
+    .content {
+      text-align: center;
+    }
+  }
+  .receive-coin-modal-success {
+    padding: 10px 0;
+    display: block;
+  }
+  .receive-coin-modal-faucet {
+    padding: 15px 0 0;
+    display: block;
+  }
+  .receive-coin-modal-padding-bottom {
+    padding-bottom: 50px;
+  }
+  .button.is-light.copy-btn {
+    margin: 0 0 0 15px !important;
+    float: none;
   }
 }

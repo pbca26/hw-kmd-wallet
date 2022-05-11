@@ -16,13 +16,18 @@ const url = require('url');
 const ipcLedger = require('./ipc-ledger');
 const ipcSPV = require('./spv');
 const ipcNSPV = require('./nspv');
+const {
+  decodeStoredData,
+  encodeStoredData,
+  getPW,
+  setPW,
+} = require('./auth');
+const menuTemplates = require('./menuTemplates');
 const isDev = process.argv.indexOf('devmode') > -1;
-const {createAdapter} = require('iocane');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
-let pw;
 
 function createWindow() {
   // Create the browser window.
@@ -42,62 +47,8 @@ function createWindow() {
 
   require(path.join(__dirname, 'menu'));
 
-  const staticMenu = Menu.buildFromTemplate([ // if static
-    { role: 'copy' },
-    { type: 'separator' },
-    { role: 'selectall' },
-  ]);
-
-  const editMenu = Menu.buildFromTemplate([ // if editable
-    { role: 'undo' },
-    { role: 'redo' },
-    { type: 'separator' },
-    { role: 'cut' },
-    { role: 'copy' },
-    { role: 'paste' },
-    { type: 'separator' },
-    { role: 'selectall' },
-  ]);
-
-  const decodeStoredData = (str/*, pw*/) => {
-    return new Promise((resolve, reject) => {
-      if (str.length) {
-        createAdapter()
-        .decrypt(str, pw)
-        .catch((err) => {
-          console.log('decodeStoredData error', err);
-          resolve(false);
-        })
-        .then(decryptedString => {
-          //console.log('decryptedString', decryptedString);
-          resolve(decryptedString);
-        });
-      } else {
-        resolve(false);
-      }
-    });
-  };
-
-  const encodeStoredData = (str/*, pw*/) => {
-    return new Promise((resolve, reject) => {
-      createAdapter()
-      .encrypt(str, pw)
-      .catch((err) => {
-        console.log('encodeStoredData error', err);
-        resolve(false);
-      })
-      .then(encryptedString => {
-        resolve(encryptedString);
-      });
-    });
-  };
-
-  const getPW = () => {
-    return pw;
-  };
-  const setPW = (_pw) => {
-    pw = _pw;
-  };
+  const staticMenu = Menu.buildFromTemplate(menuTemplates.static);
+  const editMenu = Menu.buildFromTemplate(menuTemplates.edit);
 
   global.app = {
     isDev,

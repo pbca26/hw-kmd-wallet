@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {

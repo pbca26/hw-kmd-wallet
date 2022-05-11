@@ -6,7 +6,6 @@ test('it should prepare transaction data for KMD external transfer', () => {
     "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
     "vout": 1,
     "value": toSats(1),
-    "verified": true,
     "height": 1,
     "currentHeight": 1,
   }];
@@ -21,43 +20,40 @@ test('it should prepare transaction data for KMD external transfer', () => {
   );
 
   expect(data).toEqual({
-    "outputAddress":"RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
-    "changeAddress":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-    "network":{
-      
+    "outputAddress": "RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
+    "changeAddress": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+    "network": {
     },
-    "change":99890000,
-    "value":100000,
-    "inputValue":100000,
-    "inputs":[
+    "change": 99890000,
+    "value": 100000,
+    "inputValue": 100000,
+    "inputs": [
       {
-        "txid":"33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
-        "vout":1,
-        "value":100000000,
-        "verified":true,
-        "currentHeight":1
+        "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
+        "vout": 1,
+        "value": 100000000,
+        "currentHeight": 1
       }
     ],
-    "outputs":[
+    "outputs": [
       {
-        "address":"RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
-        "value":100000
+        "address": "RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
+        "value": 100000
       },
       {
-        "value":99890000
+        "value": 99890000
       }
     ],
-    "targets":[
+    "targets": [
       {
-        "address":"RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
-        "value":100000
+        "address": "RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
+        "value": 100000
       }
     ],
-    "fee":10000,
-    "estimatedFee":10000,
-    "balance":100000000,
-    "totalInterest":0,
-    "utxoVerified":true
+    "fee": 10000,
+    "estimatedFee": 10000,
+    "balance": 100000000,
+    "totalInterest": 0,
   });
 });
 
@@ -66,7 +62,6 @@ test('it should prepare transaction data for KMD self send', () => {
     "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
     "vout": 1,
     "value": toSats(1),
-    "verified": true,
     "height": 1,
     "currentHeight": 1,
     "interest": toSats(0.1),
@@ -82,43 +77,40 @@ test('it should prepare transaction data for KMD self send', () => {
   );
 
   expect(data).toEqual({
-    "outputAddress":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-    "changeAddress":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-    "network":{
-      
+    "outputAddress": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+    "changeAddress": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+    "network": {
     },
-    "change":99890000,
-    "value":100000,
-    "inputValue":100000,
-    "inputs":[
+    "change": 99890000,
+    "value": 100000,
+    "inputValue": 100000,
+    "inputs": [
       {
-        "txid":"33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
-        "vout":1,
-        "value":100000000,
-        "verified":true,
-        "currentHeight":1
+        "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
+        "vout": 1,
+        "value": 100000000,
+        "currentHeight": 1
       }
     ],
-    "outputs":[
+    "outputs": [
       {
-        "address":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-        "value":100000
+        "address": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+        "value": 100000
       },
       {
-        "value":99890000
+        "value": 99890000
       }
     ],
-    "targets":[
+    "targets": [
       {
-        "address":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-        "value":100000
+        "address": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+        "value": 100000
       }
     ],
-    "fee":10000,
-    "estimatedFee":10000,
-    "balance":100000000,
-    "totalInterest":0,
-    "utxoVerified":true
+    "fee": 10000,
+    "estimatedFee": 10000,
+    "balance": 100000000,
+    "totalInterest": 0,
   });
 });
 
@@ -127,7 +119,6 @@ test('it should prepare transaction data for KMD self claim interest', () => {
     "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
     "vout": 1,
     "value": toSats(1),
-    "verified": true,
     "height": 1,
     "currentHeight": 1,
     "interest": toSats(0.1),
@@ -145,44 +136,42 @@ test('it should prepare transaction data for KMD self claim interest', () => {
   );
 
   expect(data).toEqual({
-    "outputAddress":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-    "changeAddress":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-    "network":{
-      "kmdInterest":true
+    "outputAddress": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+    "changeAddress": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+    "network": {
+      "kmdInterest": true
     },
-    "change":0,
-    "value":109980000,
-    "inputValue":100000,
-    "inputs":[
+    "change": 0,
+    "value": 109980000,
+    "inputValue": 100000,
+    "inputs": [
       {
-        "txid":"33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
-        "vout":1,
-        "value":100000000,
-        "verified":true,
-        "interestSats":10000000,
-        "currentHeight":1
+        "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
+        "vout": 1,
+        "value": 100000000,
+        "interestSats": 10000000,
+        "currentHeight": 1
       }
     ],
-    "outputs":[
+    "outputs": [
       {
-        "address":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-        "value":100000
+        "address": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+        "value": 100000
       },
       {
-        "value":99890000
+        "value": 99890000
       }
     ],
-    "targets":[
+    "targets": [
       {
-        "address":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-        "value":100000
+        "address": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+        "value": 100000
       }
     ],
-    "fee":10000,
-    "estimatedFee":-9990000,
-    "balance":100000000,
-    "totalInterest":10000000,
-    "utxoVerified":true
+    "fee": 10000,
+    "estimatedFee": -9990000,
+    "balance": 100000000,
+    "totalInterest": 10000000,
   });
 });
 
@@ -191,7 +180,6 @@ test('it should prepare transaction data for KMD external send + claim interest'
     "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
     "vout": 1,
     "value": toSats(1),
-    "verified": true,
     "height": 1,
     "currentHeight": 1,
     "interest": toSats(0.1),
@@ -209,44 +197,42 @@ test('it should prepare transaction data for KMD external send + claim interest'
   );
 
   expect(data).toEqual({
-    "outputAddress":"RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
-    "changeAddress":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-    "network":{
-      "kmdInterest":true
+    "outputAddress": "RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
+    "changeAddress": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+    "network": {
+      "kmdInterest": true
     },
-    "change":109880000,
-    "value":100000,
-    "inputValue":100000,
-    "inputs":[
+    "change": 109880000,
+    "value": 100000,
+    "inputValue": 100000,
+    "inputs": [
       {
-        "txid":"33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
-        "vout":1,
-        "value":100000000,
-        "verified":true,
-        "interestSats":10000000,
-        "currentHeight":1
+        "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
+        "vout": 1,
+        "value": 100000000,
+        "interestSats": 10000000,
+        "currentHeight": 1
       }
     ],
-    "outputs":[
+    "outputs": [
       {
-        "address":"RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
-        "value":100000
+        "address": "RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
+        "value": 100000
       },
       {
-        "value":99890000
+        "value": 99890000
       }
     ],
-    "targets":[
+    "targets": [
       {
-        "address":"RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
-        "value":100000
+        "address": "RHvM8DMwvFggeaLy46cXM41GzpYur6oWEe",
+        "value": 100000
       }
     ],
-    "fee":10000,
-    "estimatedFee":-9990000,
-    "balance":100000000,
-    "totalInterest":10000000,
-    "utxoVerified":true
+    "fee": 10000,
+    "estimatedFee": -9990000,
+    "balance": 100000000,
+    "totalInterest": 10000000,
   });
 });
 
@@ -255,7 +241,6 @@ test('it should prepare transaction data for KMD, donate dust to miners', () => 
     "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
     "vout": 1,
     "value": toSats(1),
-    "verified": true,
     "height": 1,
     "currentHeight": 1,
   }];
@@ -270,43 +255,40 @@ test('it should prepare transaction data for KMD, donate dust to miners', () => 
   );
 
   expect(data).toEqual({
-    "outputAddress":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-    "changeAddress":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-    "network":{
-      
+    "outputAddress": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+    "changeAddress": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+    "network": {
     },
-    "change":0,
-    "value":99990000,
-    "inputValue":99990000,
-    "inputs":[
+    "change": 0,
+    "value": 99990000,
+    "inputValue": 99990000,
+    "inputs": [
       {
-        "txid":"33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
-        "vout":1,
-        "value":100000000,
-        "verified":true,
-        "currentHeight":1
+        "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
+        "vout": 1,
+        "value": 100000000,
+        "currentHeight": 1
       }
     ],
-    "outputs":[
+    "outputs": [
       {
-        "address":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-        "value":99990000
+        "address": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+        "value": 99990000
       },
       {
-        "value":900
+        "value": 900
       }
     ],
-    "targets":[
+    "targets": [
       {
-        "address":"RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
-        "value":99990000
+        "address": "RRyBxbrAPRUBCUpiJgJZYrkxqrh8x5ta9Z",
+        "value": 99990000
       }
     ],
-    "fee":9100,
-    "estimatedFee":9100,
-    "balance":100000000,
-    "totalInterest":0,
-    "utxoVerified":true
+    "fee": 9100,
+    "estimatedFee": 9100,
+    "balance": 100000000,
+    "totalInterest": 0,
   });
 });
 
@@ -315,7 +297,6 @@ test('it should prepare transaction data for KMD, throw error Spend value is too
     "txid": "33f61397abaf2f2bfd212d71432e5c9032b3033476e78d7ed1a654eb564639f9",
     "vout": 1,
     "value": 0.00000001,
-    "verified": true,
     "height": 1,
     "currentHeight": 1,
   }];

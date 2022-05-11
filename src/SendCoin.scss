@@ -1,0 +1,29 @@
+.send-coin-modal {
+  .switch {
+    margin: 7px 0 25px 0;
+
+    .slider-text {
+      margin-left: 60px;
+    }
+  }
+
+  .account-selector {
+    margin: 5px 0 0 10px;
+  }
+  .receive-account-selector-block {
+    padding-bottom: 30px;
+  }
+  .button.copy-btn {
+    margin-left: 0 !important;
+    margin-top: 5px!important;
+  }
+  .fa-qrcode {
+    margin-left: 15px;
+    font-size: 20px;
+    position: relative;
+    top: 2px;
+  }
+  .wb-txid {
+    word-break: keep-all;
+  }
+}

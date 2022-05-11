@@ -16,11 +16,11 @@ export const KOMODO = {
   scriptHash: 0x55,
   wif: 0xBC
 };
-export const voteCoin = 'VOTE2020';
+export const voteCoin = 'VOTE2022';
 export const testCoins = [
   'RICK',
   'MORTY',
-  'VOTE2020',
+  'VOTE2022',
   'TKLTEST',
 ];
 export const LEDGER_FW_VERSIONS = {
@@ -55,12 +55,15 @@ export const LEDGER_DEVICE_HEX_ENUM = {
   '33000004': 'x',
 };
 export const SETTINGS = {
+  DISCOVERY_GAP_LIMIT_DEFAULT: 10,
+  DISCOVERY_GAP_LIMIT_AIRDROP: 20,
   DISCOVERY_GAP_LIMIT: 200,
   DISCOVERY_ADDRESS_CONCURRENCY: {
     2: 2,
     5: 5,
     10: '10 (default)',
   },
+  DISCOVERY_ADDRESS_CONCURRENCY_DEFAULT: 10,
   ACCOUNT_INDEX_LIMIT: 30,
   SIDEBAR: {
     'full': 'Full size',
@@ -73,5 +76,10 @@ export const SETTINGS = {
     1800: '30 min',
     3200: '60 min',
   },
+  HISTORY_LENGTH_DEFAULT: 10,
+  HISTORY_LENGTH_LIMIT: 100,
 };
+export const KMD_REWARDS_CLAIM_ACCOUNT_OVERRIDE_LIMIT = 10;
+export const PRICE_DEFAULT_COINS = ['KMD', 'VRSC', 'TOKEL'];
+export const COIN_DERIVATION_PATH = `44'/141'`;
 export const CACHE_MAX_LIFETIME = 10 * 60;

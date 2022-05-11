@@ -7,7 +7,7 @@ import {
 } from './lib/localstorage-util';
 import {SETTINGS, VENDOR} from './constants';
 import apiEndpoints from './lib/coins';
-import {setConfigVar} from './lib/account-discovery';
+import {setConfigVar, clearPubkeysCache} from './lib/account-discovery';
 import {isElectron} from './Electron';
 import {writeLog} from './Debug';
 
@@ -38,6 +38,7 @@ class SettingsModal extends React.Component {
       vendor: getLocalStorageVar('settings').vendor,
       sidebarSize: getLocalStorageVar('settings').sidebarSize,
       autolock: getLocalStorageVar('settings').autolock && Number(getLocalStorageVar('settings').autolock),      
+      historyLength: getLocalStorageVar('settings').historyLength && Number(getLocalStorageVar('settings').historyLength),
       resetAppData: false,
       enableImportAppData: false,
       importAppDataStr: null,
@@ -57,7 +58,11 @@ class SettingsModal extends React.Component {
       [e.target.name]: e.target.value,
     });
 
-    setConfigVar(e.target.name, Number(e.target.value));
+    if (name !== 'historyLength') {
+      setConfigVar(e.target.name, Number(e.target.value));
+    } else {
+      setLocalStorageVar('settings', {historyLength: Number(e.target.value)});
+    }
   }
 
   setVendor(e) {
@@ -109,6 +114,7 @@ class SettingsModal extends React.Component {
 
   triggerModal() {
     if (this.state.resetAppData) {
+      clearPubkeysCache();
       localStorage.setItem('hw-wallet', null);
       this.props.resetState(true);
     }
@@ -156,7 +162,7 @@ class SettingsModal extends React.Component {
     const appData = localStorage.getItem('hw-wallet');
 
     a.href = 'data:text/plain;charset=UTF-8;base64,' + btoa(appData);
-    a.download = 'hw-wallet-export-app-data';
+    a.download = 'hw-kmd-wallet-export-app-data';
   }
 
   updateInput(e) {
@@ -166,7 +172,8 @@ class SettingsModal extends React.Component {
   }
 
   render() {
-    writeLog(this.props.coin);
+    const {coin, isAuth} = this.props;
+    writeLog(coin);
 
     return (
       <React.Fragment>
@@ -185,18 +192,7 @@ class SettingsModal extends React.Component {
           isCloseable={true}
           className="settings-modal">
           <ul>
-            {/*<li>
-              <div className="theme-selector">
-                Theme
-                <div
-                  onClick={() => this.setTheme('tdark')}
-                  className={'item black' + (this.state.theme === 'tdark' ? ' active' : '')}></div>
-                <div
-                  onClick={() => this.setTheme('tlight')}
-                  className={'item light' + (this.state.theme === 'tlight' ? ' active' : '')}></div>
-              </div>
-            </li>*/}
-            {this.props.isAuth &&
+            {isAuth &&
               <li>
                 Sidebar
                 <select
@@ -214,7 +210,7 @@ class SettingsModal extends React.Component {
                 </select>
               </li>
             }
-            {this.props.isAuth &&
+            {isAuth &&
               <li>
                 Auto-lock
                 <select
@@ -285,11 +281,11 @@ class SettingsModal extends React.Component {
                 className="explorer-selector minimal"
                 value={this.state.discoveryGapLimit}
                 onChange={(event) => this.setDiscoveryConfigVar(event, 'discoveryGapLimit')}>
-                {Array.from({length: SETTINGS.DISCOVERY_GAP_LIMIT / 5}, (_, i) => i + 1).map((item, index) => (
+                {[...Array(SETTINGS.DISCOVERY_GAP_LIMIT / 5).keys()].splice(1, SETTINGS.DISCOVERY_GAP_LIMIT / 5).map((item, index) => (
                   <option
                     key={`discovery-account-index-${index}`}
-                    value={(index + 1) * 5}>
-                    {index === 3 ? (index + 1) * 5 + ' (default)' : (index + 1) * 5}
+                    value={(index + 2) * 5}>
+                    {index === 0 ? (index + 2) * 5 + ' (default)' : (index + 2) * 5}
                   </option>
                 ))}
               </select>
@@ -326,7 +322,23 @@ class SettingsModal extends React.Component {
                 ))}
               </select>
             </li>
-            {apiEndpoints[this.props.coin].api.length > 1 &&
+            <li>
+              Account history max length
+              <select
+                name="historyLength"
+                className="explorer-selector minimal"
+                value={this.state.historyLength}
+                onChange={(event) => this.setDiscoveryConfigVar(event, 'historyLength')}>
+                {[...Array(SETTINGS.HISTORY_LENGTH_LIMIT / 10).keys()].map((item, index) => (
+                  <option
+                    key={`discovery-account-history-length-${index}`}
+                    value={(index + 1) * 10}>
+                    {index === 0 ? (index + 1) * 10 + ' (default)' : (index + 1) * 10}
+                  </option>
+                ))}
+              </select>
+            </li>
+            {apiEndpoints[coin].api.length > 1 &&
               <li>
                 Explorer API end point
                 <select
@@ -334,7 +346,7 @@ class SettingsModal extends React.Component {
                   name="explorerEndpoint"
                   value={this.state.explorerEndpoint}
                   onChange={(event) => this.setExplorerEndpoint(event)}>
-                  {apiEndpoints[this.props.coin].api.map((val, index) => (
+                  {apiEndpoints[coin].api.map((val, index) => (
                     <option
                       key={`explorer-selector-${val}`}
                       value={val}>
@@ -412,7 +424,7 @@ class SettingsModal extends React.Component {
             {!this.state.enableImportAppData &&
               <li>
                 <a
-                  href="#"
+                  href="!#"
                   id="saveModalImage"
                   onClick={this.exportAppData}>
                   <button className="button">

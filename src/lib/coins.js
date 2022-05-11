@@ -110,11 +110,12 @@ const coins = {
     explorer: 'https://labs.explorer.dexstats.info/',
     api: ['https://labs.explorer.dexstats.info/insight-api-komodo/'],
   },
-  VOTE2021: {
-    explorer: 'https://vote2021.explorer.dexstats.info/',
+  VOTE2022: {
+    explorer: 'https://vote.explorer.dexstats.info/',
     api: [
-      'https://explorer.komodoplatform.com:10000/vote2021/api/',
-      'https://vote2021.explorer.dexstats.info/insight-api-komodo/',
+      'https://explorer.komodoplatform.com:10000/vote2022/api/',
+      'https://vote.explorer.dexstats.info/insight-api-komodo/',
+      'https://vote.kmdexplorer.io/insight-api-komodo/',
     ],
     airdrop: true,
   },
@@ -200,7 +201,6 @@ const coins = {
       'https://explorer.komodoplatform.com:10000/tkltest/api/',
     ],
   },
-  // SHARK: '',
   /* coins below need special handling due to no overwinter support
   ZILLA: {
     explorer: 'https://zilla.explorer.dexstats.info/',

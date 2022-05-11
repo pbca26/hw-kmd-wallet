@@ -6,11 +6,12 @@ import transport from './ledger-transport';
 import {isElectron} from '../Electron';
 import ledgerIpcWrapper from './ledger-ipc-wrapper';
 import {writeLog} from '../Debug';
+import {COIN_DERIVATION_PATH} from '../constants';
 
 let ledgerFWVersion = 'default';
 export let ledgerTransport;
 
-const setLedgerTransport = (transport) => {
+const setLedgerTransport = transport => {
   ledgerTransport = transport;
   writeLog(ledgerTransport);
 };
@@ -69,7 +70,7 @@ let isAvailable = async () => {
   const ledger = await getDevice();
 
   try {
-    await ledger.getWalletPublicKey(`m/44'/141'/0'/0/0`, {
+    await ledger.getWalletPublicKey(`m/${COIN_DERIVATION_PATH}/0'/0/0`, {
       verify: window.location.href.indexOf('ledger-ble') > -1 || ledgerFWVersion === 'ble',
     });
     await ledger.close();
@@ -95,7 +96,7 @@ const getAddress = async (derivationPath, verify) => {
   return bitcoinAddress;
 };
 
-const createTransaction = async function(utxos, outputs, isKMD) {
+const createTransaction = async (utxos, outputs, isKMD) => {
   const ledger = await getDevice();
 
   const inputs = await Promise.all(utxos.map(async utxo => {
@@ -115,27 +116,21 @@ const createTransaction = async function(utxos, outputs, isKMD) {
   }));
   const associatedKeysets = utxos.map(utxo => utxo.derivationPath);
   const changePath = outputs.length === 2 ? outputs[1].derivationPath : undefined;
-  const outputScript = buildOutputScript(outputs);
+  const outputScriptHex = buildOutputScript(outputs);
   const unixtime = Math.floor(Date.now() / 1000);
   const lockTime = isKMD ? unixtime - 777 : 0;
-  const sigHashType = undefined;
-  const segwit = undefined;
-  const initialTimestamp = undefined;
   const additionals = ['sapling'];
   const expiryHeight = Buffer.from([0x00, 0x00, 0x00, 0x00]);
 
-  const transaction = await ledger.createPaymentTransactionNew(
+  const transaction = await ledger.createPaymentTransactionNew({
     inputs,
     associatedKeysets,
     changePath,
-    outputScript,
+    outputScriptHex,
     lockTime,
-    sigHashType,
-    segwit,
-    initialTimestamp,
     additionals,
     expiryHeight
-  );
+  });
 
   await ledger.close();
 

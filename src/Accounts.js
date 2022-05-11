@@ -1,13 +1,10 @@
 import React from 'react';
 import Transactions from './Transactions';
-import SendCoinButton from './SendCoinButton';
-import {TX_FEE, CACHE_MAX_LIFETIME} from './constants';
+import {CACHE_MAX_LIFETIME} from './constants';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import ClaimRewardsButton from './ClaimRewardsButton';
 import CoinSettingsModal from './CoinSettingsModal';
 import UtxosModal from './UtxosModal';
-import './Accounts.scss';
-import './Account.scss';
 import {
   isElectron,
   appData,
@@ -17,6 +14,8 @@ import {writeLog} from './Debug';
 import {getLocalStorageVar} from './lib/localstorage-util';
 import coinsList from './lib/coins';
 import {checkTimestamp} from './lib/time';
+import './Accounts.scss';
+import './Account.scss';
 
 class Account extends React.Component {
   state = this.initialState;
@@ -31,7 +30,7 @@ class Account extends React.Component {
       amount: '',
       sendTo: '',
       // debug options
-      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('enable-verify') > -1 || getLocalStorageVar('settings') && getLocalStorageVar('settings').enableDebugTools,
+      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('enable-verify') > -1 || (getLocalStorageVar('settings') && getLocalStorageVar('settings').enableDebugTools),
     };
   }
 
@@ -56,8 +55,6 @@ class Account extends React.Component {
   render() {
     const {
       account,
-      tiptime,
-      vendor,
       coin,
       setActiveAccount,
       activeAccount,
@@ -68,9 +65,7 @@ class Account extends React.Component {
       history,
       balance,
       claimableAmount,
-      xpub,
     } = account;
-    const {isClaimed} = this.state;
     
     writeLog('account', account);
     writeLog('utxos', utxos);
@@ -80,9 +75,11 @@ class Account extends React.Component {
       <tr
         key={`operations-${accountIndex + 1}`}
         onClick={() => setActiveAccount(accountIndex)}
-        className={activeAccount !== null && accountIndex === activeAccount || activeAccount === null ? (activeAccount === null ? '' : 'no-hover') : 'hidden'}>
+        className={(activeAccount !== null && accountIndex === activeAccount) || activeAccount === null ? (activeAccount === null ? '' : 'no-hover') : 'hidden'}>
         <td>
-          <img src={`coins/${coin}.png`} />
+          <img
+            src={`${process.env.NODE_ENV === 'development' ? process.env.PUBLIC_URL + '/' : ''}coins/${coin}.png`}
+            alt={`${coin} icon`} />
           <span className="account-name">{coin} {accountIndex + 1}</span>
         </td>
         <td>
@@ -143,7 +140,7 @@ const Accounts = ({
             </tr>
           </thead>
           <tbody>
-            {coins[activeCoin].accounts.filter((acc) => acc.enabled).map((account) => (
+            {coins[activeCoin].accounts.filter(acc => acc.enabled).map(account => (
               <Account
                 key={account.accountIndex}
                 account={account}
@@ -152,8 +149,7 @@ const Accounts = ({
                 syncData={syncData}
                 coin={activeCoin}
                 activeAccount={activeAccount}
-                setActiveAccount={setActiveAccount}
-                />
+                setActiveAccount={setActiveAccount} />
             ))}
           </tbody>
         </table>
@@ -162,11 +158,14 @@ const Accounts = ({
     {coinsList[activeCoin].airdrop &&
       <div className="accounts-airdop-helper-link">
         {isElectron &&
-          <a onClick={() => shell.openExternal('https://github.com/pbca26/hw-kmd-wallet/wiki/How-to-use-address-discovery-options-to-claim-airdrop-coins')}>Unable to find airdrop coins?</a>
+          <a
+            href="!#"
+            onClick={() => shell.openExternal('https://github.com/pbca26/hw-kmd-wallet/wiki/How-to-use-address-discovery-options-to-claim-airdrop-coins')}>Unable to find airdrop coins?</a>
         }
         {!isElectron &&
           <a
             target="_blank"
+            rel="noopener noreferrer"
             href="https://github.com/pbca26/hw-kmd-wallet/wiki/How-to-use-address-discovery-options-to-claim-airdrop-coins">Unable to find airdrop coins?</a>
         }
       </div>
@@ -198,7 +197,7 @@ const Accounts = ({
       </div>
     }
     <Transactions
-      accounts={coins[activeCoin].accounts.filter((acc) => acc.enabled)}
+      accounts={coins[activeCoin].accounts.filter(acc => acc.enabled)}
       activeAccount={activeAccount}
       coin={activeCoin} />
   </div>
