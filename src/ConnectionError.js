@@ -4,7 +4,6 @@ import './ConnectionError.scss';
 const ConnectionError = () => (
   <nav
     className="Connection-error navbar is-fixed-top"
-    role="navigation"
     aria-label="main navigation">
     <div className="container">
       <span>

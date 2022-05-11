@@ -1,12 +1,12 @@
 import asyncForEach from '../lib/async';
 
-const remoteCall = (a) => {
+const remoteCall = a => {
   return new Promise((resolve, reject) => {
     resolve(a + 1);
   });
 };
 
-const fn = async (a) => {
+const fn = async a => {
   let res = 0;
 
   await asyncForEach(a, async (item, index) => {

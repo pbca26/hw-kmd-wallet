@@ -1,7 +1,7 @@
 import {KOMODO} from './../constants';
-import bitcoin from 'bitcoinjs-lib';
+import {payments} from 'bitcoinjs-lib';
 
-const getAddress = publicKey => bitcoin.payments.p2pkh({
+const getAddress = publicKey => payments.p2pkh({
   pubkey: publicKey,
   network: KOMODO
 }).address;

@@ -1,9 +1,9 @@
 import React from 'react';
 import hw from './lib/hw';
-import accountDiscovery, {getAccountXpub} from './lib/account-discovery';
+import {getAccountXpub} from './lib/account-discovery';
 import blockchain, {blockchainAPI} from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
-import {TX_FEE, VENDOR} from './constants';
+import {VENDOR} from './constants';
 import ActionListModal from './ActionListModal';
 import {writeLog} from './Debug';
 
@@ -37,28 +37,25 @@ class AddAccount extends React.Component {
       isCheckingRewards: true,
     });
 
+    const {vendor, accounts, addAccount};
     let currentAction;
     try {
       currentAction = 'connect';
       updateActionState(this, currentAction, 'loading');
-      const hwIsAvailable = await hw[this.props.vendor].isAvailable();
+      const hwIsAvailable = await hw[vendor].isAvailable();
       if (!hwIsAvailable) {
-        throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
+        throw new Error(`${VENDOR[vendor]} device is unavailable!`);
       }
       updateActionState(this, currentAction, true);
 
       currentAction = 'approve';
       updateActionState(this, currentAction, 'loading');
+      writeLog('add acc', accounts.length);
 
-      writeLog('add acc', this.props.accounts.length);
-
-      const xpub = await getAccountXpub(this.props.accounts.length, this.props.vendor);
-
+      const xpub = await getAccountXpub(accounts.length, vendor);
       writeLog('xpub', xpub);
-
       updateActionState(this, currentAction, true);
-
-      this.props.addAccount(this.props.accounts.length, xpub);
+      addAccount(accounts.length, xpub);
 
       this.setState({...this.initialState});
     } catch (error) {
@@ -74,29 +71,33 @@ class AddAccount extends React.Component {
       actions,
       error,
     } = this.state;
+    const {
+      activeAccount,
+      coin,
+      vendor,
+    } = this.props;
 
     return (
       <React.Fragment>
         <span
-          className={`coin-add-account-modal-trigger ${this.props.activeAccount !== null ? ' single' : ''}`}
+          className={`coin-add-account-modal-trigger ${activeAccount !== null ? ' single' : ''}`}
           onClick={this.scanAddresses}>
           <i className="fa fa-plus"></i>
         </span>
         <ActionListModal
-          title={`Add ${this.props.coin} account`}
+          title={`Add ${coin} account`}
           actions={actions}
           error={error}
           handleClose={this.resetState}
           show={isCheckingRewards}
           className="Scan-balances-modal">
           <p>
-            Exporting a public key from your {VENDOR[this.props.vendor]} device. Please approve the public key export request on your device.
+            Exporting a public key from your {VENDOR[vendor]} device. Please approve the public key export request on your device.
           </p>
         </ActionListModal>
       </React.Fragment>
     );
   }
-
 }
 
 export default AddAccount;

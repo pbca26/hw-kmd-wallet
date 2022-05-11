@@ -1,4 +1,6 @@
 import React from 'react';
+import './DashboardPrices.scss';
+import {PRICE_DEFAULT_COINS} from './constants';
 
 class DashboardPrices extends React.Component {
   state = this.initialState;
@@ -9,7 +11,7 @@ class DashboardPrices extends React.Component {
   };
 
   render() {
-    const coins = ['KMD', 'VRSC', 'TOKEL'];
+    const coins = PRICE_DEFAULT_COINS;
     const {prices} = this.props;
     const coinPriceTickers = Object.keys(prices);
 
@@ -30,7 +32,9 @@ class DashboardPrices extends React.Component {
                 {coins.map((item, index) => (
                   <tr key={`prices-${item}`}>
                     <td>
-                      <img src={`coins/${item}.png`} />
+                      <img
+                        src={`${process.env.NODE_ENV === 'development' ? process.env.PUBLIC_URL + '/' : ''}coins/${item}.png`}
+                        alt={`${item} icon`} />
                       <span className="coin-name">{item}</span>
                     </td>
                     <td>...</td>
@@ -44,7 +48,9 @@ class DashboardPrices extends React.Component {
                 {coinPriceTickers.map((item, index) => (
                   <tr key={`prices-${item}`}>
                     <td>
-                      <img src={`coins/${item}.png`} />
+                      <img
+                        src={`${process.env.NODE_ENV === 'development' ? process.env.PUBLIC_URL + '/' : ''}coins/${item}.png`}
+                        alt={`${item} icon`} />
                       <span className="coin-name">{item}</span>
                     </td>
                     <td>{prices[item].price}</td>

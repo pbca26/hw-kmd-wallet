@@ -1,23 +1,21 @@
 import React from 'react';
 import ActionListModal from './ActionListModal';
 import Modal from './Modal';
-import TxidLink from './TxidLink';
 import hw from './lib/hw';
 import blockchain, {blockchainAPI} from './lib/blockchain';
-import coins from './lib/coins';
 import getAddress from './lib/get-address';
-import checkPublicAddress from './lib/validate-address';
 import transactionBuilder from './lib/transaction-builder';
 import {toSats} from './lib/math';
 import updateActionState from './lib/update-action-state';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
-import getKomodoRewards from './lib/get-komodo-rewards';
 import {getAccountNode} from './lib/account-discovery';
 import {
   TX_FEE,
   KMD_REWARDS_MIN_THRESHOLD,
   KOMODO,
   VENDOR,
+  COIN_DERIVATION_PATH,
+  KMD_REWARDS_CLAIM_ACCOUNT_OVERRIDE_LIMIT,
 } from './constants';
 import {
   isElectron,
@@ -25,8 +23,10 @@ import {
 } from './Electron';
 import {getLocalStorageVar} from './lib/localstorage-util';
 import {writeLog} from './Debug';
-import copyToClipboard from './lib/copy-to-clipboard';
+import {formatUtxos, filterUtxos, validate, getAvailableExplorerUrl, getStateActionsInit} from './send-coin-helpers';
 import QRReaderModal from './QRReaderModal';
+import {SendCoinRawTxRender, SendCoinTxLink} from './SendCoinModalFragments';
+import './SendCoin.scss';
 
 // TODO: refactor transaction builder, make math more easier to understand and read
 
@@ -41,32 +41,11 @@ class SendCoinButton extends React.Component {
     this.setRecieverFromScan = this.setRecieverFromScan.bind(this);
     
     return {
-      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('enable-verify') > -1 || getLocalStorageVar('settings') && getLocalStorageVar('settings').enableDebugTools,
+      isDebug: isElectron ? appData.isDev : window.location.href.indexOf('enable-verify') > -1 || (getLocalStorageVar('settings') && getLocalStorageVar('settings').enableDebugTools),
       isClaimingRewards: false,
       error: false,
       success: false,
-      actions: {
-        connect: {
-          icon: 'fab fa-usb',
-          description: this.props.vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
-          state: null
-        },
-        confirmAddress: {
-          icon: 'fas fa-search-dollar',
-          description: <div>Confirm the address on your device matches the new unused address shown above.</div>,
-          state: null
-        },
-        approveTransaction: {
-          icon: 'fas fa-key',
-          description: <div>Approve the transaction on your device after carefully checking the values and addresses match those shown above.</div>,
-          state: null
-        },
-        broadcastTransaction: {
-          icon: 'fas fa-broadcast-tower',
-          description: <div>Broadcasting transaction to the network.</div>,
-          state: null
-        },
-      },
+      actions: getStateActionsInit(this.props.vendor),
       skipBroadcast: false,
       skipBroadcastClicked: false,
       amount: 0,
@@ -81,8 +60,6 @@ class SendCoinButton extends React.Component {
       accountIndex: 0,
     };
   }
-
-  triggerCopyToClipboard = (text) => copyToClipboard(text);
   
   setSkipBroadcast() {
     if (!this.state.skipBroadcastClicked) {
@@ -96,100 +73,60 @@ class SendCoinButton extends React.Component {
   resetState = () => this.setState(this.initialState);
 
   getUnusedAddressIndex = () => {
-    if (this.props.isClaimRewardsOnly) {
-      return this.props.account.addresses.filter(address => !address.isChange).length;
+    const {isClaimRewardsOnly, account, accounts} = this.props;
+    const {accountIndex} = this.state;
+
+    if (isClaimRewardsOnly) {
+      return account.addresses.filter(address => !address.isChange).length;
     } else {
-      return this.props.accounts[this.state.accountIndex].addresses.filter(address => !address.isChange).length;
+      return accounts[accountIndex].addresses.filter(address => !address.isChange).length;
     }
   }
 
   getUnusedAddress = () => {
-    let xpub;
+    const {address, accountIndex} = this.state;
+    const {isClaimRewardsOnly, account, accounts} = this.props;
+    const xpub = isClaimRewardsOnly ? account.xpub : accounts[accountIndex].xpub;
 
-    if (this.props.isClaimRewardsOnly) {
-      xpub = this.props.account.xpub;
-    } else {
-      xpub = this.props.accounts[this.state.accountIndex].xpub;
-    }
-
-    return this.state.address.length ? this.state.address : getAddress(getAccountNode(xpub).externalNode.derive(this.getUnusedAddressIndex()).publicKey);
+    return address.length ? address : getAddress(getAccountNode(xpub).externalNode.derive(this.getUnusedAddressIndex()).publicKey);
   }
 
   getUnusedAddressIndexChange = () => {
-    if (this.props.isClaimRewardsOnly) {
-      return this.props.account.addresses.filter(address => this.props.isClaimRewardsOnly ? !address.isChange : address.isChange).length;
+    const {accountIndex} = this.state;
+    const {isClaimRewardsOnly, account, accounts} = this.props;
+
+    if (isClaimRewardsOnly) {
+      return account.addresses.filter(address => isClaimRewardsOnly ? !address.isChange : address.isChange).length;
     } else {
-      return this.props.accounts[this.state.accountIndex].addresses.filter(address => this.props.isClaimRewardsOnly ? !address.isChange : address.isChange).length;
+      return accounts[accountIndex].addresses.filter(address => isClaimRewardsOnly ? !address.isChange : address.isChange).length;
     }
   }
   
   getUnusedAddressChange = () => {
-    const xpub = this.props.isClaimRewardsOnly ? this.props.account.xpub : this.props.accounts[this.state.accountIndex].xpub;
+    const {accountIndex, address} = this.state;
+    const {isClaimRewardsOnly, account, accounts} = this.props;
+    const xpub = isClaimRewardsOnly ? account.xpub : accounts[accountIndex].xpub;
 
-    return this.state.address.length ? this.state.address : getAddress(getAccountNode(xpub)[this.props.isClaimRewardsOnly ? 'externalNode' : 'internalNode'].derive(this.getUnusedAddressIndexChange()).publicKey);
+    return address.length ? address : getAddress(getAccountNode(xpub)[isClaimRewardsOnly ? 'externalNode' : 'internalNode'].derive(this.getUnusedAddressIndexChange()).publicKey);
   }
   
   getOutputs = () => {
-    const balance = this.props.isClaimRewardsOnly ? this.props.account.balance : this.props.accounts[this.state.accountIndex].balance;    
-    const claimableAmount = this.props.isClaimRewardsOnly ? this.props.account.claimableAmount : this.props.accounts[this.state.accountIndex].claimableAmount;    
+    const {accountIndex} = this.state;
+    const {isClaimRewardsOnly, account, accounts} = this.props;
+    const balance = isClaimRewardsOnly ? account.balance : accounts[accountIndex].balance;    
+    const claimableAmount = isClaimRewardsOnly ? account.claimableAmount : accounts[accountIndex].claimableAmount;    
 
-    const outputs =  {
+    return {
       address: this.getUnusedAddress(),
       value: (balance + claimableAmount),
     };
-
-    return outputs;
   };
 
-  validate() {
-    const amount = Number(this.state.amountIn);
-    const balance = this.props.isClaimRewardsOnly ? this.props.balance : this.props.accounts[this.state.accountIndex].balance;
-    const {coin} = this.props;
-    let error;
-
-    if (Number(amount) > balance) {
-      error = 'insufficient balance';
-    } else if (Number(amount) < humanReadableSatoshis(TX_FEE)) {
-      error = `amount is too small, min is ${humanReadableSatoshis(TX_FEE)} ${coin}`;
-    } else if (!Number(amount) || Number(amount) < 0) {
-      error = 'wrong amount format';
-    }
-
-    writeLog('validate state', this.state);
-
-    const validateAddress = checkPublicAddress(this.state.sendToIn);
-    if (!validateAddress) error = 'Invalid send to address';
-
-    return error;
-  }
-
-  filterUtxos = (utxoListSimplified, utxoListDetailed) => {
-    let utxos = [];
-    
-    for (let i = 0; i < utxoListSimplified.length; i++) {
-      for (let j = 0; j < utxoListDetailed.length; j++) {
-        if (utxoListDetailed[j].vout === utxoListSimplified[i].vout &&
-            utxoListDetailed[j].txid === utxoListSimplified[i].txid) {
-          utxos.push(utxoListDetailed[j]);
-          break;
-        }
-      }
-    }
-
-    writeLog('filterUtxos', utxos);
-
-    return utxos;
-  }
-
   sendCoin = async () => {
-    const isUserInputValid = this.props.isClaimRewardsOnly ? false : this.validate();
+    const isUserInputValid = this.props.isClaimRewardsOnly ? false : validate({state: this.state, props: this.props});
     const isClaimRewardsOnly = this.props.isClaimRewardsOnly;
 
-    if (isClaimRewardsOnly) {
-      writeLog('claim kmd rewards button clicked');
-    } else {
-      writeLog('send coin clicked');
-    }
+    writeLog(isClaimRewardsOnly ? 'claim kmd rewards button clicked' : 'send coin clicked');
     
     this.setState({
       step: true,
@@ -198,21 +135,27 @@ class SendCoinButton extends React.Component {
     });
 
     if (!isUserInputValid) {
-      const {coin} = this.props;
+      const {coin, vendor, isClaimRewardsOnly, account, accounts} = this.props;
+      const {address} = this.state;
       let currentAction = 'connect';
-      let tiptime;
+      let tiptime, explorerIsSet = false;
       
       try {
         if (coin === 'KMD') {
+          const explorerUrl = await getAvailableExplorerUrl(coin, blockchain[blockchainAPI]);
+          writeLog(`${coin} set api endpoint to ${explorerUrl}`);
+          blockchain[blockchainAPI].setExplorerUrl(explorerUrl);
+          explorerIsSet = true;
+
           tiptime = await blockchain[blockchainAPI].getTipTime();
           tiptime = this.props.checkTipTime(tiptime);
           if (!tiptime) throw new Error('Unable to get tiptime!');
         }
 
         updateActionState(this, currentAction, 'loading');
-        const hwIsAvailable = await hw[this.props.vendor].isAvailable();
+        const hwIsAvailable = await hw[vendor].isAvailable();
         if (!hwIsAvailable) {
-          throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
+          throw new Error(`${VENDOR[vendor]} device is unavailable!`);
         }
         updateActionState(this, currentAction, true);
 
@@ -221,41 +164,24 @@ class SendCoinButton extends React.Component {
 
         let accountIndex, utxos, balance;
 
-        if (this.props.isClaimRewardsOnly) {
-          accountIndex = this.props.account.accountIndex;
-          utxos = this.props.account.utxos;
-          balance = this.props.account.balance;
+        if (isClaimRewardsOnly) {
+          accountIndex = account.accountIndex;
+          utxos = account.utxos;
+          balance = account.balance;
         } else {
           accountIndex = this.state.accountIndex;
-          utxos = this.props.accounts[this.state.accountIndex].utxos;
-          balance = this.props.accounts[this.state.accountIndex].balance;
+          utxos = accounts[accountIndex].utxos;
+          balance = accounts[accountIndex].balance;
         }
 
         writeLog('utxos', utxos);
 
-        let formattedUtxos = [];
-
-        for (let i = 0; i < utxos.length; i++) {
-          let utxo = utxos[i];
-          writeLog('utxos[i].amount', utxos[i].amount);
-    
-          utxo.amountSats = utxo.satoshis;
-
-          if (coin === 'KMD') {
-            const rewards = getKomodoRewards({tiptime, ...utxo});
-            writeLog('rewards', rewards);
-            writeLog('tiptime', tiptime);
-            utxo.interestSats = rewards;
-          }
-
-          formattedUtxos.push(utxo);
-        }
+        let formattedUtxos = formatUtxos(utxos, coin, tiptime);
         
-        writeLog('formatted utxos', formattedUtxos);
-        
+        const txDataPreflightBalanceIn = isClaimRewardsOnly ? balance - TX_FEE * 2 : this.state.amountIn < humanReadableSatoshis(balance) ? toSats(this.state.amountIn) + TX_FEE : toSats(this.state.amountIn);
         const txDataPreflight = transactionBuilder(
           coin === 'KMD' ? Object.assign({}, KOMODO, {kmdInterest: true}) : KOMODO,
-          isClaimRewardsOnly ? balance - TX_FEE * 2 : this.state.amountIn < humanReadableSatoshis(balance) ? toSats(this.state.amountIn) + TX_FEE : toSats(this.state.amountIn),
+          txDataPreflightBalanceIn,
           TX_FEE,
           this.state.sendToIn ? this.state.sendToIn : this.getUnusedAddressChange(),
           this.getUnusedAddressChange(),
@@ -266,16 +192,21 @@ class SendCoinButton extends React.Component {
 
         let hwUnusedAddress;
         const unusedAddress = this.getUnusedAddressChange();
-        const derivationPath = `44'/141'/${accountIndex}'/${this.props.isClaimRewardsOnly ? 0 : 1}/${this.getUnusedAddressIndexChange()}`;
+        const derivationPath = `${COIN_DERIVATION_PATH}/${accountIndex}'/${isClaimRewardsOnly ? 0 : 1}/${this.getUnusedAddressIndexChange()}`;
         
         writeLog('derivationPath', derivationPath);
         
-        if (isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest) {
-          hwUnusedAddress = this.state.address.length ? this.state.address : await hw[this.props.vendor].getAddress(derivationPath, isClaimRewardsOnly && this.props.vendor === 'trezor' ? true : false);
+        if (isClaimRewardsOnly ||
+            txDataPreflight.change > 0 ||
+            txDataPreflight.totalInterest) {
+          hwUnusedAddress = address.length ? address : await hw[vendor].getAddress(
+            derivationPath,
+            isClaimRewardsOnly && vendor === 'trezor' ? true : false
+          );
         
           writeLog('hwUnusedAddress', hwUnusedAddress);
           if (hwUnusedAddress !== unusedAddress) {
-            throw new Error(`${VENDOR[this.props.vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
+            throw new Error(`${VENDOR[vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
           }
         }
 
@@ -283,7 +214,7 @@ class SendCoinButton extends React.Component {
         
         let txData = transactionBuilder(
           coin === 'KMD' ? Object.assign({}, KOMODO, {kmdInterest: true}) : KOMODO,
-          isClaimRewardsOnly ? balance - TX_FEE * 2 : this.state.amountIn < humanReadableSatoshis(balance) ? toSats(this.state.amountIn) + TX_FEE : toSats(this.state.amountIn),
+          txDataPreflightBalanceIn,
           TX_FEE,
           isClaimRewardsOnly ? hwUnusedAddress : this.state.sendToIn,
           isClaimRewardsOnly || txDataPreflight.change > 0 || txDataPreflight.totalInterest ? hwUnusedAddress : 'none',
@@ -293,41 +224,33 @@ class SendCoinButton extends React.Component {
         writeLog('amount in', isClaimRewardsOnly ? balance - TX_FEE * 2 : toSats(this.state.amountIn));
         writeLog('txData', txData);
 
-        const filteredUtxos = this.filterUtxos(txData.inputs, formattedUtxos);
+        const filteredUtxos = filterUtxos(txData.inputs, formattedUtxos);
 
         currentAction = 'approveTransaction';
         updateActionState(this, currentAction, 'loading');
 
-        if (!this.props.isClaimRewardsOnly && !txData.totalInterest && txData.change) {
+        if (!isClaimRewardsOnly && !txData.totalInterest && txData.change) {
           txData.change += TX_FEE;
         }
 
-        this.setState({
+        const txbData = {
           isClaimingRewards: true,
-          amount: !this.props.isClaimRewardsOnly && txData.totalInterest && txData.outputAddress === txData.changeAddress ? txData.value - TX_FEE : this.state.amountIn < humanReadableSatoshis(balance) ? txData.value - TX_FEE : txData.value,
+          amount: !isClaimRewardsOnly && txData.totalInterest && txData.outputAddress === txData.changeAddress ? txData.value - TX_FEE : this.state.amountIn < humanReadableSatoshis(balance) ? txData.value - TX_FEE : txData.value,
           sendTo: txData.outputAddress,
           changeTo: txData.changeAddress,
           change: txData.change === 'none' ? 0 : txData.change,
           skipBroadcast: this.state.skipBroadcast,
           skipBroadcastClicked: false,
           rewards: txData.totalInterest - TX_FEE,
-        });
+        };
 
-        writeLog('txb data', {
-          isClaimingRewards: true,
-          amount: !this.props.isClaimRewardsOnly && txData.totalInterest && txData.outputAddress === txData.changeAddress ? txData.value - TX_FEE : this.state.amountIn < humanReadableSatoshis(balance) ? txData.value - TX_FEE : txData.value,
-          sendTo: txData.outputAddress,
-          changeTo: txData.changeAddress,
-          change: txData.change === 'none' ? 0 : txData.change,
-          skipBroadcast: this.state.skipBroadcast,
-          skipBroadcastClicked: false,
-          rewards: txData.totalInterest - TX_FEE,
-        })
+        this.setState(txbData);
+        writeLog('txb data', txbData);
 
         let rawtx;
         
-        if (this.props.isClaimRewardsOnly) {
-          rawtx = await hw[this.props.vendor].createTransaction(
+        if (isClaimRewardsOnly) {
+          rawtx = await hw[vendor].createTransaction(
             filteredUtxos,
             [{
               address: txData.outputAddress,
@@ -336,8 +259,8 @@ class SendCoinButton extends React.Component {
             coin === 'KMD'
           );
         } else {
-          rawtx = await hw[this.props.vendor].createTransaction(
-            filteredUtxos, txData.change > 0 || txData.totalInterest && txData.outputAddress !== txData.changeAddress ?
+          rawtx = await hw[vendor].createTransaction(
+            filteredUtxos, txData.change > 0 || (txData.totalInterest && txData.outputAddress !== txData.changeAddress) ?
             [{
               address: txData.outputAddress,
               value: txData.value - TX_FEE
@@ -352,7 +275,18 @@ class SendCoinButton extends React.Component {
         }
 
         writeLog('tx outputs', txData.change > 0 || txData.totalInterest ?
-        [{address: txData.outputAddress, value: txData.value}, {address: txData.changeAddress, value: txData.change + txData.totalInterest - (isClaimRewardsOnly ? 0 : TX_FEE * 2), derivationPath}] : [{address: txData.outputAddress, value: txData.value}]);
+          [{
+            address: txData.outputAddress,
+            value: txData.value
+            },
+            {
+              address: txData.changeAddress,
+              value: txData.change + txData.totalInterest - (isClaimRewardsOnly ? 0 : TX_FEE * 2),
+              derivationPath
+            }] : [{
+              address: txData.outputAddress,
+              value: txData.value
+            }]);
 
         writeLog('rawtx', rawtx);
         if (!rawtx || typeof rawtx !== 'string') {
@@ -362,23 +296,7 @@ class SendCoinButton extends React.Component {
         
         if (this.state.skipBroadcast) {
           this.setState({
-            success: 
-              <React.Fragment>
-                <span style={{
-                  'padding': '10px 0',
-                  'display': 'block'
-                }}>Raw transaction:</span>
-                <span style={{
-                  'wordBreak': 'break-all',
-                  'display': 'block',
-                  'paddingLeft': '3px'
-                }}>{rawtx}</span>
-                <button
-                  className="button is-light copy-btn"
-                  onClick={() => this.triggerCopyToClipboard(rawtx)}>
-                  <i className="fa fa-copy"></i> <span className="copy-btn-text">Copy</span>
-                </button>
-              </React.Fragment>
+            success: <SendCoinRawTxRender rawtx={rawtx} />
           });
           setTimeout(() => {
             this.props.syncData(this.props.coin);
@@ -386,28 +304,13 @@ class SendCoinButton extends React.Component {
         } else {
           currentAction = 'broadcastTransaction';
           updateActionState(this, currentAction, 'loading');
-          
-          const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
-            return blockchain[blockchainAPI].getInfo(value);
-          }));
-          let longestBlockHeight = 0;
-          let apiEndPointIndex = 0;
-      
-          writeLog('checkExplorerEndpoints', getInfoRes);
-          
-          for (let i = 0; i < coins[coin].api.length; i++) {
-            if (getInfoRes[i] &&
-                getInfoRes[i].hasOwnProperty('info') &&
-                getInfoRes[i].info.hasOwnProperty('version')) {
-              if (getInfoRes[i].info.blocks > longestBlockHeight) {
-                longestBlockHeight = getInfoRes[i].info.blocks;
-                apiEndPointIndex = i;
-              }
-            }
+
+          if (!explorerIsSet) {
+            const explorerUrl = await getAvailableExplorerUrl(coin, blockchain[blockchainAPI]);
+    
+            writeLog(`${coin} set api endpoint to ${explorerUrl}`);
+            blockchain[blockchainAPI].setExplorerUrl(explorerUrl);
           }
-  
-          writeLog(`${coin} set api endpoint to ${coins[coin].api[apiEndPointIndex]}`);
-          blockchain[blockchainAPI].setExplorerUrl(coins[coin].api[apiEndPointIndex]);
 
           const {txid} = await blockchain[blockchainAPI].broadcast(rawtx);
           if (!txid || txid.length !== 64) {
@@ -416,15 +319,7 @@ class SendCoinButton extends React.Component {
           updateActionState(this, currentAction, true);
 
           this.setState({
-            success: 
-              <React.Fragment>
-                Transaction ID: <TxidLink txid={txid} coin={coin} />
-                <button
-                  className="button is-light copy-btn"
-                  onClick={() => this.triggerCopyToClipboard(txid)}>
-                  <i className="fa fa-copy"></i> <span className="copy-btn-text">Copy</span>
-                </button>
-              </React.Fragment>
+            success: <SendCoinTxLink txid={txid} coin={coin} />
           });
           setTimeout(() => {
             this.props.syncData(this.props.coin);
@@ -468,8 +363,7 @@ class SendCoinButton extends React.Component {
       e.target.value = e.target.value.replace(/[^0-9.]/g, '');
     }
 
-    writeLog(e.target.name);
-    writeLog(e.target.value);
+    writeLog(e.target.name, e.target.value);
     
     this.setState({
       [e.target.name]: e.target.value,
@@ -499,33 +393,237 @@ class SendCoinButton extends React.Component {
     writeLog('send coin setRecieverFromScan', data);
   }
 
-  render() {
-    writeLog('send coin button', this.props);
-
-    const {isClaimingRewards} = this.state;
-    const isNoBalace = this.props.isClaimRewardsOnly ? Number(this.props.balance) <= 0 : Number(this.props.accounts[this.state.accountIndex].balance || 0) <= 0;
-    let {coin, isClaimRewardsOnly, balance, disabled} = this.props;
-
-    if (!this.props.isClaimRewardsOnly) {
-      balance = this.props.accounts[this.state.accountIndex].balance || 0;
-    }
-
-    writeLog('this.props', this.props);
-    writeLog('KMD_REWARDS_MIN_THRESHOLD', KMD_REWARDS_MIN_THRESHOLD);
-    if (this.props.isClaimRewardsOnly) writeLog('this.props.account.claimableAmount', this.props.account.claimableAmount);
+  renderChangeAddressDropdown() {
+    const {accountIndex, address} = this.state;
+    const {isClaimRewardsOnly, account, accounts} = this.props;
     
     return (
       <React.Fragment>
-        {this.props.isClaimRewardsOnly &&
+        {((!isClaimRewardsOnly && accounts[accountIndex] && accounts[accountIndex].length > 0) ||
+          (isClaimRewardsOnly && account.addresses && account.addresses.length > 0)) &&
+          <div className={address ? 'send-coin-modal-style4' : 'send-coin-modal-style5'}>
+            Send change to
+            <select
+              className="account-index-selector send-coin-modal-style3"
+              name="address"
+              value={address}
+              onChange={(event) => this.updateInput(event)}>
+              <option
+                key="rewards-output-address-default"
+                value="">
+                Unused address (default)
+              </option>
+              {account.addresses.slice(0, KMD_REWARDS_CLAIM_ACCOUNT_OVERRIDE_LIMIT).map((item, index) => (
+                <option
+                  key={`rewards-output-address-${index}`}
+                  value={item.address}>
+                  {item.address}
+                </option>
+              ))}
+            </select>
+          </div>
+        }
+        {address &&
+          <div className="send-coin-modal-style6">
+            <strong>Warning:</strong> sending coins to a non-default address will break so called pseudo anonimity (one time address usage) and link your addresses together! This is not recommended option.
+          </div>
+        }
+       </React.Fragment>
+    );
+  }
+
+  renderSkipBroadcastToggle() {
+    return this.state.isDebug ? (
+      <label
+        className="switch dev"
+        onClick={this.setSkipBroadcast}>
+        <input
+          type="checkbox"
+          name="skipBroadcast"
+          value={this.state.skipBroadcast}
+          checked={this.state.skipBroadcast}
+          readOnly />
+        <span className="slider round"></span>
+        <span className="slider-text">Don't broadcast transaction</span>
+      </label>
+    ) : null;
+  }
+
+  renderStep1() {
+    const {isClaimingRewards, accountIndex} = this.state;
+    const {coin, isClaimRewardsOnly, accounts} = this.props;
+    let {balance} = this.props;
+    
+    if (!isClaimRewardsOnly) {
+      balance = accounts[accountIndex].balance || 0;
+    }
+
+    return !this.state.step ? (
+      <Modal
+        title={isClaimRewardsOnly ? 'Claim KMD rewards' : 'Send'}
+        show={isClaimingRewards}
+        handleClose={this.resetState}
+        isCloseable={true}
+        className="send-coin-modal">
+        {accounts &&
+          <React.Fragment>
+            <p>
+              Select an account to debit.
+            </p>
+            <div className="receive-account-selector-block">
+              Account
+              <select
+                className="account-selector minimal"
+                name="accountIndex"
+                value={accountIndex}
+                onChange={(event) => this.updateAccountIndex(event)}>
+                {accounts.map((account, index) => (
+                  <option
+                    key={`send-account-${index}`}
+                    value={index}
+                    disabled={accounts[index].balance <= 0}>
+                    {coin} {index + 1} [{humanReadableSatoshis(accounts[index].balance)}]
+                  </option>
+                ))}
+              </select>
+            </div>
+          </React.Fragment>
+        }
+        {balance > 0 &&
+        !isClaimRewardsOnly &&
+          <div className="send-form send-coin-modal-style1">
+            <div>
+              Amount <input
+                type="text"
+                className="form-control edit send-coin-modal-style3"
+                name="amountIn"
+                onChange={this.updateInput}
+                value={this.state.amountIn}
+                placeholder="Enter an amount"
+                autoComplete="off"
+                required />
+              <button
+                className="button is-light send-max"
+                onClick={() => this.setSendToMaxAmount(balance)}>
+                Max
+              </button>
+            </div>
+            <div className="send-coin-modal-style2">
+              Send to <input
+                type="text"
+                className="form-control edit send-coin-modal-style3"
+                name="sendToIn"
+                onChange={this.updateInput}
+                value={this.state.sendToIn}
+                placeholder="Enter an address"
+                autoComplete="off"
+                required />
+              <QRReaderModal setRecieverFromScan={this.setRecieverFromScan} />
+            </div>
+          </div>
+        }
+        {this.renderChangeAddressDropdown()}
+        <button
+          disabled={
+            (!this.state.sendToIn && !isClaimRewardsOnly) ||
+            ((!this.state.amountIn || Number(this.state.amountIn) === 0) && !isClaimRewardsOnly)
+          }
+          className="button is-primary"
+          onClick={this.nextStep}>
+          Next
+        </button>
+      </Modal>
+    ) : null;
+  }
+
+  renderStep2() {
+    const {isClaimingRewards} = this.state;
+    const {coin, isClaimRewardsOnly, vendor} = this.props;
+
+    return this.state.step ? (
+      <ActionListModal
+        {...this.state}
+        title={isClaimRewardsOnly ? 'Claim KMD rewards' : 'Send'}
+        handleClose={this.resetState}
+        show={isClaimingRewards}
+        className="send-coin-modal">
+        {this.state.error &&
+          <React.Fragment>
+            <span className="send-form-error">Something is wrong</span>
+            <button
+              className="button is-primary btn-back"
+              onClick={this.nextStep}>
+              Back
+            </button>
+          </React.Fragment>       
+        }
+        {!this.state.error &&
+          <React.Fragment>
+            {!this.state.sendTo &&
+              <p>Awaiting user input...</p>
+            }
+            {this.state.sendTo &&
+            !isClaimRewardsOnly &&
+              <p>
+                Send <strong>{humanReadableSatoshis(this.state.amount)} {coin}</strong> to <strong>{this.state.sendTo}</strong>
+              </p>
+            }
+            {this.state.change > 0 &&
+              this.state.isDebug &&
+              <p>
+                Send change <strong>{humanReadableSatoshis(this.state.change)} {coin}</strong> to address: <strong>{this.state.changeTo}</strong>
+              </p>
+            }
+            {this.state.rewards > 0 &&
+              <React.Fragment>
+                <p>
+                  Claim <strong>{humanReadableSatoshis(this.state.rewards - TX_FEE)} {coin}</strong> rewards to address: <strong>{this.state.changeTo}</strong>.
+                </p>
+                {isClaimRewardsOnly &&
+                  <p>
+                    You should receive a total of <strong>{humanReadableSatoshis(this.state.amount)} {coin}</strong>.
+                  </p>
+                }
+              </React.Fragment>
+            }
+            {coin === 'KMD' &&
+             vendor === 'trezor' &&
+            (isClaimingRewards || this.state.rewards > 0) &&
+              <p>There will be an additional message on the latest firmware versions <strong>"Warning! Locktime is set but will have no effect. Continue?"</strong>. You need to approve it in order to claim interest.</p>
+            }
+            {this.renderSkipBroadcastToggle()}
+          </React.Fragment>
+        }
+      </ActionListModal>
+    ) : null;
+  }
+
+  render() {
+    const {accountIndex} = this.state;
+    const {coin, isClaimRewardsOnly, account, accounts, className, children, sidebarSize, disabled} = this.props;
+    let {balance} = this.props;
+    const isNoBalace = isClaimRewardsOnly ? Number(balance) <= 0 : Number(accounts[accountIndex].balance || 0) <= 0;
+    
+    if (!isClaimRewardsOnly) {
+      balance = this.props.accounts[this.state.accountIndex].balance || 0;
+    }
+
+    writeLog('send coin button props', this.props);
+    writeLog('KMD_REWARDS_MIN_THRESHOLD', KMD_REWARDS_MIN_THRESHOLD);
+    if (isClaimRewardsOnly) writeLog('this.props.account.claimableAmount', account.claimableAmount);
+    
+    return (
+      <React.Fragment>
+        {isClaimRewardsOnly &&
           <button
-            className={`button is-primary${this.props.className ? ' ' + this.props.className : ''}`}
+            className={`button is-primary${className ? ' ' + className : ''}`}
             disabled={
               disabled ||
               isNoBalace ||
-              (coin === 'KMD' && this.props.account.claimableAmount < KMD_REWARDS_MIN_THRESHOLD && isClaimRewardsOnly)
+              (coin === 'KMD' && account.claimableAmount < KMD_REWARDS_MIN_THRESHOLD && isClaimRewardsOnly)
             }
             onClick={this.initSendCoinForm}>
-            {this.props.children}
+            {children}
           </button>
         }
         {!this.props.isClaimRewardsOnly &&
@@ -533,189 +631,13 @@ class SendCoinButton extends React.Component {
             onClick={disabled && coin === 'KMD' ? null : this.initSendCoinForm}
             className={disabled && coin === 'KMD' ? 'disabled': ''}>
             <i className="fa fa-paper-plane"></i>
-            {this.props.sidebarSize === 'full' &&
+            {sidebarSize === 'full' &&
               <span className="sidebar-item-title">Send</span>
             }
           </li>
         }
-        {!this.state.step &&
-          <Modal
-            title={this.props.isClaimRewardsOnly ? 'Claim KMD rewards' : 'Send'}
-            show={isClaimingRewards}
-            handleClose={this.resetState}
-            isCloseable={true}
-            className="send-coin-modal">
-            {this.props.accounts &&
-              <React.Fragment>
-                <p>
-                  Select an account to debit.
-                </p>
-                <div className="receive-account-selector-block">
-                  Account
-                  <select
-                    className="account-selector minimal"
-                    name="accountIndex"
-                    value={this.state.accountIndex}
-                    onChange={(event) => this.updateAccountIndex(event)}>
-                    {this.props.accounts.map((account, index) => (
-                      <option
-                        key={`send-account-${index}`}
-                        value={index}
-                        disabled={this.props.accounts[index].balance <= 0}>
-                        {coin} {index + 1} [{humanReadableSatoshis(this.props.accounts[index].balance)}]
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </React.Fragment>
-            }
-            {balance > 0 &&
-             !this.props.isClaimRewardsOnly &&
-              <div
-                className="send-form"
-                style={{'padding': '0 20px 30px 0'}}>
-                <div>
-                  Amount <input
-                    style={{'marginLeft': '10px'}}
-                    type="text"
-                    className="form-control edit"
-                    name="amountIn"
-                    onChange={this.updateInput}
-                    value={this.state.amountIn}
-                    placeholder="Enter an amount"
-                    autoComplete="off"
-                    required />
-                  <button
-                    className="button is-light send-max"
-                    onClick={() => this.setSendToMaxAmount(balance)}>
-                    Max
-                  </button>
-                </div>
-                <div style={{'margin': '30px 0 20px 0'}}>
-                  Send to <input
-                    style={{'marginLeft': '10px'}}
-                    type="text"
-                    className="form-control edit"
-                    name="sendToIn"
-                    onChange={this.updateInput}
-                    value={this.state.sendToIn}
-                    placeholder="Enter an address"
-                    autoComplete="off"
-                    required />
-                  <QRReaderModal setRecieverFromScan={this.setRecieverFromScan} />
-                </div>
-              </div>
-            }
-            {((!this.props.isClaimRewardsOnly && this.props.accounts[this.state.accountIndex] && this.props.accounts[this.state.accountIndex].length > 0) ||
-             (this.props.isClaimRewardsOnly && this.props.account.addresses && this.props.account.addresses.length > 0)) &&
-              <div style={this.state.address ? {'padding': '10px 20px 20px 20px'} : {'padding': '10px 20px 30px 20px'}}>
-                Send change to
-                <select
-                  style={{'marginLeft': '10px'}}
-                  className="account-index-selector minimal"
-                  name="address"
-                  value={this.state.address}
-                  onChange={(event) => this.updateInput(event)}>
-                  <option
-                    key="rewards-output-address-default"
-                    value="">
-                    Unused address (default)
-                  </option>
-                  {this.props.account.addresses.slice(0, 10).map((item, index) => (
-                    <option
-                      key={`rewards-output-address-${index}`}
-                      value={item.address}>
-                      {item.address}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            }
-            {this.state.address &&
-              <div style={{'padding': '0 20px 30px 20px'}}>
-                <strong>Warning:</strong> sending coins to a non-default address will break so called pseudo anonimity (one time address usage) and link your addresses together! This is not recommended option.
-              </div>
-            }
-            <button
-              disabled={
-                (!this.state.sendToIn && !isClaimRewardsOnly) ||
-                ((!this.state.amountIn || Number(this.state.amountIn) === 0) && !isClaimRewardsOnly)
-              }
-              className="button is-primary"
-              onClick={this.nextStep}>
-              Next
-            </button>
-          </Modal>
-        }
-        {this.state.step &&
-          <ActionListModal
-            {...this.state}
-            title={this.props.isClaimRewardsOnly ? 'Claim KMD rewards' : 'Send'}
-            handleClose={this.resetState}
-            show={isClaimingRewards}
-            className="send-coin-modal">
-            {this.state.error &&
-              <React.Fragment>
-                <span className="send-form-error">Something is wrong</span>
-                <button
-                  className="button is-primary btn-back"
-                  onClick={this.nextStep}>
-                  Back
-                </button>
-              </React.Fragment>       
-            }
-            {!this.state.error &&
-              <React.Fragment>
-                {!this.state.sendTo &&
-                  <p>Awaiting user input...</p>
-                }
-                {this.state.sendTo &&
-                !isClaimRewardsOnly &&
-                  <p>
-                    Send <strong>{humanReadableSatoshis(this.state.amount)} {coin}</strong> to <strong>{this.state.sendTo}</strong>
-                  </p>
-                }
-                {this.state.change > 0 &&
-                  this.state.isDebug &&
-                  <p>
-                    Send change <strong>{humanReadableSatoshis(this.state.change)} {coin}</strong> to address: <strong>{this.state.changeTo}</strong>
-                  </p>
-                }
-                {this.state.rewards > 0 &&
-                  <React.Fragment>
-                    <p>
-                      Claim <strong>{humanReadableSatoshis(this.state.rewards - TX_FEE)} {coin}</strong> rewards to address: <strong>{this.state.changeTo}</strong>.
-                    </p>
-                    {isClaimRewardsOnly &&
-                      <p>
-                        You should receive a total of <strong>{humanReadableSatoshis(this.state.amount)} {coin}</strong>.
-                      </p>
-                    }
-                  </React.Fragment>
-                }
-                {this.props.coin === 'KMD' &&
-                this.props.vendor === 'trezor' &&
-                (isClaimingRewards || this.state.rewards > 0) &&
-                  <p>There will be an additional message on the latest firmware versions <strong>"Warning! Locktime is set but will have no effect. Continue?"</strong>. You need to approve it in order to claim interest.</p>
-                }
-                {this.state.isDebug &&
-                  <label
-                    className="switch"
-                    onClick={this.setSkipBroadcast}>
-                    <input
-                      type="checkbox"
-                      name="skipBroadcast"
-                      value={this.state.skipBroadcast}
-                      checked={this.state.skipBroadcast}
-                      readOnly />
-                    <span className="slider round"></span>
-                    <span className="slider-text">Don't broadcast transaction</span>
-                  </label>
-                }
-              </React.Fragment>
-            }
-          </ActionListModal>
-        }
+        {this.renderStep1()}
+        {this.renderStep2()}
       </React.Fragment>
     );
   }

@@ -4,3 +4,24 @@
 .Modal .card {
   border-radius: $radius-small;
 }
+
+.sidebar-right .Modal {
+  .modal-content {
+    * {
+      //color: #121958 !important;
+    }
+    .login-error {
+      color: red !important;
+    }
+    .card,
+    .card-header-title {
+      background: #fff !important;
+    }
+    .card-header {
+      border-bottom: solid 1px rgba(0,0,0,0.2) !important;
+    }
+    .button.is-primary {
+      color: #fff !important;
+    }
+  }
+}

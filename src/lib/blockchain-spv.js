@@ -84,7 +84,7 @@ const getData = (ruid, payload) => {
   });
 };
 
-const setCoin = (name) => {
+const setCoin = name => {
   coin = name.toLowerCase();
 };
 
@@ -94,28 +94,34 @@ const getAddress = address => {
   ipcRenderer.send('spvGetAddress', {coin, address, ruid});
 
   return new Promise(async(resolve, reject) => {
-    const _data = await getData(ruid, {coin, type: 'getAddress', address});
+    const _data = await getData(ruid, {
+      coin,
+      type: 'getAddress',
+      address
+    });
     writeLog('spvGetAddress ready', _data);
     resolve(_data);
   });
 }
 
-//const getAddressHistory = (address) => get(`/txs?address=${address}`);
-
-//const getHistory = addresses => get(`addrs/txs`, {addrs: addresses.join(',')});
-
 const getHistory = addresses => {
   writeLog(`spv ${coin}`, `getHistory for ${addresses.join(',')}`);
   ruid++;
-  ipcRenderer.send('spvGetHistory', {coin, addresses, ruid});
+  ipcRenderer.send('spvGetHistory', {
+    coin,
+    addresses,
+    ruid
+  });
 
   return new Promise(async(resolve, reject) => {
-    const _data = await getData(ruid, {coin, type: 'getHistory', addresses});
+    const _data = await getData(ruid, {
+      coin,
+      type: 'getHistory',
+      addresses
+    });
     writeLog('spvGetHistory ready', _data);
     resolve(_data);
   });
-
-  //get(`addrs/utxo`, {addrs: addresses.join(',')});
 }
 
 const getUtxos = addresses => {
@@ -124,12 +130,15 @@ const getUtxos = addresses => {
   ipcRenderer.send('spvGetUtxo', {coin, addresses, ruid});
 
   return new Promise(async(resolve, reject) => {
-    const _data = await getData(ruid, {coin, type: 'getUtxos', addresses, ruid});
+    const _data = await getData(ruid, {
+      coin,
+      type: 'getUtxos',
+      addresses,
+      ruid
+    });
     writeLog('spvGetUtxo ready', _data);
     resolve(_data);
   });
-
-  //get(`addrs/utxo`, {addrs: addresses.join(',')});
 }
 
 const getTransaction = txid => {
@@ -138,12 +147,14 @@ const getTransaction = txid => {
   ipcRenderer.send('spvGetTransaction', {coin, ruid, txid});
 
   return new Promise(async(resolve, reject) => {
-    const _data = await getData(ruid, {coin, type: 'getTransaction', txid});
+    const _data = await getData(ruid, {
+      coin,
+      type: 'getTransaction',
+      txid
+    });
     writeLog('spvGetTransaction ready', _data);
     resolve(_data);
   });
-
-  //get(`tx/${txid}`);
 };
 
 const getRawTransaction = txid => {
@@ -152,33 +163,32 @@ const getRawTransaction = txid => {
   ipcRenderer.send('spvGetRawTransaction', {coin, ruid, txid});
 
   return new Promise(async(resolve, reject) => {
-    const _data = await getData(ruid, {coin, type: 'getRawTransaction', txid});
+    const _data = await getData(ruid, {
+      coin,
+      type: 'getRawTransaction',
+      txid
+    });
     writeLog('spvGetRawTransaction ready', _data);
     resolve({rawtx: _data});
   });
-
-  //get(`rawtx/${txid}`);
 };
 
-/*const getTipTime = async () => {
-  const {bestblockhash} = await getBestBlockHash();
-  const block = await getBlock(bestblockhash);
-
-  return block.time;
-};*/
 const getTipTime = async () => {
   writeLog(`spv ${coin}`, 'getTipTime');
   ruid++;
   ipcRenderer.send('spvGetCurrentBlock', {coin, ruid});
 
   return new Promise(async(resolve, reject) => {
-    const _data = await getData(ruid, {coin, type: 'getTipTime'});
+    const _data = await getData(ruid, {
+      coin,
+      type: 'getTipTime'
+    });
     writeLog('spvGetCurrentBlock ready', _data);
     resolve(_data.timestamp);
   });
 };
 
-const broadcast = async (rawtx) => {
+const broadcast = async rawtx => {
   writeLog(`spv ${coin}`, 'broadcast');
   ruid++;
   ipcRenderer.send('spvBroadcastTransaction', {coin, ruid, rawtx});
@@ -190,12 +200,9 @@ const broadcast = async (rawtx) => {
   });
 };
 
-//const broadcast = transaction => get('tx/send', {rawtx: transaction});
-
 const blockchain = {
   getAddress,
   getUtxos,
-  //getAddressHistory,
   getHistory,
   getTransaction,
   getRawTransaction,

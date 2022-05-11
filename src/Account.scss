@@ -42,3 +42,192 @@
     }
   }
 }
+
+.accounts-block,
+.transactions-block {
+  display: block;
+
+  * {
+    color: #121958 !important;
+  }
+
+  h4 {
+    font-size: 18px;
+  }
+
+  .accounts,
+  .transactions {
+    border-radius: 6px;
+    background: #fff;
+    //padding: 20px 20px 0 20px;
+    margin-top: 10px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+
+    .account-name {
+      position: relative;
+      top: -9px;
+      font-size: 16px;
+      left: 10px;
+    }
+
+    .amount {
+      font-size: 16px;
+      position: relative;
+      top: 6px;
+    }
+
+    .rewards {
+      color: #13D0A7 !important;
+      font-size: 16px;
+      position: relative;
+      top: 6px;
+    }
+
+    img {
+      width: 30px;
+      height: 30px;
+    }
+
+    table {
+      width: 100%;
+
+      thead {
+        tr {
+          cursor: default;
+
+          th {
+            font-weight: 500;
+            padding: 15px 20px;
+
+            * {
+              position: relative;
+              top: -5px;
+            }
+          }
+        }
+      }
+
+      td:nth-child(2),
+      td:nth-child(3),
+      th:nth-child(2),
+      th:nth-child(3) {
+        text-align: center;
+      }
+
+      tr {
+        cursor: pointer;
+
+        &:hover td {
+          background: rgba(204, 204, 204, 0.15);
+        }
+        td {
+          padding: 15px 20px 10px 20px;
+          border-bottom: solid 1px #efefef !important;
+          
+          img {
+            width: 30px;
+            height: 30px;
+          }
+          .coin-name {
+            position: relative;
+            top: -10px;
+            left: 10px;
+          }
+        }
+        th {
+          border-bottom: solid 1px #efefef !important;
+        }
+      }
+
+      tbody tr:nth-child(1) {
+        td {
+          padding-top: 13px;
+        }
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none !important;
+      }
+    }
+  }
+}
+
+.transactions-block {
+  margin-top: 60px;
+  margin-bottom: 50px;
+
+  .amount-increase {
+    color: #13D0A7 !important;
+  }
+
+  table {
+    tr {
+      td:last-child,
+      th:last-child {
+        text-align: right !important;
+      }
+      td {
+        padding: 20px 20px 18px 20px !important;
+      }
+    }
+  }
+
+  .date {
+    color: #a9a9a9 !important;
+    position: absolute;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+  .direction {
+    position: absolute;
+    margin-top: -10px;
+    text-transform: capitalize;
+
+    i {
+      margin-right: 10px;
+      font-size: 15px;
+    }
+    .fa-long-arrow-alt-up {
+      transform: rotate(45deg);
+    }
+    .fa-long-arrow-alt-down {
+      transform: rotate(-45deg);
+    }
+  }
+}
+
+.coin-settings-accounts-block {
+  margin-top: 30px;
+
+  h4 {
+    font-size: 1em !important;
+  }
+  .item {
+    padding-bottom: 10px;
+
+    .item-label {
+      width: 82px;
+      display: inline-block;
+    }
+    .button {
+      margin-left: 10px;
+      padding: 12px 6px;
+      height: 0;
+
+      i {
+        font-size: 0.9em;
+      }
+    }
+  }
+}
+
+.Modal-coin-settings {
+  .button:first-child {
+    margin-right: 40px;
+  }
+}
+
+.xpub-string {
+  word-break: break-all;
+  padding: 10px 0;
+}

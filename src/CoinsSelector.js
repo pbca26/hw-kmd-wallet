@@ -1,7 +1,7 @@
 import React from 'react';
 import SelectCoinModal from './SelectCoinModal';
-import apiEndpoints from './lib/coins';
 import {writeLog} from './Debug';
+import './CoinsSelector.scss';
 
 class CoinsSelector extends React.Component {
   state = this.initialState;
@@ -34,7 +34,9 @@ class CoinsSelector extends React.Component {
               className="inline-coin-icons-tile"
               key={`coins-${coinTicker}`}
               onClick={() => this.props.setActiveCoin(coinTicker)}>
-              <img src={`coins/${coinTicker}.png`} />
+              <img
+                src={`${process.env.NODE_ENV === 'development' ? process.env.PUBLIC_URL + '/' : ''}coins/${coinTicker}.png`} 
+                alt={`${coinTicker} icon`} />
               {coinTicker === 'KMD' &&
                this.checkKMDRewards() > 0 &&
                <div

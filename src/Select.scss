@@ -1,0 +1,35 @@
+select {
+  padding: 6px 48px 6px 5px;
+  border: thin solid rgb(170, 170, 170);
+  border-radius: 2px;
+
+  /* reset */
+  margin: 0;      
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+// ref: https://codepen.io/vkjgr/pen/VYMeXp
+select.minimal,
+select.minimal:focus {
+  background-image:
+    linear-gradient(45deg, transparent 50%, gray 50%),
+    linear-gradient(135deg, gray 50%, transparent 50%),
+    linear-gradient(to right, #ccc, #ccc);
+  background-position:
+    calc(100% - 15px) calc(1em - 2px),
+    calc(100% - 10px) calc(1em - 2px),
+    calc(100% - 2.21em) 0;
+  background-size: 5px 5px, 5px 5px, 1px 2em;
+  background-repeat: no-repeat;
+  outline: none;
+  cursor: pointer;
+}
+
+select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #000;
+}

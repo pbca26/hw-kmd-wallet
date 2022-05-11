@@ -1,14 +1,14 @@
 import compose from '../lib/compose';
 
-const fn1 = (a) => {
+const fn1 = a => {
   return a + 1;
 };
 
-const fn2 = (a) => {
+const fn2 = a => {
   return a + 2;
 };
 
-const fn3 = (a) => {
+const fn3 = a => {
   return a + 3;
 };
 

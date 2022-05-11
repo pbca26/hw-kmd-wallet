@@ -1,28 +1,24 @@
 import React from 'react';
-import getKomodoRewards from './lib/get-komodo-rewards';
 import hw from './lib/hw';
 import accountDiscovery, {clearPubkeysCache} from './lib/account-discovery';
 import blockchain, {blockchainAPI} from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
-import {TX_FEE, VENDOR} from './constants';
+import {VENDOR} from './constants';
 import ActionListModal from './ActionListModal';
 import asyncForEach from './lib/async';
-import coins from './lib/coins';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import {
   isElectron,
   appData,
 } from './Electron';
 import {writeLog} from './Debug';
+import {getAvailableExplorerUrl} from './send-coin-helpers';
+import {checkTipTime, calculateRewardData, calculateBalanceData, checkRewardsOverdue} from './app-helpers';
+import {getLocalStorageVar} from './lib/localstorage-util';
 
 const headings = [
   'Coin',
   'Balance',
-];
-const coinsToCheckDev = [
-  //'RICK',
-  //'MORTY',
-  'KMD',
 ];
 
 let cancel = false;
@@ -67,47 +63,30 @@ class CheckAllBalancesButton extends React.Component {
     this.setState(this.initialState);
   }
 
-  calculateRewardData = ({accounts, tiptime}) => accounts.map(account => {
-    account.balance = account.utxos.reduce((balance, utxo) => balance + utxo.satoshis, 0);
-    account.rewards = account.utxos.reduce((rewards, utxo) => rewards + getKomodoRewards({tiptime, ...utxo}), 0);
-    account.claimableAmount = account.rewards - TX_FEE * 2;
-
-    return account;
-  });
-
   scanAddresses = async () => {
     const coinTickers = this.props.coins;
-    let balances = [];
+    const {vendor} = this.props;
+    let balances = [], currentAction;
     cancel = false;
     
     await asyncForEach(coinTickers, async (coin, index) => {
       if (!cancel) {
-        const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
-          return blockchain[blockchainAPI].getInfo(value);
-        }));
-        let isExplorerEndpointSet = false;
-        let longestBlockHeight = 0;
-        let apiEndPointIndex = 0;
-    
-        writeLog('checkExplorerEndpoints', getInfoRes);
+        this.setState({
+          isCheckingRewards: true,
+        });
         
-        for (let i = 0; i < coins[coin].api.length; i++) {
-          if (getInfoRes[i] &&
-              getInfoRes[i].hasOwnProperty('info') &&
-              getInfoRes[i].info.hasOwnProperty('version')) {
-            if (getInfoRes[i].info.blocks > longestBlockHeight) {
-              longestBlockHeight = getInfoRes[i].info.blocks;
-              apiEndPointIndex = i;
-            }
-          }
-        }
+        currentAction = 'connect';
+        updateActionState(this, currentAction, 'loading');
 
-        writeLog(`${coin} set api endpoint to ${coins[coin].api[apiEndPointIndex]}`);
-        blockchain[blockchainAPI].setExplorerUrl(coins[coin].api[apiEndPointIndex]);
+        const explorerUrl = await getAvailableExplorerUrl(coin, blockchain[blockchainAPI]);
+        let isExplorerEndpointSet = false;
+
+        writeLog(`${coin} set api endpoint to ${explorerUrl}`);
+        blockchain[blockchainAPI].setExplorerUrl(explorerUrl);
         isExplorerEndpointSet = true;
     
         this.setState({
-          explorerEndpoint: coins[coin].api[apiEndPointIndex],
+          explorerEndpoint: explorerUrl,
         });
 
         if (isExplorerEndpointSet) {
@@ -124,23 +103,34 @@ class CheckAllBalancesButton extends React.Component {
           try {
             currentAction = 'connect';
             updateActionState(this, currentAction, 'loading');
-            const hwIsAvailable = await hw[this.props.vendor].isAvailable();
+            const hwIsAvailable = await hw[vendor].isAvailable();
             if (!hwIsAvailable) {
-              throw new Error(`${VENDOR[this.props.vendor]} device is unavailable!`);
+              throw new Error(`${VENDOR[vendor]} device is unavailable!`);
             }
             updateActionState(this, currentAction, true);
 
             currentAction = 'approve';
             updateActionState(this, currentAction, 'loading');
             let [accounts, tiptime] = await Promise.all([
-              accountDiscovery(this.props.vendor, coin),
+              accountDiscovery(
+                vendor,
+                coin,
+                null,
+                getLocalStorageVar('settings') && getLocalStorageVar('settings').historyLength
+              ),
               blockchain[blockchainAPI].getTipTime()
             ]);
 
-            tiptime = this.props.checkTipTime(tiptime);
-
-            accounts = this.calculateRewardData({accounts, tiptime});
             updateActionState(this, currentAction, true);
+
+            if (coin === 'KMD') {
+              tiptime = checkTipTime(tiptime);
+              accounts = calculateRewardData({accounts, tiptime});
+              writeLog('check if any KMD rewards are overdue');
+              accounts = checkRewardsOverdue(accounts);            
+            }
+
+            accounts = calculateBalanceData(accounts);
 
             let balanceSum = 0;
             let rewardsSum = 0;
@@ -161,7 +151,6 @@ class CheckAllBalancesButton extends React.Component {
               balances,
               isInProgress: index === coinTickers.length - 1 ? false : true,
             });
-            //this.setState({...this.initialState});
           } catch (error) {
             writeLog(error);
             updateActionState(this, currentAction, false);
@@ -172,7 +161,8 @@ class CheckAllBalancesButton extends React.Component {
     });
     
     if (!cancel) {
-      if (!this.state.error || (this.state.error && this.state.error.indexOf('Failed to fetch') > -1)) {
+      if (!this.state.error ||
+          (this.state.error && this.state.error.indexOf('Failed to fetch') > -1)) {
         updateActionState(this, 'approve', true);
         updateActionState(this, 'finished', true);
       }
@@ -221,7 +211,9 @@ class CheckAllBalancesButton extends React.Component {
           {balances.map(item => (
             <tr key={item.coin}>
               <th>{item.coin}</th>
-              <td>{humanReadableSatoshis(item.balance)}{item.rewards ? ` (${humanReadableSatoshis(item.rewards)})` : ''}</td>
+              <td>
+                {humanReadableSatoshis(item.balance)}{item.rewards ? ` (${humanReadableSatoshis(item.rewards)})` : ''}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -232,38 +224,44 @@ class CheckAllBalancesButton extends React.Component {
   render() {
     const {
       isCheckingRewards,
+      isInProgress,
       actions,
       error,
+      coin,
+      balances,
+      emptyBalances,
+      progress,
     } = this.state;
+    const {vendor, children} = this.props;
 
     return (
       <React.Fragment>
         <button
           className="button is-primary"
           onClick={this.scanAddresses}>
-          {this.props.children}
+          {children}
         </button>
         <ActionListModal
-          title={`Scanning Blockchain ${this.state.coin}${this.state.progress}`}
-          isCloseable={!this.state.isInProgress}
+          title={`Scanning Blockchain ${coin}${progress}`}
+          isCloseable={!isInProgress}
           actions={actions}
           error={error}
           handleClose={this.resetState}
           show={isCheckingRewards}
           className="Scan-balances-modal"
           childrenPosition="bottom"
-          topText={`Exporting public keys from your ${VENDOR[this.props.vendor]} device, scanning the blockchain for funds, and calculating any claimable rewards. Please approve any public key export requests on your device.`}>
-          {this.state.balances &&
-           this.state.balances.length > 0 &&
+          topText={`Exporting public keys from your ${VENDOR[vendor]} device, scanning the blockchain for funds, and calculating any claimable rewards. Please approve any public key export requests on your device.`}>
+          {balances &&
+           balances.length > 0 &&
             <React.Fragment>{this.renderCoinBalances()}</React.Fragment>
           }
-          {this.state.emptyBalances &&
+          {emptyBalances &&
             <p>
               <strong>No active balances are found</strong>
             </p>
           }
-          {!this.state.isInProgress &&
-            this.state.balances.length > 0 &&
+          {!isInProgress &&
+            balances.length > 0 &&
             <button
               className="button is-primary"
               onClick={this.confirm}>

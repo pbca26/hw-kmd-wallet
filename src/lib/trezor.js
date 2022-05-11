@@ -2,8 +2,11 @@ import TrezorConnect from 'trezor-connect';
 import {KOMODO} from '../constants';
 import {writeLog} from '../Debug';
 
+let isInitialized = false;
+
 const init = () => {
   // this will work only on localhost
+  isInitialized = true;
   if (window.location.href.indexOf('devmode') > -1) {
     TrezorConnect.init({
       webusb: true,
@@ -13,7 +16,7 @@ const init = () => {
         appUrl: 'http://your.application.com',
       },
     })
-    .then((res) => {
+    .then(res => {
       // note: mount point must exist before calling renderWebUSBButton method
       TrezorConnect.renderWebUSBButton('.trezor-webusb-container');
     });
@@ -24,6 +27,8 @@ const init = () => {
     });
   }
 };
+
+const getInitStatus = () => isInitialized;
 
 const getUniqueInputs = utxos => {
   let uniqueInputs = [];
@@ -49,7 +54,7 @@ const isAvailable = async () => {
   const trezorRes = await TrezorConnect.getPublicKey({
     path: `m/141'/0'/0'/0/0`,
   })
-  .then((result) => {
+  .then(result => {
     return result && result.success === true ? true : false; 
   });
 
@@ -61,7 +66,7 @@ const getAddress = async (derivationPath, verify) => {
     path: `m/${derivationPath}`,
     showOnTrezor: verify ? true : false,
   })
-  .then((result) => {
+  .then(result => {
     return result && result.payload && result.payload.address ? result.payload.address : null; 
   });
 
@@ -82,7 +87,7 @@ const createTransaction = async (utxos, outputs, isKMD) => {
       amount: outputs[0].value.toString(),
       script_type: 'PAYTOADDRESS',
     }],
-    inputs: utxos.map((utxo) => {
+    inputs: utxos.map(utxo => {
       const derivationPathPartials = utxo.derivationPath.replace(/'/g, '').split('/');
       return {
         address_n: [
@@ -98,10 +103,10 @@ const createTransaction = async (utxos, outputs, isKMD) => {
       };
     }),
     // reduce multiple vouts related to one tx into a single array element 
-    refTxs: getUniqueInputs(utxos).map((refTx) => {
+    refTxs: getUniqueInputs(utxos).map(refTx => {
       return {
         hash: refTx.txid,
-        inputs: refTx.inputs.map((input) => {
+        inputs: refTx.inputs.map(input => {
           return {
             prev_hash: input.txid,
             prev_index: input.vout,
@@ -109,10 +114,9 @@ const createTransaction = async (utxos, outputs, isKMD) => {
             sequence: input.sequence,
           };
         }),
-        bin_outputs: refTx.outputs.map((output) => {
+        bin_outputs: refTx.outputs.map(output => {
           return {
-            amount: output.hasOwnProperty('satoshis') ? output.satoshis.toString() : output.value.replace('.', ''),
-            //amount: output.value.replace('.', ''),
+            amount: 'satoshis' in output ? output.satoshis.toString() : output.value.replace('.', ''),
             script_pubkey: output.scriptPubKey.hex,
           };
         }),
@@ -146,7 +150,7 @@ const createTransaction = async (utxos, outputs, isKMD) => {
   
   const transaction = await TrezorConnect.signTransaction(tx)
   .then((res) => {
-    if (res.payload.hasOwnProperty('error')) {
+    if ('error' in res.payload) {
       if (window.location.href.indexOf('devmode') > -1) {
         writeLog('trezor tx obj', tx);
         writeLog('trezor signTransaction error', res);
@@ -178,6 +182,7 @@ const trezor = {
   createTransaction,
   getXpub,
   init,
+  getInitStatus,
 };
 
 export default trezor;

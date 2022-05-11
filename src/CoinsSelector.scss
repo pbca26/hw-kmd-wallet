@@ -1,0 +1,77 @@
+.inline-coin-icons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  text-align: left;
+
+  .inline-coin-icons-tile {
+    float: left;
+    height: 45px;
+    width: 45px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+
+    &:hover {
+      box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    img {
+      height: 35px;
+      width: 35px;
+      position: relative;
+      top: 6px;
+      left: 5px;
+    }
+  }
+
+  .coins-add-new {
+    .coins-add-new-plus-sign:before {
+      position: relative;
+      top: 10px;
+      left: 12px;
+      font-size: 24px;
+      opacity: 0.85;
+    }
+  }
+}
+
+.kmd-rewards-main-overdue-badge,
+.kmd-rewards-account-overdue-badge {
+  background: red;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  margin-top: -46px;
+  margin-left: 34px;
+
+  i {
+    color: #fff !important;
+    font-style: normal;
+    position: relative;
+    left: 4px;
+    top: -5px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.kmd-rewards-account-overdue-badge {
+  margin: 0;
+  position: relative;
+  display: inline-block;
+  top: 9px;
+  left: 5px;
+  width: 17px;
+  height: 17px;
+
+  i {
+    font-size: 13px;
+    left: 1px;
+    top: -4px;
+  }
+}

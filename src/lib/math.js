@@ -22,11 +22,7 @@ const toSats = value => Number((Number(value).toFixed(8) * 100000000).toFixed(0)
 
 // ref: https://github.com/pbca26/agama-wallet-lib/blob/master/src/utils.js#L117
 const maxSpendBalance = (utxoList, fee) => {
-  let maxSpendBalance = 0;
-
-  for (let i = 0; i < utxoList.length; i++) {
-    maxSpendBalance += Number(utxoList[i].value);
-  }
+  const maxSpendBalance = utxoList.reduce((accumulator, item) => accumulator + Number(item.value), 0);
 
   if (fee) {
     return Number((Number(maxSpendBalance) - Number(fee)).toFixed(8));

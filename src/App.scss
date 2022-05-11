@@ -134,3 +134,24 @@
     }
   }
 }
+
+.download-desktop-block {
+  text-align: center;
+  padding-top: 50px;
+
+  a:hover {
+    text-decoration: none;
+  }
+  button {
+    padding: 15px;
+    height: 2.5rem;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+    background: #fff !important;
+
+    i {
+      padding-right: 7px;
+      position: relative;
+      top: -2px;
+    }
+  }
+}

@@ -40,11 +40,15 @@ const numbersArrayDesc = [{
 }];
 
 test('it should sort array by number field in DESC order (sort - sortTransactions)', () => {
-  expect(sortTransactions(JSON.parse(JSON.stringify(numbersArrayAsc)), 'num')).toEqual(JSON.parse(JSON.stringify(numbersArrayDesc)));
+  const data1 = JSON.parse(JSON.stringify(numbersArrayAsc));
+  const data2 = JSON.parse(JSON.stringify(numbersArrayDesc));
+  expect(sortTransactions(data1, 'num')).toEqual(data2);
 });
 
 test('it should keep array in DESC order (sort - sortTransactions)', () => {
-  expect(sortTransactions(JSON.parse(JSON.stringify(numbersArrayDesc)), 'num')).toEqual(JSON.parse(JSON.stringify(numbersArrayDesc)));
+  const data1 = JSON.parse(JSON.stringify(numbersArrayDesc));
+  const data2 = JSON.parse(JSON.stringify(numbersArrayDesc));
+  expect(sortTransactions(data1, 'num')).toEqual(data2);
 });
 
 const textArrayAsc = [{
@@ -69,11 +73,15 @@ const textArrayDesc = [{
 }];
 
 test('it should sort array by text field in DESC order (sort - sortTransactions)', () => {
-  expect(sortTransactions(JSON.parse(JSON.stringify(textArrayAsc)), 'text')).toEqual(JSON.parse(JSON.stringify(textArrayDesc)));
+  const data1 = JSON.parse(JSON.stringify(textArrayAsc));
+  const data2 = JSON.parse(JSON.stringify(textArrayDesc));
+  expect(sortTransactions(data1, 'text')).toEqual(data2);
 });
 
 test('it should keep array in DESC order (sort - sortTransactions)', () => {
-  expect(sortTransactions(JSON.parse(JSON.stringify(textArrayDesc)), 'num')).toEqual(JSON.parse(JSON.stringify(textArrayDesc)));
+  const data1 = JSON.parse(JSON.stringify(textArrayDesc));
+  const data2 = JSON.parse(JSON.stringify(textArrayDesc));
+  expect(sortTransactions(data1, 'num')).toEqual(data2);
 });
 
 const transactionsAsc = [{
@@ -112,9 +120,13 @@ const transactionsDesc = [{
 }];
 
 test('it should sort array by default prop (height) in DESC order (sort - sortTransactions)', () => {
-  expect(sortTransactions(JSON.parse(JSON.stringify(transactionsAsc)))).toEqual(JSON.parse(JSON.stringify(transactionsDesc)));
+  const data1 = JSON.parse(JSON.stringify(transactionsAsc));
+  const data2 = JSON.parse(JSON.stringify(transactionsDesc));
+  expect(sortTransactions(data1)).toEqual(data2);
 });
 
 test('it should keep array in DESC order (sort - sortTransactions)', () => {
-  expect(sortTransactions(JSON.parse(JSON.stringify(transactionsDesc)))).toEqual(JSON.parse(JSON.stringify(transactionsDesc)));
+  const data1 = JSON.parse(JSON.stringify(transactionsDesc));
+  const data2 = JSON.parse(JSON.stringify(transactionsDesc));
+  expect(sortTransactions(data1)).toEqual(data2);
 });

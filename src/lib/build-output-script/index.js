@@ -55,4 +55,4 @@ const buildOutputScript = outputs => {
 	return Buffer.from(outputScript).toString('hex');
 };
 
-module.exports = buildOutputScript;
+export default buildOutputScript;

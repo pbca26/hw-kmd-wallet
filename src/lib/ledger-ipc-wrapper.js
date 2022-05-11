@@ -3,11 +3,18 @@ import {
   isElectron,
 } from '../Electron';
 import {writeLog} from '../Debug';
+import {COIN_DERIVATION_PATH} from '../constants';
 
 let data = {};
 let ruid = 0;
 let intervals = {};
 let pendingCalls = {};
+
+const wrapIpcRendererSend = (cmd, payload) => {
+  ruid++;
+  payload.ruid = ruid;
+  ipcRenderer.send(cmd, payload);
+}
 
 // return data only when it was sent over from ipc main proc
 const getData = (ruid, payload) => {
@@ -15,7 +22,7 @@ const getData = (ruid, payload) => {
     if (!data[ruid]) {
       writeLog(`ledger data ruid ${ruid} not available yet, set interval`, ruid);
 
-      intervals[ruid] = setInterval((ruid) => {
+      intervals[ruid] = setInterval(ruid => {
         if (data[ruid]) {
           writeLog(`ledger data ruid ${ruid} available, clear interval`, data[ruid]);
           clearInterval(intervals[ruid]);
@@ -57,10 +64,9 @@ if (isElectron) {
 // wrap ledger methods using ipc renderer
 const getDevice = async () => {
   return {
-    getWalletPublicKey: (derivationPath) => {
-      writeLog(`ledger getWalletPublicKey`);
-      ruid++;
-      ipcRenderer.send('getAddress', {derivationPath, ruid});
+    getWalletPublicKey: derivationPath => {
+      writeLog('ledger getWalletPublicKey');
+      wrapIpcRendererSend('getAddress', {derivationPath});
       
       return new Promise(async(resolve, reject) => {
         const _data = await getData(ruid);
@@ -68,34 +74,29 @@ const getDevice = async () => {
         resolve(_data);
       });
     },
-    createPaymentTransactionNew: (
+    createPaymentTransactionNew: ({
       inputs,
       associatedKeysets,
       changePath,
-      outputScript,
+      outputScriptHex,
       lockTime,
-      sigHashType,
-      segwit,
-      initialTimestamp,
       additionals,
       expiryHeight,
-    ) => {
-      writeLog(`ledger createPaymentTransactionNew`);
-      ruid++;
-      ipcRenderer.send('createPaymentTransactionNew', {txData: {
-        inputs,
-        associatedKeysets,
-        changePath,
-        outputScript,
-        lockTime,
-        sigHashType,
-        segwit,
-        initialTimestamp,
-        additionals,
-        expiryHeight,
-      }, ruid});
+    }) => {
+      writeLog('ledger createPaymentTransactionNew');
+      wrapIpcRendererSend('createPaymentTransactionNew', {
+        txData: {
+          inputs,
+          associatedKeysets,
+          changePath,
+          outputScriptHex,
+          lockTime,
+          additionals,
+          expiryHeight,
+        },
+      });
 
-      return new Promise(async(resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         const _data = await getData(ruid);
         writeLog('ledger createPaymentTransactionNew ready', _data);
         resolve(_data);
@@ -108,17 +109,19 @@ const getDevice = async () => {
       hasExtraData,
       additionals,
     ) => {
-      writeLog(`ledger splitTransaction`);
-      ruid++;
-      ipcRenderer.send('splitTransaction', {txData: {
+      writeLog('ledger splitTransaction');
+      wrapIpcRendererSend('splitTransaction', {
+        txData: {
         transactionHex,
         isSegwitSupported,
         hasTimestamp,
         hasExtraData,
         additionals,
-      }, ruid});
+        },
+        ruid
+      });
 
-      return new Promise(async(resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         const _data = await getData(ruid);
         writeLog('ledger splitTransaction ready', _data);
         resolve(_data);
@@ -132,7 +135,7 @@ const isAvailable = async () => {
   const ledger = await getDevice();
 
   try {
-    const res = await ledger.getWalletPublicKey(`m/44'/141'/0'/0/0`, {
+    const res = await ledger.getWalletPublicKey(`m/${COIN_DERIVATION_PATH}/0'/0/0`, {
       verify: window.location.href.indexOf('ledger-ble') > -1,
     });
     await ledger.close();

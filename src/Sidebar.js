@@ -9,16 +9,13 @@ import {
   shell,
 } from './Electron';
 import {getLocalStorageVar} from './lib/localstorage-util';
+import appInfo from '../package.json';
 import {CACHE_MAX_LIFETIME} from './constants';
 import {checkTimestamp} from './lib/time';
+import './Sidebar.scss';
 
 class Sidebar extends React.Component {
   state = this.initialState;
-  
-  get initialState() {
-    return {
-    };
-  };
 
   logout() {
     this.props.resetState('logout');
@@ -29,7 +26,7 @@ class Sidebar extends React.Component {
     writeLog('sidebar props', this.props);
     
     return (
-      <div className={'sidebar-right sidebar-' + sidebarSize}>
+      <div className={`sidebar-right sidebar-${sidebarSize}`}>
         <ul>
           {this.props.isCoinData() &&
            this.props.activeCoin &&
@@ -87,7 +84,9 @@ class Sidebar extends React.Component {
           }
           <li className="sidebar-item-no-pad">
             {isElectron &&
-              <a onClick={() => shell.openExternal('https://github.com/pbca26/hw-kmd-wallet/issues/new')}>
+              <a
+                href="!#"
+                onClick={() => shell.openExternal('https://github.com/pbca26/hw-kmd-wallet/issues/new')}>
                 <i className="fa fa-life-ring"></i>
                 {sidebarSize === 'full' &&
                   <span className="sidebar-item-title">Feedback</span>
@@ -98,6 +97,7 @@ class Sidebar extends React.Component {
               <a
                 target="_blank"
                 href="https://github.com/pbca26/hw-kmd-wallet/issues/new"
+                rel="noopener noreferrer"
                 className="sidebar-item-no-pad">
                 <i className="fa fa-life-ring"></i>
                 {sidebarSize === 'full' &&
@@ -116,6 +116,7 @@ class Sidebar extends React.Component {
             </li>
           }
         </ul>
+        <div className="sidebar-app-version">v{appInfo.version}</div>
       </div>
     );
   }

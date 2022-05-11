@@ -44,6 +44,12 @@ If you're experiencing issues connecting your Ledger device open the following u
 ## Build/compile issues
 If you are experiencing build issues that lead to minify errors add required modules to [config-overrides.js](https://github.com/pbca26/hw-kmd-wallet/blob/master/config-overrides.js#L19) file.
 
+## Running tests on MacOS
+If you're running into the following error `Error: EMFILE: too many open files, watch` install watchman
+```
+brew install watchman
+```
+
 ## License
 
 MIT © Atomic Labs<br />

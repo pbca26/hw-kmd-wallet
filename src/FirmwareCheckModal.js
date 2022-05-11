@@ -32,14 +32,17 @@ class FirmwareCheckModal extends React.Component {
   };
 
   async componentDidMount() {
-    if (this.props.vendor === 'trezor') {
+    const {vendor} = this.props;
+
+    if (vendor === 'trezor') {
       const trezorFw = await trezorCheckFW();
-      const updateTrezorFw = compareVersions.compare(`${trezorFw.major_version}.${trezorFw.minor_version}.${trezorFw.patch_version}`, TREZOR_FW_MIN_VERSION[trezorFw.model], '>=');
+      const trezorFwVersion = `${trezorFw.major_version}.${trezorFw.minor_version}.${trezorFw.patch_version}`;
+      const updateTrezorFw = compareVersions.compare(trezorFwVersion, TREZOR_FW_MIN_VERSION[trezorFw.model], '>=');
 
       this.setState({
         show: !updateTrezorFw,
       });
-    } else if (this.props.vendor === 'ledger') {
+    } else if (vendor === 'ledger') {
       updateActionState(this, 'connect', 'loading');
 
       this.setState({
@@ -51,7 +54,10 @@ class FirmwareCheckModal extends React.Component {
       updateActionState(this, 'connect', true);
       this.props.updateLedgerDeviceType(LEDGER_DEVICE_HEX_ENUM[ledgerFw.targetId.toString(16)]);
 
-      if (ledgerNanoSFWVersion && LEDGER_DEVICE_HEX_ENUM[ledgerFw.targetId.toString(16)] === 's') this.props.updateLedgerFWVersion('webusb');
+      if (ledgerNanoSFWVersion &&
+          LEDGER_DEVICE_HEX_ENUM[ledgerFw.targetId.toString(16)] === 's') {
+        this.props.updateLedgerFWVersion('webusb');
+      }
 
       updateActionState(this, 'komodoApp', 'loading');
 
@@ -97,8 +103,10 @@ class FirmwareCheckModal extends React.Component {
           title="Ledger firmware and app version check"
           show={this.state.show}>
           <p>Please follow steps below to validate your Ledger device firmware and Komodo app version.</p>
-          <p className="text-center" style={{'paddingBottom': '10px'}}>
-            <a onClick={this.handleClose}>Skip this step</a>
+          <p className="text-center fw-check-modal-padding-bottom">
+            <a
+              href="!#"
+              onClick={this.handleClose}>Skip this step</a>
           </p>
         </ActionListModal>
       );

@@ -6,15 +6,15 @@ const RECHECK_TIMEOUT = 1000;
 let getLedgerDeviceInfoInterval, getLedgerAppInfoInterval;
 
 // ref: https://github.com/LedgerHQ/ledger-live-common/blob/master/src/hw/getVersion.js
-const getLedgerDeviceInfo = async() => {
-  return new Promise(async(resolve, reject) => {
+const getLedgerDeviceInfo = async () => {
+  return new Promise(async (resolve, reject) => {
     
     if (!ledgerTransport) {
       const transport = await hw.ledger.transportOptions.webusb.create();
       hw.ledger.setLedgerTransport(transport);
     }
 
-    getLedgerDeviceInfoInterval = setInterval(async() => {
+    getLedgerDeviceInfoInterval = setInterval(async () => {
       const transport = ledgerTransport;
 
       try {
@@ -63,14 +63,14 @@ const getLedgerDeviceInfo = async() => {
 };
 
 // ref: https://github.com/LedgerHQ/ledgerjs/issues/365
-const getLedgerAppInfo = async() => {
-  return new Promise(async(resolve, reject) => {   
+const getLedgerAppInfo = async () => {
+  return new Promise(async (resolve, reject) => {   
     if (!ledgerTransport) {
       const transport = await hw.ledger.transportOptions.webusb.create();
       hw.ledger.setLedgerTransport(transport);
     }
 
-    getLedgerAppInfoInterval = setInterval(async() => {
+    getLedgerAppInfoInterval = setInterval(async () => {
       const transport = ledgerTransport;
 
       try {

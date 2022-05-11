@@ -66,7 +66,7 @@ const transactionsHistory = {
   "decoded": {
     "partial": [
       {
-        "amount": 0.15989999,
+        "amount": 0.15979999,
         "confirmations": 0,
         "date": "pending",
         "height": "unknown",
@@ -77,7 +77,7 @@ const transactionsHistory = {
     ],
     "received": [
       {
-        "amount": 0.15989999,
+        "amount": 0.15979999,
         "confirmations": 580297,
         "date": "15 Nov 2017 11:26",
         "height": 100,
@@ -88,7 +88,7 @@ const transactionsHistory = {
     ],
     "receivedNoAddress": [
       {
-        "amount": 0.0001,
+        "amount": 0,
         "confirmations": 580297,
         "date": "15 Nov 2017 11:26",
         "height": 100,
@@ -100,7 +100,7 @@ const transactionsHistory = {
     "sent": [
       {
         "type": "sent",
-        "amount": 0.9999,
+        "amount": 1,
         "timestamp": 1520734416,
         "date": "11 Mar 2018 05:13",
         "txid": "1531fcf212c2d015bede1e01b54440f8a50187838a5d3632a27d1b5f01d8ec00",
@@ -110,7 +110,7 @@ const transactionsHistory = {
     ],
     "sortedASC": [
       {
-        "amount": 0.9999,
+        "amount": 1,
         "confirmations": 580297,
         "date": "11 Mar 2018 05:13",
         "height": 110,
@@ -119,7 +119,7 @@ const transactionsHistory = {
         "type": "sent"
       },
       {
-        "amount": 0.15989999,
+        "amount": 0.15979999,
         "confirmations": 580297,
         "date": "15 Nov 2017 11:26",
         "height": 100,
