@@ -1,64 +1,62 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import QRCode from 'qrcode.react';
 import QrReader from 'react-qr-reader';
 
-class QRModal extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false,
-      error: null,
-      errorShown: false,
-      className: 'hide',
-    };
-    this.mounted = false;
-    this.handleScan = this.handleScan.bind(this);
-    this.handleError = this.handleError.bind(this);
-  }
+let mounted = false;
 
-  handleScan(data) {
+const QRModal = props => {
+  const initialState = {
+    open: false,
+    error: null,
+    errorShown: false,
+    className: 'hide',
+  };
+  const [state, setState] = useState(initialState);
+
+  const handleScan = data => {
     if (data !== null &&
-        this.props.mode === 'scan') {
-      this.props.setRecieverFromScan(data);
+        props.mode === 'scan') {
+      props.setRecieverFromScan(data);
     }
   }
 
-  componentDidMount() {
-    this.mounted = true;
-  }
+  useEffect(() => {
+    mounted = true;
 
-  componentWillUnmount() {
-    this.mounted = false;
-  }
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
-  handleError(err) {
-    if (this.mounted) {
-      this.setState({
+  const handleError = err => {
+    if (mounted) {
+      setState(prevState => ({
+        ...prevState,
         error: err.name,
-      });
+      }));
     }
   }
 
-  qRCodeRender() {
+  const qRCodeRender = () => {
     return (
       <QRCode
-        value={this.props.content}
-        size={Number(this.props.qrSize) || 198} />
+        value={props.content}
+        size={Number(props.qrSize) || 198} />
     );
   }
 
-  qRCodeReaderRender() {
-    if (!this.state.errorShown) {
+  const qRCodeReaderRender = () => {
+    if (!state.errorShown) {
       return (
         <React.Fragment>
-          {!this.state.error &&
+          {!state.error &&
             <QrReader
               delay={250}
               className="qr-reader-comp"
-              onError={this.handleError}
-              onScan={this.handleScan} />
+              onError={handleError}
+              onScan={handleScan} />
           }
-          {this.state.error}
+          {state.error}
         </React.Fragment>
       );
     } else {
@@ -66,9 +64,7 @@ class QRModal extends React.Component {
     }
   };
 
-  render() {
-    return this.props.mode === 'scan' ? this.qRCodeReaderRender() : this.qRCodeRender();
-  }
+  return props.mode === 'scan' ? qRCodeReaderRender() : qRCodeRender();
 }
 
 export default QRModal;

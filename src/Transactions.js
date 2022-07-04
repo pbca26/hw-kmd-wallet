@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {sortTransactions} from './lib/sort';
 import TransactionViewModal from './TransactionViewModal';
 import {writeLog} from './Debug';
+import useScrollPosition from './scrollPosHook';
 
 const headings = {
   many: [
@@ -48,20 +49,31 @@ const getTransactionsHistory = (accounts, activeAccount) => {
   return lastOperations;
 };
 
-class Transactions extends React.Component {
-  state = {
-    txDetails: null,
+const Transactions = props => {
+  const scrollPosition = useScrollPosition();
+  const initialState = {
+    isClosed: true,
+    tiptime: 0,
   };
+  const [state, setState] = useState(initialState);
 
-  openTransactionDetails(txDetails) {
-    this.setState({
+  const openTransactionDetails = txDetails => {
+    setState(prevState => ({
+      ...prevState,
       txDetails,
-    });
+    }));
     document.getElementById('transactionDetailsModal').click();
   }
 
-  render() {
-    const {accounts, coin, activeAccount} = this.props;
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  const render = () => {
+    const {accounts, coin, activeAccount} = props;
 
     return (
       <React.Fragment>
@@ -80,7 +92,7 @@ class Transactions extends React.Component {
                     <tr
                       key={tx.txid}
                       className="utxo"
-                      onClick={() => this.openTransactionDetails(tx)}>
+                      onClick={() => openTransactionDetails(tx)}>
                       <td className="cap--first">
                         <span className="direction">
                           <i className={`fa fa-long-arrow-alt-${tx.type === 'sent' ? 'up' : 'down'}`}></i>
@@ -105,13 +117,20 @@ class Transactions extends React.Component {
             </div>
             <TransactionViewModal
               coin={coin}
-              tx={this.state.txDetails}
+              tx={state.txDetails}
               activeAccount={activeAccount} />
+            <div
+              className={`back-to-top-button ${scrollPosition < 600 ? 'invisible': ''}`}
+              onClick={scrollToTop}>
+              <i className="fa fa-chevron-up"></i>
+            </div>
           </div>
         }
       </React.Fragment>
     );
   }
+
+  return render();
 };
 
 export default Transactions;

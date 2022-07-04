@@ -1,6 +1,6 @@
 {
   "name": "hw-kmd-wallet",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "author": "Luke Childs <lukechilds123@gmail.com> (http://lukechilds.co.uk), Komodo Platform (https://komodoplatform.com)",
   "description": "Komodo Hardware Wallet Web App",
   "repository": "pbca26/hw-kmd-wallet",
@@ -47,7 +47,8 @@
     "deploy": "gh-pages -d build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
-    "postinstall": "cp -R node_modules/bitcoinjs-lib/src/payments node_modules/@trezor/utxo-lib/src"
+    "make-coin-sprites": "node make-coin-icons-sprites.js",
+    "postinstall": "npm run make-coin-sprites && cp -R node_modules/bitcoinjs-lib/src/payments node_modules/@trezor/utxo-lib/src"
   },
   "eslintConfig": {
     "extends": [
@@ -80,9 +81,11 @@
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
+    "node-fetch": "^2.6.7",
     "react-app-rewire-hot-loader": "^2.0.1",
     "react-app-rewired": "^2.2.1",
     "react-hot-loader": "^4.13.0",
+    "spritesmith": "^3.4.0",
     "stream-browserify": "^3.0.0",
     "web-vitals": "^2.1.4"
   }

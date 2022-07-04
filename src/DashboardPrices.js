@@ -2,17 +2,10 @@ import React from 'react';
 import './DashboardPrices.scss';
 import {PRICE_DEFAULT_COINS} from './constants';
 
-class DashboardPrices extends React.Component {
-  state = this.initialState;
-  
-  get initialState() {
-    return {
-    };
-  };
-
-  render() {
+const DashboardPrices = props => {
+  const render = () => {
     const coins = PRICE_DEFAULT_COINS;
-    const {prices} = this.props;
+    const {prices} = props;
     const coinPriceTickers = Object.keys(prices);
 
     return (
@@ -32,9 +25,13 @@ class DashboardPrices extends React.Component {
                 {coins.map((item, index) => (
                   <tr key={`prices-${item}`}>
                     <td>
-                      <img
-                        src={`${process.env.NODE_ENV === 'development' ? process.env.PUBLIC_URL + '/' : ''}coins/${item}.png`}
-                        alt={`${item} icon`} />
+                      <div className="coin-icons-wrapper-container">
+                        <div className={`coin-icons-wrapper ${item}-icon-size-sm`}>
+                          <div
+                            className={`coin-icons ${item}`}
+                            style={{backgroundImage: `url('${process.env.NODE_ENV === 'development' ? process.env.PUBLIC_URL + '/' : ''}coin-icons.png')`}}></div>
+                        </div>
+                      </div>
                       <span className="coin-name">{item}</span>
                     </td>
                     <td>...</td>
@@ -48,9 +45,13 @@ class DashboardPrices extends React.Component {
                 {coinPriceTickers.map((item, index) => (
                   <tr key={`prices-${item}`}>
                     <td>
-                      <img
-                        src={`${process.env.NODE_ENV === 'development' ? process.env.PUBLIC_URL + '/' : ''}coins/${item}.png`}
-                        alt={`${item} icon`} />
+                      <div className="coin-icons-wrapper-container">
+                        <div className={`coin-icons-wrapper ${item}-icon-size-sm`}>
+                          <div
+                            className={`coin-icons ${item}`}
+                            style={{backgroundImage: `url('${process.env.NODE_ENV === 'development' ? process.env.PUBLIC_URL + '/' : ''}coin-icons.png')`}}></div>
+                        </div>
+                      </div>
                       <span className="coin-name">{item}</span>
                     </td>
                     <td>{prices[item].price}</td>
@@ -64,6 +65,8 @@ class DashboardPrices extends React.Component {
       </div>
     );
   }
+
+  return render();
 }
 
 export default DashboardPrices;

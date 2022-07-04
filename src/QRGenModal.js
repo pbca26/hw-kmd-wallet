@@ -1,36 +1,32 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Modal from './Modal';
 import QRModal from './QR';
 
-class QRGenModal extends React.Component {
-  state = this.initialState;
-  
-  get initialState() {
-    this.triggerModal = this.triggerModal.bind(this);
-    
-    return {
-      isClosed: true,
-    };
+const QRGenModal = props => {
+  const initialState = {
+    isClosed: true,
+  };
+  const [state, setState] = useState(initialState);
+
+  const triggerModal = () => {
+    setState(prevState => ({
+      ...prevState,
+      isClosed: !state.isClosed,
+    }));
   }
 
-  triggerModal() {
-    this.setState({
-      isClosed: !this.state.isClosed,
-    });
-  }
-
-  render() {
-    const {coin, address} = this.props;
+  const render = () => {
+    const {coin, address} = props;
 
     return (
       <React.Fragment>
         <i
           className="fa fa-qrcode"
-          onClick={this.triggerModal}></i>
+          onClick={triggerModal}></i>
         <Modal
           title={`QR code for your ${coin} address`}
-          show={this.state.isClosed === false}
-          handleClose={this.triggerModal}
+          show={state.isClosed === false}
+          handleClose={triggerModal}
           isCloseable={true}
           className="qr-gen-modal">
           <QRModal content={address} />
@@ -38,6 +34,8 @@ class QRGenModal extends React.Component {
       </React.Fragment>
     );
   }
+
+  return render();
 }
 
 export default QRGenModal;

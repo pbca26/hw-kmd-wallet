@@ -26,6 +26,19 @@ export const setConfigVar = (name, val) => {
   writeLog('setConfigVar', config);
 };
 
+const searchCache = async(txid, cacheData) => {
+  if (!cacheData) return blockchain[blockchainAPI].getRawTransaction(txid);
+
+  for (let i = 0; i < cacheData.utxos.length; i++) {
+    if (cacheData.utxos[i].txid === txid) {
+      writeLog('get raw tx from cache', txid);
+      return {rawtx: cacheData.utxos[i].rawtx};
+    }
+  }
+
+  return blockchain[blockchainAPI].getRawTransaction(txid);
+};
+
 const walkDerivationPath = async node => {
   const addresses = [];
   let addressConcurrency = config.discoveryAddressConcurrency;
@@ -117,12 +130,11 @@ const getAccountAddresses = async (account, vendor, _xpub) => {
   };
 };
 
-const getAddressUtxos = async addresses => {
+const getAddressUtxos = async (addresses, accountDataCache) => {
   const utxos = await blockchain[blockchainAPI].getUtxos(addresses.map(a => a.address));
 
   return await Promise.all(utxos.map(async (utxo, index) => {
     const addressInfo = addresses.find(a => a.address === utxo.address);
-
     let [
       {rawtx},
       {
@@ -134,7 +146,7 @@ const getAddressUtxos = async addresses => {
         nExpiryHeight,
       }
     ] = await Promise.all([
-      blockchain[blockchainAPI].getRawTransaction(utxo.txid),
+      searchCache(utxo.txid, accountDataCache),
       blockchain[blockchainAPI].getTransaction(utxo.txid),
     ]);
 
@@ -230,7 +242,7 @@ const accountDiscovery = async (vendor, coin, _accounts, historyLength) => {
           accounts.push(account);
           if (config.accountIndex === 0 && accountIndex >= 2) break;
         } else {
-          account.utxos = await getAddressUtxos(account.addresses);
+          account.utxos = await getAddressUtxos(account.addresses, _accounts && _accounts[accountIndex]);
           account.history = await getAddressHistory(account.addresses, coin, historyLength); 
           account.accountIndex = accountIndex;
           account.enabled = _accounts && _accounts[accountIndex] ? _accounts[accountIndex].enabled : true;

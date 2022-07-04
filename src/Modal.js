@@ -1,15 +1,15 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import './Modal.scss';
 
-class Modal extends React.Component {
-  componentDidUpdate() {
+const Modal = props => {
+  useEffect(() => {
     const modals = document.getElementsByClassName('Modal modal is-active');
     const docroot = document.getElementsByTagName('html')[0];
     
     docroot.className = modals.length ? 'no-scroll' : 'scroll';
-  }
+  });
 
-  render() {
+  const render = () => {
     const {
       children,
       title,
@@ -17,7 +17,7 @@ class Modal extends React.Component {
       isCloseable,
       handleClose,
       className
-    } = this.props;
+    } = props;
 
     return (
       <div className={`Modal modal ${show ? 'is-active' : ''}${className ? ' ' + className : ''}`}>
@@ -42,6 +42,8 @@ class Modal extends React.Component {
       </div>
     );
   }
+  
+  return render();
 };
 
 export default Modal;

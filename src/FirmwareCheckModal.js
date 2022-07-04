@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import compareVersions from 'compare-versions';
 import trezorCheckFW from './lib/trezor-hw-version';
 import ledgerVersion from './lib/ledger-version';
@@ -12,8 +12,8 @@ import ActionListModal from './ActionListModal';
 import updateActionState from './lib/update-action-state';
 import Modal from './Modal';
 
-class FirmwareCheckModal extends React.Component {
-  state = {
+const FirmwareCheckModal = props => {
+  const initialState = {
     updateLedgerKMDApp: false,
     show: false,
     error: false,
@@ -30,88 +30,100 @@ class FirmwareCheckModal extends React.Component {
       },
     },
   };
+  const [state, setState] = useState(initialState);
 
-  async componentDidMount() {
-    const {vendor} = this.props;
+  const onMount = async() => {
+    const {vendor} = props;
 
     if (vendor === 'trezor') {
       const trezorFw = await trezorCheckFW();
       const trezorFwVersion = `${trezorFw.major_version}.${trezorFw.minor_version}.${trezorFw.patch_version}`;
       const updateTrezorFw = compareVersions.compare(trezorFwVersion, TREZOR_FW_MIN_VERSION[trezorFw.model], '>=');
 
-      this.setState({
+      setState(prevState => ({
+        ...prevState,
         show: !updateTrezorFw,
-      });
+      }));
     } else if (vendor === 'ledger') {
-      updateActionState(this, 'connect', 'loading');
+      updateActionState({setState}, 'connect', 'loading');
 
-      this.setState({
+      setState(prevState => ({
+        ...prevState,
         show: true,
-      });
+      }));
       const ledgerFw = await ledgerVersion.getLedgerDeviceInfo();
       const ledgerNanoSFWVersion = compareVersions.compare(ledgerFw.fwVersion, '1.6.0', '>=');
       
-      updateActionState(this, 'connect', true);
-      this.props.updateLedgerDeviceType(LEDGER_DEVICE_HEX_ENUM[ledgerFw.targetId.toString(16)]);
+      updateActionState({setState}, 'connect', true);
+      props.updateLedgerDeviceType(LEDGER_DEVICE_HEX_ENUM[ledgerFw.targetId.toString(16)]);
 
       if (ledgerNanoSFWVersion &&
           LEDGER_DEVICE_HEX_ENUM[ledgerFw.targetId.toString(16)] === 's') {
-        this.props.updateLedgerFWVersion('webusb');
+        props.updateLedgerFWVersion('webusb');
       }
 
-      updateActionState(this, 'komodoApp', 'loading');
+      updateActionState({setState}, 'komodoApp', 'loading');
 
       const ledgerKMDApp = await ledgerVersion.getLedgerAppInfo();
       const updateLedgerKMDApp = !compareVersions.compare(ledgerKMDApp.version, LEDGER_MIN_APP_VERSION, '>=');
-      updateActionState(this, 'komodoApp', true);
-      this.setState({
+      updateActionState({setState}, 'komodoApp', true);
+      setState(prevState => ({
+        ...prevState,
         updateLedgerKMDApp,
         show: updateLedgerKMDApp,
         error: updateLedgerKMDApp ? 'Please update Bitcoin and Komodo apps to version 1.4.0 or greater.' : false,
-      });
+      }));
       hw.ledger.setLedgerTransport();
     }
-  }
+  };
 
-  handleClose = () => {
+  useEffect(() => {
+    onMount();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleClose = () => {
     ledgerVersion.cancelIntervals();
     hw.ledger.setLedgerTransport();
 
-    this.setState({
+    setState(prevState => ({
+      ...prevState,
       show: false,
-    });
+    }));
   }
 
-  render() {
-    if (this.props.vendor === 'trezor') {
+  const render = () => {
+    if (props.vendor === 'trezor') {
       return (
         <Modal
-          {...this.state}
+          {...state}
           isCloseable={true}
-          handleClose={this.handleClose}
+          handleClose={handleClose}
           title="Warning: Trezor is not up to date"
-          show={this.state.show}>
+          show={state.show}>
           <p>Your Trezor is not up to date. Please <a target="_blank" rel="noopener noreferrer" href="https://trezor.io">update firmware</a> to the latest available.</p>
         </Modal>
       );
     } else {
       return (
         <ActionListModal
-          {...this.state}
+          {...state}
           isCloseable={true}
-          handleClose={this.handleClose}
+          handleClose={handleClose}
           title="Ledger firmware and app version check"
-          show={this.state.show}>
+          show={state.show}>
           <p>Please follow steps below to validate your Ledger device firmware and Komodo app version.</p>
           <p className="text-center fw-check-modal-padding-bottom">
             <a
               href="!#"
-              onClick={this.handleClose}>Skip this step</a>
+              onClick={handleClose}>Skip this step</a>
           </p>
         </ActionListModal>
       );
     }
   }
+
+  return render();
 }
 
 export default FirmwareCheckModal;

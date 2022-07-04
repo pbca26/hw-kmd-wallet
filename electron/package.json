@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "hw-kmd-wallet-electron",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Komodo Hardware Wallet Electron App",
   "main": "main.js",
   "scripts": {
@@ -23,10 +23,10 @@
   "author": "Komodo Platform",
   "license": "MIT",
   "devDependencies": {
-    "electron": "15.3.5",
-    "electron-builder": "^22.5.1",
+    "electron": "^19.0.6",
+    "electron-builder": "^23.2.0",
     "electron-devtools-installer": "^3.2.0",
-    "electron-rebuild": "3.2.3"
+    "electron-rebuild": "^3.2.7"
   },
   "engines": {
     "node": ">=16.13.2"
@@ -42,7 +42,7 @@
     "fix-path": "^2.1.0",
     "fs-extra": "^10.0.1",
     "iocane": "^5.1.1",
-    "node-abi": "^3.8.0",
+    "node-abi": "^3.22.0",
     "request": "^2.88.2",
     "tx-decoder": "git+https://github.com/pbca26/tx-decoder"
   }

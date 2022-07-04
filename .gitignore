@@ -5,6 +5,8 @@
 /electron/node_modules
 /electron/ui/node_modules
 /electron/ui/build
+/src/coin-icons.scss
+/public/coin-icons.png
 /.pnp
 .pnp.js
 

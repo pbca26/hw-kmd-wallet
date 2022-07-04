@@ -1,51 +1,44 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Modal from './Modal';
 import QRModal from './QR';
 
-class QRReaderModal extends React.Component {
-  state = this.initialState;
-  
-  get initialState() {
-    this.triggerModal = this.triggerModal.bind(this);
-    this.setRecieverFromScan = this.setRecieverFromScan.bind(this);
-    
-    return {
-      isClosed: true,
-    };
+const QRReaderModal = props => {
+  const initialState = {
+    isClosed: true,
+  };
+  const [state, setState] = useState(initialState);
+
+  const triggerModal = () => {
+    setState(prevState => ({
+      ...prevState,
+      isClosed: !state.isClosed,
+    }));
   }
 
-  triggerModal() {
-    this.setState({
-      isClosed: !this.state.isClosed,
-    });
+  const setRecieverFromScan = data => {
+    props.setRecieverFromScan(data);
+    triggerModal();
   }
 
-  setRecieverFromScan(data) {
-    this.props.setRecieverFromScan(data);
-    this.triggerModal();
-  }
-
-  render() {
-    return (
-      <React.Fragment>
-        <i
-          className="fa fa-qrcode"
-          onClick={this.triggerModal}></i>
-        <Modal
-          title="QR code scan"
-          show={this.state.isClosed === false}
-          handleClose={this.triggerModal}
-          isCloseable={true}
-          className="qr-reader-modal">
-          {!this.state.isClosed &&
-            <QRModal
-              setRecieverFromScan={this.setRecieverFromScan}
-              mode="scan" />
-          }
-        </Modal>
-      </React.Fragment>
-    );
-  }
+  return (
+    <React.Fragment>
+      <i
+        className="fa fa-qrcode"
+        onClick={triggerModal}></i>
+      <Modal
+        title="QR code scan"
+        show={state.isClosed === false}
+        handleClose={triggerModal}
+        isCloseable={true}
+        className="qr-reader-modal">
+        {!state.isClosed &&
+          <QRModal
+            setRecieverFromScan={setRecieverFromScan}
+            mode="scan" />
+        }
+      </Modal>
+    </React.Fragment>
+  );
 }
 
 export default QRReaderModal;

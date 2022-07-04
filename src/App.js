@@ -1,5 +1,5 @@
 import 'babel-polyfill';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {hot} from 'react-hot-loader';
 import BetaWarning from './BetaWarning';
 import Accounts from './Accounts';
@@ -38,41 +38,93 @@ import Sidebar from './Sidebar';
 import LoginModal from './LoginModal';
 import {DesktopDownloadButton, HeaderNonAuth, HeaderAuth, VendorSelector, VendorImage} from './AppFragments';
 import {getPrices} from './lib/prices';
-import {checkTipTime, handleScanData, emptyAccountState, removeCoin, scanCoins, getAppInitState} from './app-helpers';
+import {checkTipTime, handleScanData, emptyAccountState, removeCoin, scanCoins, getAppInitState, filterEnabledCoins} from './app-helpers';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
 let syncDataInterval, autoLogoutTimer;
 
-class App extends React.Component {
-  state = this.initialState;
+const App = props => {
+  const initialState = getAppInitState();
+  const [state, setState] = useState(initialState);
 
-  get initialState() {
-    this.addCoins = this.addCoins.bind(this);
-    this.setActiveCoin = this.setActiveCoin.bind(this);
-    this.setActiveAccount = this.setActiveAccount.bind(this);
-    this.removeCoin = this.removeCoin.bind(this);
-    this.isCoinData = this.isCoinData.bind(this);
-    this.closeLoginModal = this.closeLoginModal.bind(this);
-    this.enableAccount = this.enableAccount.bind(this);
-    this.addAccount = this.addAccount.bind(this);
-    this.triggerSidebarSizeChange = this.triggerSidebarSizeChange.bind(this);
-    this.updateExplorerEndpoint = this.updateExplorerEndpoint.bind(this);
-
-    return getAppInitState();
+  const triggerSidebarSizeChange = () => {
+    setState(prevState => ({
+      ...prevState,
+      sidebarSizeChanged: !state.sidebarSizeChanged,
+    }));
   }
 
-  triggerSidebarSizeChange() {
-    this.setState({
-      sidebarSizeChanged: !this.state.sidebarSizeChanged,
+  const isCoinData = () => {
+    const coins = state.coins;
+
+    for (let coin in coins) {
+      if (coins[coin].accounts.length) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  const processDiscoveryData = ({coins, tiptime}) => {
+    const {lastOperations, updatedCoins} = handleScanData(coins, tiptime, state.coins);
+
+    tiptime = checkTipTime(tiptime);
+    
+    setState(prevState => ({
+      ...prevState,
+      coins: updatedCoins,
+      lastOperations,
+      tiptime,
+      isFirstRun: false,
+      syncInProgress: false,
+    }));
+
+    setLocalStorageVar('coins', updatedCoins, true);
+    setLocalStorageVar('lastOperations', lastOperations);
+  }
+
+  const syncData = async _coin => {
+    const coinTickers = _coin ? [_coin] : Object.keys(state.coins);
+    
+    getPrices(coinTickers)
+    .then((prices) => {
+      setState(prevState => ({
+        ...prevState,
+        prices,
+      }));
     });
+
+    if (!state.isFirstRun || isCoinData()) {
+      writeLog('sync data called');
+      setState(prevState => ({
+        ...prevState,
+        syncInProgress: true,
+      }));      
+
+      const {balances, tiptime} = await scanCoins(
+        coinTickers,
+        blockchain[blockchainAPI],
+        state.explorerEndpointOverride,
+        state.vendor,
+        state.coins,
+        getLocalStorageVar('settings') && getLocalStorageVar('settings').historyLength
+      );
+
+      writeLog('coin data sync finished', balances);
+      
+      processDiscoveryData({
+        coins: balances,
+        tiptime,
+      });
+    }
   }
 
-  closeLoginModal(pw) {
-    const self = this;
-
-    this.setState({
+  const closeLoginModal = pw => {
+    setState(prevState => ({
+      ...prevState,
       loginModalClosed: true,
-    });
+    }));
 
     initSettings();
 
@@ -83,30 +135,32 @@ class App extends React.Component {
       document.getElementById('body').className = getLocalStorageVar('settings').theme;
     }
     
-    this.setState({
+    setState(prevState => ({
+      ...prevState,
       isAuth: true,
-      coins: getLocalStorageVar('coins') ? getLocalStorageVar('coins') : {},
+      coins: getLocalStorageVar('coins') ? filterEnabledCoins(getLocalStorageVar('coins')) : {},
       lastOperations: getLocalStorageVar('lastOperations') && Array.isArray(getLocalStorageVar('lastOperations')) ? getLocalStorageVar('lastOperations') : [],
       theme: getLocalStorageVar('settings') && getLocalStorageVar('settings').theme ? getLocalStorageVar('settings').theme : 'tdark',
       vendor: getLocalStorageVar('settings') && getLocalStorageVar('settings').vendor ? getLocalStorageVar('settings').vendor : null,
-    });
+    }));
     
-    this.setupAutoLock();
+    setupAutoLock();
     document.getElementById('body')
     .addEventListener('click', function() {
       //writeLog('add global click event to handle autolock');
       
-      self.setupAutoLock();
+      setupAutoLock();
     });
 
-    setTimeout(() => {
-      this.syncData();
-    });
+    setState(prevState => ({
+      ...prevState,
+      syncRunNum: prevState.syncRunNum + 1,
+    }));
 
     writeLog('coins', getLocalStorageVar('coins'));
   }
 
-  setupAutoLock() {
+  const setupAutoLock = () => {
     if (autoLogoutTimer) {
       clearTimeout(autoLogoutTimer);
     } else {
@@ -115,58 +169,49 @@ class App extends React.Component {
         writeLog(`set autolock to ${getLocalStorageVar('settings').autolock}s`);
         autoLogoutTimer = setTimeout(() => {
           writeLog('autolock triggered');
-          this.resetState('logout');
+          resetState('logout');
         }, getLocalStorageVar('settings').autolock * 1000);
       }
     }
   }
 
-  removeCoin(coin) {
-    const {lastOperations, coins} = removeCoin(coin, this.state.coins);
+  const removeCoinHandler = coin => {
+    const {lastOperations, coins} = removeCoin(coin, state.coins);
 
-    this.setState({
+    setState(prevState => ({
+      ...prevState,
       coins,
       lastOperations,
       activeAccount: null,
       activeCoin: null,
-    });
+    }));
 
     setLocalStorageVar('coins', coins, true);
     setLocalStorageVar('lastOperations', lastOperations);
   }
 
-  setActiveCoin(activeCoin) {
-    this.setState({
+  const setActiveCoin = activeCoin => {
+    setState(prevState => ({
+      ...prevState,
       activeCoin,
       activeAccount: null,
-    });
+    }));
 
-    writeLog(activeCoin ? 'none' : this.state.coins[activeCoin]);
+    writeLog(activeCoin ? 'none' : state.coins[activeCoin]);
   }
 
-  setActiveAccount(activeAccount) {
+  const setActiveAccount = activeAccount => {
     writeLog('activeAccount', activeAccount);
 
-    this.setState({
+    setState(prevState => ({
+      ...prevState,
       activeAccount,
-    });
+    }));
 
-    if (activeAccount) writeLog(this.state.coins[this.state.activeCoin][activeAccount])
+    if (activeAccount !== null) writeLog(state.coins[state.activeCoin].accounts[activeAccount])
   }
 
-  isCoinData() {
-    const coins = this.state.coins;
-
-    for (let coin in coins) {
-      if (coins[coin].accounts.length) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  componentDidMount() {
+  const onMount = () => {
     // init app data decryption and login if PW is set
     if (isElectron &&
         helpers.getPW()) {
@@ -174,16 +219,21 @@ class App extends React.Component {
       setLocalStoragePW(_pw);
       decodeStoredData()
       .then(() => {
-        this.closeLoginModal(_pw);
+        closeLoginModal(_pw);
       });
     }
 
     document.title = `Komodo Hardware Wallet (v${appInfo.version})`;
     if (!isElectron || (isElectron && !appData.isNspv)) {
       syncDataInterval = setInterval(() => {
-        if (!this.state.syncInProgress) {
+        if (!state.syncInProgress) {
           writeLog('auto sync called');
-          this.syncData();
+          writeLog('state', state);
+          setState(prevState => ({
+            ...prevState,
+            syncRunNum: prevState.syncRunNum + 1,
+          }));
+          syncData();
         }
       }, 300 * 1000);
     }
@@ -192,11 +242,12 @@ class App extends React.Component {
     if (isMobile) {
       hw.ledger.setLedgerFWVersion('webusb');
 
-      this.setState({
+      setState(prevState => ({
+        ...prevState,
         vendor: 'ledger',
         ledgerDeviceType: 's',
         ledgerFWVersion: 'webusb', 
-      });
+      }));
     }
 
     if (!hw.trezor.getInitStatus()) {
@@ -204,7 +255,7 @@ class App extends React.Component {
     }
 
     if (isElectron && appData.blockchainAPI === 'spv'/*&& isElectron.blockchainAPI*/) {
-      blockchain[blockchainAPI].setCoin(this.state.coin);
+      blockchain[blockchainAPI].setCoin(state.coin);
       setBlockchainAPI('spv');
     }
     
@@ -214,62 +265,76 @@ class App extends React.Component {
         if (!arg.isFirstRun) writeLog('schedule next sync update in 5 min');
         else writeLog('run sync update immediately (first run)');
         
-        if (arg.coin === this.state.coin.toLowerCase()) {
+        if (arg.coin === state.coin.toLowerCase()) {
           setTimeout(() => {
             writeLog('auto sync called');
-            this.syncData();
+            syncData();
           }, arg.isFirstRun === true ? 1000 : 300 * 1000);
         }
       });
     }
   }
 
-  updateCoin(e) {
-    this.setState({
+  useEffect(() => {
+    onMount();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    syncData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.syncRunNum]);
+
+  /*const updateCoin = e => {
+    setState(prevState => ({
+      ...prevState,
       accounts: [],
       tiptime: null,
       explorerEndpoint: isElectron && appData.blockchainAPI === 'spv' ? 'default' : null,
       [e.target.name]: e.target.value,
-    });
+    }));
 
     setTimeout(() => {
-      if (!isElectron || (isElectron && appData.blockchainAPI === 'insight')) this.checkExplorerEndpoints();
+      if (!isElectron || (isElectron && appData.blockchainAPI === 'insight')) checkExplorerEndpoints();
       if (isElectron && appData.blockchainAPI === 'spv') {
-        blockchain[blockchainAPI].setCoin(this.state.coin);
+        blockchain[blockchainAPI].setCoin(state.coin);
       }
     }, 50);
-  }
+  }*/
 
-  updateLedgerDeviceType = (type) => {
-    this.setState({
+  const updateLedgerDeviceType = type => {
+    setState(prevState => ({
+      ...prevState,
       'ledgerDeviceType': type,
-    });
+    }));
 
     hw.ledger.setLedgerFWVersion('webusb');
   }
 
-  updateLedgerFWVersion = (e) => {
-    this.setState({
+  const updateLedgerFWVersion = e => {
+    setState(prevState => ({
+      ...prevState,
       'ledgerFWVersion': e.hasOwnProperty('target') ? e.target.value : e,
-    });
+    }));
 
     hw.ledger.setLedgerFWVersion(e.hasOwnProperty('target') ? e.target.value : e);
   }
 
-  updateExplorerEndpoint(e) {
-    writeLog(`set ${this.state.coin} api endpoint to ${e.target.value}`);
+  const updateExplorerEndpoint = e => {
+    writeLog(`set ${state.coin} api endpoint to ${e.target.value}`);
 
-    let explorerEndpointOverride = this.state.explorerEndpointOverride;
-    explorerEndpointOverride[this.state.coin] = e.target.value;
+    let explorerEndpointOverride = state.explorerEndpointOverride;
+    explorerEndpointOverride[state.coin] = e.target.value;
 
-    this.setState({
+    setState(prevState => ({
+      ...prevState,
       explorerEndpointOverride,
-    });
+    }));
   }
 
-  resetState = (clearData) => {
+  const resetState = clearData => {
     clearInterval(syncDataInterval);
-    this.setVendor();
+    setVendor();
 
     if (clearData &&
         clearData !== 'logout') {
@@ -280,7 +345,7 @@ class App extends React.Component {
       clearData === 'logout') {
       setLocalStoragePW();
     }
-    this.setState(Object.assign({}, this.initialState, {loginModalClosed: false}));
+    setState(Object.assign({}, initialState, {loginModalClosed: false}));
     // TODO: auto-close connection after idle time
     hw.ledger.resetTransport();
 
@@ -289,171 +354,128 @@ class App extends React.Component {
       setTimeout(() => {
         hw.ledger.setLedgerFWVersion('webusb');
 
-        this.setState({
+        setState(prevState => ({
+          ...prevState,
           vendor: 'ledger',
           ledgerDeviceType: 's',
           ledgerFWVersion: 'webusb',
-        });
+        }));
       }, 50);
     }
   }
 
-  enableAccount(accountIndex) {
-    let coins = JSON.parse(JSON.stringify(this.state.coins));
+  const enableAccount = accountIndex => {
+    let coins = JSON.parse(JSON.stringify(state.coins));
 
-    if (!coins[this.state.activeCoin].accounts[accountIndex].hasOwnProperty('enabled')) coins[this.state.activeCoin].accounts[accountIndex].enabled = true;
+    if (!coins[state.activeCoin].accounts[accountIndex].hasOwnProperty('enabled')) coins[state.activeCoin].accounts[accountIndex].enabled = true;
 
-    coins[this.state.activeCoin].accounts[accountIndex].enabled = !coins[this.state.activeCoin].accounts[accountIndex].enabled;
+    coins[state.activeCoin].accounts[accountIndex].enabled = !coins[state.activeCoin].accounts[accountIndex].enabled;
 
-    this.setState({
+    setState(prevState => ({
+      ...prevState,
       coins,
-    });
+    }));
 
     setLocalStorageVar('coins', coins, true);
 
     setTimeout(() => {
-      writeLog('enableAccount', this.state.coins);
+      writeLog('enableAccount', state.coins);
     }, 100);
   }
 
-  addAccount(accountIndex, xpub) {
-    let coins = JSON.parse(JSON.stringify(this.state.coins));
-    coins[this.state.activeCoin].accounts[accountIndex] = emptyAccountState(accountIndex, xpub);
+  const addAccount = (accountIndex, xpub) => {
+    let coins = JSON.parse(JSON.stringify(state.coins));
+    coins[state.activeCoin].accounts[accountIndex] = emptyAccountState(accountIndex, xpub);
 
-    this.setState({
+    setState(prevState => ({
+      ...prevState,
       coins,
-    });
+    }));
 
     setLocalStorageVar('coins', coins, true);
 
     setTimeout(() => {
-      writeLog('addAccount', this.state.coins);
+      writeLog('addAccount', state.coins);
     }, 100);
   }
 
-  syncData = async (_coin) => {
-    const coinTickers = _coin ? [_coin] : Object.keys(this.state.coins);
-    
-    getPrices(coinTickers)
-    .then((prices) => {
-      this.setState({
-        prices,
-      });
-    });
-
-    if (!this.state.isFirstRun || this.isCoinData()) {
-      writeLog('sync data called');
-      this.setState({
-        syncInProgress: true,
-      });      
-
-      const {balances, tiptime} = await scanCoins(
-        coinTickers,
-        blockchain[blockchainAPI],
-        this.state.explorerEndpointOverride,
-        this.state.vendor,
-        this.state.coins,
-        getLocalStorageVar('settings') && getLocalStorageVar('settings').historyLength
-      );
-
-      writeLog('coin data sync finished', balances);
-      
-      this.handleScanData({
-        coins: balances,
-        tiptime,
-      });
-    }
-  }
-
-  handleScanData = ({coins, tiptime}) => {
-    const {lastOperations, updatedCoins} = handleScanData(coins, tiptime, this.state.coins);
-
-    tiptime = checkTipTime(tiptime);
-    
-    this.setState({
-      coins: updatedCoins,
-      lastOperations,
-      tiptime,
-      isFirstRun: false,
-      syncInProgress: false,
-    });
-
-    setLocalStorageVar('coins', updatedCoins, true);
-    setLocalStorageVar('lastOperations', lastOperations);
-  }
-
-  addCoins(coins) {
+  const addCoins = coins => {
     writeLog('main addCoins', coins);
 
-    let currentCoins = this.state.coins;
+    let currentCoins = state.coins;
     for (let i = 0; i < coins.length; i++) {
       currentCoins[coins[i]] = {
         accounts: [],
       };
     }
 
-    this.setState({
+    setState(prevState => ({
+      ...prevState,
       coins: currentCoins,
-    });
+    }));
 
     setLocalStorageVar('coins', currentCoins, true);
 
     setTimeout(() => {
-      writeLog(this.state)
-    }, 1000)
+      writeLog(state);
+    }, 1000);
   }
 
-  handleRewardClaim() {
+  /*const handleRewardClaim = () => {
     // stub
-  }
+  }*/
 
-  setVendor = async (vendor) => {
+  const setVendor = async vendor => {
     if (!isElectron || (isElectron && vendor !== 'ledger')) {
-      this.setState({vendor});
+      setState(prevState => ({
+        ...prevState,
+        vendor
+      }));
     } else if (vendor === 'ledger') {
-      this.setState({
+      setState(prevState => ({
+        ...prevState,
         vendor: 'ledger',
         ledgerDeviceType: 's',
         ledgerFWVersion: 'webusb',
-      });
+      }));
     }
 
     if (vendor) setLocalStorageVar('settings', {vendor});
   }
 
-  loginStateRender() {
+  const loginStateRender = () => {
     return (
       <div className={`App isPristine${!isElectron && window.location.href.indexOf('disable-mobile') === -1 ? ' Responsive' : ''}`}>
         <LoginModal
-          closeLoginModal={this.closeLoginModal}
-          resetState={this.resetState}
-          isClosed={this.state.loginModalClosed}
-          isAuth={this.state.isAuth}
-          triggerSidebarSizeChange={this.triggerSidebarSizeChange}
-          setVendor={this.setVendor} />
-        <HeaderNonAuth coin={this.state.coin} />
+          closeLoginModal={closeLoginModal}
+          resetState={resetState}
+          isClosed={state.loginModalClosed}
+          isAuth={state.isAuth}
+          triggerSidebarSizeChange={triggerSidebarSizeChange}
+          setVendor={setVendor} />
+        <HeaderNonAuth coin={state.coin} />
         <input
           type="text"
           id="js-copytextarea" />
         <Sidebar
-          isCoinData={this.isCoinData}
-          activeCoin={this.state.activeCoin}
-          activeAccount={this.state.activeAccount}
-          setActiveCoin={this.setActiveCoin}
-          setActiveAccount={this.setActiveAccount}
-          vendor={this.state.vendor}
-          loginModalClosed={this.state.loginModalClosed}
-          setVendor={this.state.setVendor}
-          resetState={this.resetState}
-          isAuth={this.state.isAuth}
-          triggerSidebarSizeChange={this.triggerSidebarSizeChange}
-          updateExplorerEndpoint={this.updateExplorerEndpoint} />
+          isCoinData={isCoinData}
+          activeCoin={state.activeCoin}
+          activeAccount={state.activeAccount}
+          setActiveCoin={setActiveCoin}
+          setActiveAccount={setActiveAccount}
+          vendor={state.vendor}
+          loginModalClosed={state.loginModalClosed}
+          setVendor={state.setVendor}
+          resetState={resetState}
+          isAuth={state.isAuth}
+          triggerSidebarSizeChange={triggerSidebarSizeChange}
+          updateExplorerEndpoint={updateExplorerEndpoint} />
         <section className={'main main-' + (getLocalStorageVar('settings').sidebarSize || 'short')}>
           <React.Fragment>
             <div className="container content text-center">
-              <h2>{this.state.coin === voteCoin ? 'Cast your VOTEs' : 'Manage your coins'} from a hardware wallet device.</h2>
+              <h2>{state.coin === voteCoin ? 'Cast your VOTEs' : 'Manage your coins'} from a hardware wallet device.</h2>
             </div>
-            <VendorSelector setVendor={this.setVendor} />
+            <VendorSelector setVendor={setVendor} />
           </React.Fragment>
         </section>
 
@@ -464,80 +486,80 @@ class App extends React.Component {
     );
   }
 
-  render() {
-    if (!this.state.isAuth || (this.state.isAuth && !this.state.vendor)) {
-      return this.loginStateRender();
+  const render = () => {
+    if (!state.isAuth || (state.isAuth && !state.vendor)) {
+      return loginStateRender();
     } else {
       return (
-        <div className={`App dashboard ${testCoins.indexOf(this.state.coin) > -1 ? ' testcoins-warning-fix' : ''}${!isElectron && window.location.href.indexOf('disable-mobile') === -1 ? ' Responsive' : ''}`}>
+        <div className={`App dashboard ${testCoins.indexOf(state.coin) > -1 ? ' testcoins-warning-fix' : ''}${!isElectron && window.location.href.indexOf('disable-mobile') === -1 ? ' Responsive' : ''}`}>
           <HeaderAuth
-            coin={this.state.coin}
-            vendor={this.state.vendor}
-            syncInProgress={this.state.syncInProgress} />
+            coin={state.coin}
+            vendor={state.vendor}
+            syncInProgress={state.syncInProgress} />
           <input
             type="text"
             id="js-copytextarea" />
           <Sidebar
-            isCoinData={this.isCoinData}
-            activeCoin={this.state.activeCoin}
-            activeAccount={this.state.activeAccount}
-            setActiveCoin={this.setActiveCoin}
-            setActiveAccount={this.setActiveAccount}
-            vendor={this.state.vendor}
-            accounts={this.state.activeCoin ? this.state.coins[this.state.activeCoin].accounts : []}
-            syncData={this.syncData}
-            loginModalClosed={this.state.loginModalClosed}
-            setVendor={this.setVendor}
-            isAuth={this.state.isAuth}
-            resetState={this.resetState}
-            triggerSidebarSizeChange={this.triggerSidebarSizeChange}
-            updateExplorerEndpoint={this.updateExplorerEndpoint}
-            coins={this.state.coins}
+            isCoinData={isCoinData}
+            activeCoin={state.activeCoin}
+            activeAccount={state.activeAccount}
+            setActiveCoin={setActiveCoin}
+            setActiveAccount={setActiveAccount}
+            vendor={state.vendor}
+            accounts={state.activeCoin ? state.coins[state.activeCoin].accounts : []}
+            syncData={syncData}
+            loginModalClosed={state.loginModalClosed}
+            setVendor={setVendor}
+            isAuth={state.isAuth}
+            resetState={resetState}
+            triggerSidebarSizeChange={triggerSidebarSizeChange}
+            updateExplorerEndpoint={updateExplorerEndpoint}
+            coins={state.coins}
             checkTipTime={checkTipTime} />
 
-          {this.state.explorerEndpoint === false &&
+          {state.explorerEndpoint === false &&
             <ConnectionError />
           }
 
           {getLocalStorageVar('settings') && getLocalStorageVar('settings').fwCheck &&
             (!isElectron || (isElectron && !appData.noFWCheck)) &&
             <FirmwareCheckModal
-              vendor={this.state.vendor}
-              updateLedgerDeviceType={this.updateLedgerDeviceType}
-              updateLedgerFWVersion={this.updateLedgerFWVersion} />
+              vendor={state.vendor}
+              updateLedgerDeviceType={updateLedgerDeviceType}
+              updateLedgerFWVersion={updateLedgerFWVersion} />
           }
 
-          <section className={`main${testCoins.indexOf(this.state.coin) === -1 ? ' beta-warning-fix' : ''}${' main-' + (getLocalStorageVar('settings').sidebarSize || 'short')}`}>
+          <section className={`main${testCoins.indexOf(state.coin) === -1 ? ' beta-warning-fix' : ''}${' main-' + (getLocalStorageVar('settings').sidebarSize || 'short')}`}>
             <div className="container content text-center">
-              {testCoins.indexOf(this.state.coin) === -1 &&
+              {testCoins.indexOf(state.coin) === -1 &&
                 <BetaWarning />
               }
-              {!this.state.activeCoin &&
+              {!state.activeCoin &&
                 <React.Fragment>
                   <CoinsSelector
-                    coins={this.state.coins}
-                    addCoins={this.addCoins}
-                    setActiveCoin={this.setActiveCoin}
-                    handleScanData={this.handleScanData}
+                    coins={state.coins}
+                    addCoins={addCoins}
+                    setActiveCoin={setActiveCoin}
+                    handleScanData={processDiscoveryData}
                     checkTipTime={checkTipTime}
-                    vendor={this.state.vendor}
-                    explorerEndpoint={this.state.explorerEndpoint} />
-                  {this.isCoinData() &&
+                    vendor={state.vendor}
+                    explorerEndpoint={state.explorerEndpoint} />
+                  {isCoinData() &&
                    window.location.href.indexOf('devmode') > -1 &&
-                    <button onClick={() => this.syncData()}>Sync coin data</button>
+                    <button onClick={() => syncData()}>Sync coin data</button>
                   }
-                  {this.isCoinData() &&
+                  {isCoinData() &&
                     <div className="bottom-blocks">
                       <DashboardPrices
-                        prices={this.state.prices}
-                        coins={this.state.coins} />
-                      <DashboardOperations lastOperations={this.state.lastOperations} />
+                        prices={state.prices}
+                        coins={state.coins} />
+                      <DashboardOperations lastOperations={state.lastOperations} />
                     </div>
                   }
-                  {!this.isCoinData() &&
+                  {!isCoinData() &&
                     <div className="container content content-init-hw-vendor">
-                      <HWFirmwareRequirements vendor={this.state.vendor} />
-                      <VendorImage vendor={this.state.vendor} />
+                      <HWFirmwareRequirements vendor={state.vendor} />
+                      <VendorImage vendor={state.vendor} />
                     </div>
                   }
                   {!isElectron &&
@@ -546,21 +568,21 @@ class App extends React.Component {
                 </React.Fragment>
               }
             </div>
-            {!this.isCoinData() ? (
+            {!isCoinData() ? (
               <div className="trezor-webusb-container"></div>
             ) : (
               <React.Fragment>
-                {this.state.coins &&
-                this.state.activeCoin &&
-                this.state.coins[this.state.activeCoin] &&
-                this.state.coins[this.state.activeCoin].accounts &&
+                {state.coins &&
+                 state.activeCoin &&
+                 state.coins[state.activeCoin] &&
+                 state.coins[state.activeCoin].accounts &&
                   <Accounts
-                    {...this.state}
-                    setActiveAccount={this.setActiveAccount}
-                    syncData={this.syncData}
-                    removeCoin={this.removeCoin}
-                    enableAccount={this.enableAccount}
-                    addAccount={this.addAccount}
+                    {...state}
+                    setActiveAccount={setActiveAccount}
+                    syncData={syncData}
+                    removeCoin={removeCoinHandler}
+                    enableAccount={enableAccount}
+                    addAccount={addAccount}
                     checkTipTime={checkTipTime} />
                 }
               </React.Fragment>
@@ -570,6 +592,8 @@ class App extends React.Component {
       );
     }
   }
+
+  return render();
 }
 
 export default hot(module)(App);

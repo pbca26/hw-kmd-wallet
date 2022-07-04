@@ -3,16 +3,9 @@ import SelectCoinModal from './SelectCoinModal';
 import {writeLog} from './Debug';
 import './CoinsSelector.scss';
 
-class CoinsSelector extends React.Component {
-  state = this.initialState;
-  
-  get initialState() {
-    return {
-    };
-  };
-
-  checkKMDRewards() {
-    const accounts = this.props.coins.KMD.accounts;
+const CoinsSelector = props => {
+  const checkKMDRewards = () => {
+    const accounts = props.coins.KMD.accounts;
     let isRewardsOverdueCounter = 0;
     
     for (let i = 0; i < accounts.length; i++) {
@@ -22,42 +15,48 @@ class CoinsSelector extends React.Component {
     return isRewardsOverdueCounter;
   }
 
-  render() {
-    writeLog('selectoinmodal props', this.props);
+  const render = () => {
+    writeLog('selectoinmodal props', props);
 
     return (
       <div className="coins-holdings-block">
         <h3>Holdings</h3>
         <div className="inline-coin-icons">
-          {Object.keys(this.props.coins).map((coinTicker, index) => (
+          {Object.keys(props.coins).map((coinTicker, index) => (
             <div
               className="inline-coin-icons-tile"
               key={`coins-${coinTicker}`}
-              onClick={() => this.props.setActiveCoin(coinTicker)}>
-              <img
-                src={`${process.env.NODE_ENV === 'development' ? process.env.PUBLIC_URL + '/' : ''}coins/${coinTicker}.png`} 
-                alt={`${coinTicker} icon`} />
+              onClick={() => props.setActiveCoin(coinTicker)}>
+              <div className="coin-icons-wrapper-container">
+                <div className={`coin-icons-wrapper ${coinTicker}-icon-size-md`}>
+                  <div
+                    className={`coin-icons ${coinTicker}`}
+                    style={{backgroundImage: `url('${process.env.NODE_ENV === 'development' ? process.env.PUBLIC_URL + '/' : ''}coin-icons.png')`}}></div>
+                </div>
+              </div>
               {coinTicker === 'KMD' &&
-               this.checkKMDRewards() > 0 &&
+               checkKMDRewards() > 0 &&
                <div
                 className="kmd-rewards-main-overdue-badge"
-                title={`${this.checkKMDRewards() > 0 && this.checkKMDRewards() < 2 ? 'Rewards claim overdue!' : this.checkKMDRewards() + ' accounts have rewards claim overdue!'}`}>
-                <i>{this.checkKMDRewards()}</i>
+                title={`${checkKMDRewards() > 0 && checkKMDRewards() < 2 ? 'Rewards claim overdue!' : checkKMDRewards() + ' accounts have rewards claim overdue!'}`}>
+                <i>{checkKMDRewards()}</i>
                </div>
               }
             </div>
           ))}
           <SelectCoinModal
-            addCoins={this.props.addCoins}
-            coins={this.props.coins}
-            handleScanData={this.props.handleScanData}
-            checkTipTime={this.props.checkTipTime}
-            vendor={this.props.vendor}
-            explorerEndpoint={this.props.explorerEndpoint} />
+            addCoins={props.addCoins}
+            coins={props.coins}
+            handleScanData={props.handleScanData}
+            checkTipTime={props.checkTipTime}
+            vendor={props.vendor}
+            explorerEndpoint={props.explorerEndpoint} />
         </div>
       </div>
     );
   }
+
+  return render();
 }
 
 export default CoinsSelector;

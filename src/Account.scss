@@ -83,7 +83,9 @@
       top: 6px;
     }
 
-    img {
+    img,
+    .coin-icons-wrapper-container {
+      display: inline-block;
       width: 30px;
       height: 30px;
     }
