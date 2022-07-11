@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "https://pbca26.github.io/hw-kmd-wallet/static/css/main.ef601e2b.css",
-    "main.js": "https://pbca26.github.io/hw-kmd-wallet/static/js/main.64cc60c1.js",
+    "main.css": "https://pbca26.github.io/hw-kmd-wallet/static/css/main.43462e3a.css",
+    "main.js": "https://pbca26.github.io/hw-kmd-wallet/static/js/main.af89785c.js",
     "static/media/fa-solid-900.svg": "https://pbca26.github.io/hw-kmd-wallet/static/media/fa-solid-900.7a8b4f130182d19a2d7c.svg",
     "static/media/fa-brands-400.svg": "https://pbca26.github.io/hw-kmd-wallet/static/media/fa-brands-400.2f517e09eb2ca6650ff5.svg",
     "static/media/fa-solid-900.eot": "https://pbca26.github.io/hw-kmd-wallet/static/media/fa-solid-900.9bbb245e67a133f6e486.eot",
@@ -18,11 +18,11 @@
     "static/media/fa-regular-400.woff": "https://pbca26.github.io/hw-kmd-wallet/static/media/fa-regular-400.bb58e57c48a3e911f15f.woff",
     "static/media/fa-regular-400.woff2": "https://pbca26.github.io/hw-kmd-wallet/static/media/fa-regular-400.7a3337626410ca2f4071.woff2",
     "index.html": "https://pbca26.github.io/hw-kmd-wallet/index.html",
-    "main.ef601e2b.css.map": "https://pbca26.github.io/hw-kmd-wallet/static/css/main.ef601e2b.css.map",
-    "main.64cc60c1.js.map": "https://pbca26.github.io/hw-kmd-wallet/static/js/main.64cc60c1.js.map"
+    "main.43462e3a.css.map": "https://pbca26.github.io/hw-kmd-wallet/static/css/main.43462e3a.css.map",
+    "main.af89785c.js.map": "https://pbca26.github.io/hw-kmd-wallet/static/js/main.af89785c.js.map"
   },
   "entrypoints": [
-    "static/css/main.ef601e2b.css",
-    "static/js/main.64cc60c1.js"
+    "static/css/main.43462e3a.css",
+    "static/js/main.af89785c.js"
   ]
 }
