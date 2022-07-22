@@ -107,7 +107,10 @@
 .ActionListModal.send-coin-modal .Modal {
   text-align: left;
 
-  .panel-heading, .panel-tabs, .panel-block, .panel-block.is-active {
+  .panel-heading,
+  .panel-tabs,
+  .panel-block,
+  .panel-block.is-active {
     border-bottom: 1px solid #dbdbdb;
     border-left: 1px solid #dbdbdb;
     border-right: 1px solid #dbdbdb;
@@ -289,4 +292,38 @@ input[type="text"] {
 
 .no-scroll {
   overflow-y: hidden !important;
+}
+
+.back-to-top-button {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 1px 1px 4px rgb(0 0 0 / 15%);
+  height: 40px;
+  width: 40px;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+  }
+  &.invisible {
+    right: -40px;
+  }
+  i {
+    position: relative;
+    top: 8px;
+    left: 12px;
+  }
+}
+
+.coin-icons-wrapper-container {
+  position: relative;
+  width: 35px;
+  height: 35px;
+  display: inline-block;
+}
+.coin-icons-wrapper {
+  position: absolute;
 }

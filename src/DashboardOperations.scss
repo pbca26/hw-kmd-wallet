@@ -18,7 +18,15 @@
 
       .item-right-pane {
         float: right;
-
+        width: 50%;
+        overflow: hidden;
+        height: 30px;
+        text-align: right;
+        word-break: break-all;
+        background: #fff;
+        position: relative;
+        padding-bottom: 36px;
+        
         .amount-increase {
           color: #13D0A7;
           font-weight: 500;
@@ -50,7 +58,9 @@
           margin-top: -3px;
           text-transform: capitalize;
         }
-        img {
+        img,
+        .coin-icons-wrapper-container {
+          display: inline-block;
           width: 30px;
           height: 30px;
         }

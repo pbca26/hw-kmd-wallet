@@ -2,9 +2,9 @@ import React from 'react';
 import copyToClipboard from './lib/copy-to-clipboard';
 import TxidLink from './TxidLink';
 
-export class SendCoinRawTxRender extends React.Component {
-  render() {
-    const {rawtx} = this.props;
+export const SendCoinRawTxRender = props => {
+  const render = () => {
+    const {rawtx} = props;
 
     return(
       <React.Fragment>
@@ -18,11 +18,13 @@ export class SendCoinRawTxRender extends React.Component {
       </React.Fragment>
     );
   }
+
+  return render();
 }
 
-export class SendCoinTxLink extends React.Component {
-  render() {
-    const {coin, txid} = this.props;
+export const SendCoinTxLink = props => {
+  const render = () => {
+    const {coin, txid} = props;
 
     return(
       <span className="wb-txid">
@@ -35,4 +37,6 @@ export class SendCoinTxLink extends React.Component {
       </span>
     );
   }
+
+  return render();
 }

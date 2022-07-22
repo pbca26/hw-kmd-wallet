@@ -14,72 +14,70 @@ import {CACHE_MAX_LIFETIME} from './constants';
 import {checkTimestamp} from './lib/time';
 import './Sidebar.scss';
 
-class Sidebar extends React.Component {
-  state = this.initialState;
-
-  logout() {
-    this.props.resetState('logout');
+const Sidebar = props => {
+  const logout = () => {
+    props.resetState('logout');
   }
 
-  render() {
+  const render = () => {
     const sidebarSize = getLocalStorageVar('settings').sidebarSize || 'short';
-    writeLog('sidebar props', this.props);
+    writeLog('sidebar props', props);
     
     return (
       <div className={`sidebar-right sidebar-${sidebarSize}`}>
         <ul>
-          {this.props.isCoinData() &&
-           this.props.activeCoin &&
-           this.props.vendor &&
-            <li onClick={() => this.props.setActiveCoin(null)}>
+          {props.isCoinData() &&
+           props.activeCoin &&
+           props.vendor &&
+            <li onClick={() => props.setActiveCoin(null)}>
               <i className="fa fa-coins"></i>
               {sidebarSize === 'full' &&
                 <span className="sidebar-item-title">Holdings</span>
               }
             </li>
           }
-          {this.props.activeAccount !== null &&
-            <li onClick={() => this.props.setActiveAccount(null)}>
+          {props.activeAccount !== null &&
+            <li onClick={() => props.setActiveAccount(null)}>
               <i className="fa fa-wallet"></i>
               {sidebarSize === 'full' &&
                 <span className="sidebar-item-title">Accounts</span>
               }
             </li>
           }
-          {this.props.activeCoin &&
+          {props.activeCoin &&
             <SendCoinButton
-              accounts={this.props.accounts}
-              vendor={this.props.vendor}
-              syncData={this.props.syncData}
-              coin={this.props.activeCoin}
+              accounts={props.accounts}
+              vendor={props.vendor}
+              syncData={props.syncData}
+              coin={props.activeCoin}
               sidebarSize={sidebarSize}
-              checkTipTime={this.props.checkTipTime}
+              checkTipTime={props.checkTipTime}
               disabled={
-                (this.props.activeCoin === 'KMD' && !this.props.coins.KMD.lastChecked) ||
-                (this.props.activeCoin === 'KMD' && this.props.coins.KMD.lastChecked && checkTimestamp(this.props.coins.KMD.lastChecked) > CACHE_MAX_LIFETIME)
+                (props.activeCoin === 'KMD' && !props.coins.KMD.lastChecked) ||
+                (props.activeCoin === 'KMD' && props.coins.KMD.lastChecked && checkTimestamp(props.coins.KMD.lastChecked) > CACHE_MAX_LIFETIME)
               }>
               Send
             </SendCoinButton>
           }
-          {this.props.activeCoin &&
+          {props.activeCoin &&
             <ReceiveCoinButton
-              vendor={this.props.vendor}
-              coin={this.props.activeCoin}
-              accounts={this.props.accounts}
+              vendor={props.vendor}
+              coin={props.activeCoin}
+              accounts={props.accounts}
               sidebarSize={sidebarSize}>
               Receive
             </ReceiveCoinButton>
           }
-          {this.props.loginModalClosed &&
+          {props.loginModalClosed &&
             <li>
               <SettingsModal
-                coin={this.props.activeCoin || 'KMD'}
-                setVendor={this.props.setVendor}
-                resetState={this.props.resetState}
-                isAuth={this.props.isAuth}
-                triggerSidebarSizeChange={this.props.triggerSidebarSizeChange}
+                coin={props.activeCoin || 'KMD'}
+                setVendor={props.setVendor}
+                resetState={props.resetState}
+                isAuth={props.isAuth}
+                triggerSidebarSizeChange={props.triggerSidebarSizeChange}
                 sidebarSize={sidebarSize}
-                updateExplorerEndpoint={this.props.updateExplorerEndpoint} />
+                updateExplorerEndpoint={props.updateExplorerEndpoint} />
             </li>
           }
           <li className="sidebar-item-no-pad">
@@ -107,8 +105,8 @@ class Sidebar extends React.Component {
             }
           </li>
           <AboutModal sidebarSize={sidebarSize} />
-          {this.props.isAuth &&
-            <li onClick={() => this.logout()}>
+          {props.isAuth &&
+            <li onClick={() => logout()}>
               <i className="fa fa-lock"></i>
               {sidebarSize === 'full' &&
                 <span className="sidebar-item-title">Lock</span>
@@ -120,6 +118,8 @@ class Sidebar extends React.Component {
       </div>
     );
   }
+
+  return render();
 }
 
 export default Sidebar;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Modal from './Modal';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
@@ -17,45 +17,49 @@ const headings = [
   'Rewards Stop Accruing'
 ];
 
-class UtxosModal extends React.Component {
-  state = {
+const UtxosModal = props => {
+  const initialState = {
     isClosed: true,
     tiptime: 0,
   };
+  const [state, setState] = useState(initialState);
 
-  close() {
-    this.setState({
+  const close = () => {
+    setState(prevState => ({
+      ...prevState,
       isClosed: true
-    });
+    }));
   }
 
-  open = async() => {
-    this.setState({
+  const open = async() => {
+    setState(prevState => ({
+      ...prevState,
       isClosed: false
-    });
+    }));
 
     const tiptime = await blockchain[blockchainAPI].getTipTime();
-    this.setState({
+    setState(prevState => ({
+      ...prevState,
       isClosed: false,
       tiptime,
-    });
+    }));
   }
 
-  render() {
-    const {utxos} = this.props;
-    const {tiptime, isClosed} = this.state;
+  const render = () => {
+    const {utxos} = props;
+    const {tiptime, isClosed} = state;
 
     return (
       <React.Fragment>
         <button
           className="button del-btn check-utxos-btn"
-          onClick={() => this.open()}>
+          onClick={() => open()}>
           <i className="fa fa-wrench"></i>
         </button>
         <Modal
           title="Check KMD UTXOs"
           show={isClosed === false}
-          handleClose={() => this.close()}
+          handleClose={() => close()}
           isCloseable={true}
           className="Modal-utxos">
           <table className="table is-striped">
@@ -82,6 +86,8 @@ class UtxosModal extends React.Component {
       </React.Fragment>
     );
   }
+
+  return render();
 }
 
 export default UtxosModal;

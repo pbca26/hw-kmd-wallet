@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import hw from './lib/hw';
 import updateActionState from './lib/update-action-state';
 import {
@@ -17,67 +17,57 @@ import './ReceiveCoinModal.scss';
 import {writeLog} from './Debug';
 import copyToClipboard from './lib/copy-to-clipboard';
 import QRGenModal from './QRGenModal';
+import Dropdown from './Dropdown';
 
-class ReceiveCoinButton extends React.Component {
-  state = this.initialState;
-
-  get initialState() {
-    this.open = this.open.bind(this);
-    this.close = this.close.bind(this);
-
-    return {
-      isExtractingNewAddress: false,
-      error: false,
-      success: false,
-      accountIndex: 0,
-      isClosed: true,
-      actions: {
-        connect: {
-          icon: 'fab fa-usb',
-          description: this.props.vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
-          state: null
-        },
-        confirmAddress: {
-          icon: 'fas fa-microchip',
-          description: <div>Approve a public key export request on your device.</div>,
-          state: null
-        }
+const ReceiveCoinButton = props => {
+  const initialState = {
+    isExtractingNewAddress: false,
+    error: false,
+    success: false,
+    accountIndex: 0,
+    isClosed: true,
+    actions: {
+      connect: {
+        icon: 'fab fa-usb',
+        description: props.vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
+        state: null
+      },
+      confirmAddress: {
+        icon: 'fas fa-microchip',
+        description: <div>Approve a public key export request on your device.</div>,
+        state: null
       }
-    };
-  }
+    }
+  };
+  const [state, setState] = useState(initialState);
 
-  triggerCopyToClipboard = (text) => copyToClipboard(text);
+  const triggerCopyToClipboard = text => copyToClipboard(text);
 
-  close() {
-    this.setState({
-      ...this.initialState,
-      isClosed: true
-    });
-  }
-
-  open() {
-    this.setState({
-      ...this.initialState,
+  const open = () => {
+    setState(prevState => ({
+      ...prevState,
       isClosed: false
-    });
+    }));
   }
 
-  updateAccountIndex(e) {
-    this.setState({
+  const updateAccountIndex = e => {
+    setState(prevState => ({
+      ...prevState,
       [e.target.name]: e.target.value,
-    });
+    }));
   }
 
-  resetState = () => this.setState(this.initialState);
+  const resetState = () => setState(initialState);
 
-  getUnusedAddressIndex = () => this.props.accounts[this.state.accountIndex].addresses.filter(address => !address.isChange).length;
+  const getUnusedAddressIndex = () => props.accounts[state.accountIndex].addresses.filter(address => !address.isChange).length;
   
-  getUnusedAddress = () => getAddress(getAccountNode(this.props.accounts[this.state.accountIndex].xpub).externalNode.derive(this.getUnusedAddressIndex()).publicKey);
+  const getUnusedAddress = () => getAddress(getAccountNode(props.accounts[state.accountIndex].xpub).externalNode.derive(getUnusedAddressIndex()).publicKey);
 
-  getNewAddress = async () => {
-    const {coin, vendor} = this.props;
+  const getNewAddress = async () => {
+    const {coin, vendor} = props;
 
-    this.setState({
+    setState(prevState => ({
+      ...prevState,
       error: false,
       success: false,
       actions: {
@@ -93,33 +83,33 @@ class ReceiveCoinButton extends React.Component {
         }
       },
       isExtractingNewAddress: true,
-    });
+    }));
 
     let currentAction;
     try {
       currentAction = 'connect';
-      updateActionState(this, currentAction, 'loading');
+      updateActionState({setState}, currentAction, 'loading');
       const hwIsAvailable = await hw[vendor].isAvailable();
       if (!hwIsAvailable) {
         throw new Error(`${VENDOR[vendor]} device is unavailable!`);
       }
-      updateActionState(this, currentAction, true);
+      updateActionState({setState}, currentAction, true);
 
       currentAction = 'confirmAddress';
-      updateActionState(this, currentAction, 'loading');
+      updateActionState({setState}, currentAction, 'loading');
 
-      const accountIndex = this.state.accountIndex;
+      const accountIndex = state.accountIndex;
 
-      const unusedAddress = this.getUnusedAddress();
-      const derivationPath = `${COIN_DERIVATION_PATH}/${accountIndex}'/0/${this.getUnusedAddressIndex()}`;
+      const unusedAddress = getUnusedAddress();
+      const derivationPath = `${COIN_DERIVATION_PATH}/${accountIndex}'/0/${getUnusedAddressIndex()}`;
       const verify = true;
       const hwUnusedAddress = await hw[vendor].getAddress(derivationPath, verify);
       if (hwUnusedAddress !== unusedAddress) {
         throw new Error(`${VENDOR[vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
       }
-      updateActionState(this, currentAction, true);
+      updateActionState({setState}, currentAction, true);
 
-      this.setState({
+      setState({
         isExtractingNewAddress: false,
         success: 
           <React.Fragment>
@@ -132,7 +122,7 @@ class ReceiveCoinButton extends React.Component {
                   address={unusedAddress}/>
                 <button
                   className="button is-light copy-btn"
-                  onClick={() => this.triggerCopyToClipboard(unusedAddress)}>
+                  onClick={() => triggerCopyToClipboard(unusedAddress)}>
                   <i className="fa fa-copy"></i> <span className="copy-btn-text">Copy</span>
                 </button>
               </span>
@@ -158,28 +148,35 @@ class ReceiveCoinButton extends React.Component {
       });
     } catch (error) {
       writeLog(error);
-      updateActionState(this, currentAction, false);
-      this.setState({
+      updateActionState({setState}, currentAction, false);
+      setState(prevState => ({
+        ...prevState,
         error: error.message,
         isExtractingNewAddress: false,
-      });
+      }));
     }
   };
 
-  render() {
+  const render = () => {
     const {
       isExtractingNewAddress,
       actions,
       error,
       success,
-    } = this.state;
-    const {coin, vendor, accounts, sidebarSize} = this.props;
+    } = state;
+    const {coin, vendor, accounts, sidebarSize} = props;
+    const dropdownAccountItems = accounts.map((account, index) => (
+      {
+        value: index,
+        label: `${coin} ${index + 1}`,
+      }
+    ));
 
-    writeLog(this.props);
+    writeLog(props);
 
     return (
       <React.Fragment>
-        <li onClick={this.open}>
+        <li onClick={open}>
           <i className="fa fa-paper-plane plane-icon-invert"></i>
           {sidebarSize === 'full' &&
             <span className="sidebar-item-title">Receive</span>
@@ -191,8 +188,8 @@ class ReceiveCoinButton extends React.Component {
           actions={actions}
           error={error}
           success={success}
-          handleClose={this.resetState}
-          show={this.state.isClosed === false}
+          handleClose={resetState}
+          show={state.isClosed === false}
           display={isExtractingNewAddress}
           className="Receive-modal">
           {!isExtractingNewAddress && !success &&
@@ -202,22 +199,15 @@ class ReceiveCoinButton extends React.Component {
               </p>
               <div className={`receive-account-selector-block${error ? ' receive-coin-modal-padding-bottom' : ''}`}>
                 Account
-                <select
-                  className="account-selector minimal"
+                <Dropdown
+                  value={state.accountIndex}
                   name="accountIndex"
-                  value={this.state.accountIndex}
-                  onChange={(event) => this.updateAccountIndex(event)}>
-                  {accounts.map((account, index) => (
-                    <option
-                      key={`account-${account}-${index}`}
-                      value={index}>
-                      {coin} {index + 1}
-                    </option>
-                  ))}
-                </select>
+                  className="account-selector"
+                  items={dropdownAccountItems}
+                  cb={updateAccountIndex} />
                 <button
                   className="button is-primary"
-                  onClick={this.getNewAddress}>
+                  onClick={getNewAddress}>
                   {error ? 'Try again' : 'Confirm'}
                 </button>
               </div>
@@ -232,6 +222,8 @@ class ReceiveCoinButton extends React.Component {
       </React.Fragment>
     );
   }
+
+  return render();
 }
 
 export default ReceiveCoinButton;

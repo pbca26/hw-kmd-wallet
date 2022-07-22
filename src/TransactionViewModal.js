@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Modal from './Modal';
 import coins from './lib/coins';
 import {
@@ -7,38 +7,41 @@ import {
 } from './Electron';
 import './TransactionDetailsModal.scss';
 
-class TransactionDetailsModal extends React.Component {
-  state = {
-    isClosed: true
+const TransactionDetailsModal = props => {
+  const initialState = {
+    isClosed: true,
   };
+  const [state, setState] = useState(initialState);
 
-  close() {
-    this.setState({
+  const close = () => {
+    setState(prevState => ({
+      ...prevState,
       isClosed: true
-    });
+    }));
   }
 
-  open() {
-    this.setState({
+  const open = () => {
+    setState(prevState => ({
+      ...prevState,
       isClosed: false
-    });
+    }));
   }
 
-  render() {
-    const {tx, coin} = this.props;
+  const render = () => {
+    const {tx, coin} = props;
 
     return (
       <React.Fragment>
         <button
           className="button is-primary hidden"
           id="transactionDetailsModal"
-          onClick={() => this.open()}>
+          onClick={() => open()}>
           Operation details
         </button>
         <Modal
           title="Operation Details"
-          show={this.state.isClosed === false}
-          handleClose={() => this.close()}
+          show={state.isClosed === false}
+          handleClose={() => close()}
           isCloseable={true}
           className="Modal-operation-details">
           {tx &&
@@ -58,7 +61,7 @@ class TransactionDetailsModal extends React.Component {
                     <td>
                       <strong>Account</strong>
                     </td>
-                    <td>{coin} {(tx.accountIndex || this.props.activeAccount) + 1}</td>
+                    <td>{coin} {(tx.accountIndex || props.activeAccount) + 1}</td>
                   </tr>
                   <tr>
                     <td>
@@ -115,6 +118,8 @@ class TransactionDetailsModal extends React.Component {
       </React.Fragment>
     );
   }
+
+  return render();
 }
 
 export default TransactionDetailsModal;

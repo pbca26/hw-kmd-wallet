@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Modal from './Modal';
 import './SettingsModal.scss';
 import SettingsModal from './SettingsModal';
@@ -10,98 +10,96 @@ import {
 import {clearPubkeysCache} from './lib/account-discovery';
 //import {writeLog} from './Debug';
 
-class LoginModal extends React.Component {
-  state = this.initialState;
-  
-  get initialState() {
-    this.updateInput = this.updateInput.bind(this);
-    this.close = this.close.bind(this);
-    this.reset = this.reset.bind(this);
-    
-    return {
-      isClosed: false,
-      password: '',
-      error: false,
-    };
-  }
+const LoginModal = props => {
+  const initialState = {
+    isClosed: false,
+    password: '',
+    error: false,
+  };
+  const [state, setState] = useState(initialState);
 
-  updateInput(e) {
-    this.setState({
+ const updateInput = e => {
+    setState(prevState => ({
+      ...prevState,
       [e.target.name]: e.target.value,
-    });
-
-    /*setTimeout(() => {
-      writeLog('this.state', this.state);
-    }, 100);*/
+    }));
   }
 
-  close() {
-    setLocalStoragePW(this.state.password);
+  /*useEffect(() => {
+    writeLog('login state', state);
+  });*/
+
+  const close = () => {
+    setLocalStoragePW(state.password);
     
     if (!localStorage.getItem('hw-wallet') ||
         localStorage.getItem('hw-wallet') === 'null') {
-      this.props.closeLoginModal(this.state.password);
+      props.closeLoginModal(state.password);
       
-      this.setState({
+      setState(prevState => ({
+        ...prevState,
         password: '',
         error: false,
-      });
+      }));
     } else {
       decodeStoredData()
       .then((res) => {
         if (res) {          
-          this.setState({
+          setState(prevState => ({
+            ...prevState,
             password: '',
             error: false,
-          });
+          }));
 
-          this.props.closeLoginModal(this.state.password);
+          props.closeLoginModal(state.password);
         } else {
-          this.setState({
+          setState(prevState => ({
+            ...prevState,
             error: true,
-          });
+          }));
         }
       });
     }
   }
 
-  reset() {
-    this.setState({
+  const reset = () => {
+    setState(prevState => ({
+      ...prevState,
       password: '',
       error: false,
-    });
+    }));
 
     clearPubkeysCache();
     resetLocalStorage();
   }
 
-  render() {
+  const render = () => {
     const firstTimeUse = !localStorage.getItem('hw-wallet') || localStorage.getItem('hw-wallet') === 'null';
 
     return (
       <React.Fragment>
         <Modal
           title={firstTimeUse ? 'Create password' :  'Authorization'}
-          show={this.props.isClosed === false}
+          show={props.isClosed === false}
           isCloseable={false}
           className="settings-modal login-modal">
           <SettingsModal
-            resetState={this.props.resetState}
-            isAuth={this.state.isAuth}
-            triggerSidebarSizeChange={this.props.triggerSidebarSizeChange}
-            setVendor={this.props.setVendor}
+            resetState={props.resetState}
+            isAuth={state.isAuth}
+            triggerSidebarSizeChange={props.triggerSidebarSizeChange}
+            setVendor={props.setVendor}
             coin="KMD" />
           Password <input
             type="password"
             className="form-control edit login-modal-input-pw"
             name="password"
-            onChange={this.updateInput}
-            value={this.state.password}
+            onChange={updateInput}
+            value={state.password}
             placeholder={firstTimeUse ? 'Create a password to encrypt app data' : 'Enter a password to unlock the app'}
             autoComplete="off"
             required />
           <p className="login-modal-padding-top">Password is required in order to safely store and recover sensitive data such as XPUB keys, cached address transactions and balances.</p>
-          {this.state.error &&
+          {state.error &&
             <React.Fragment>
               <p className="login-error">Unable to decrypt, please try again or reset password.</p>
               <p>
@@ -112,14 +110,14 @@ class LoginModal extends React.Component {
           <div className="modal-action-block left">
             <button
               className="button is-primary"
-              disabled={!this.state.password}
-              onClick={this.close}>
+              disabled={!state.password}
+              onClick={close}>
               OK
             </button>
-            {this.state.error &&
+            {state.error &&
               <button
                 className="button del-btn login-modal-float-right"
-                onClick={this.reset}>
+                onClick={reset}>
                 Reset password <i className="fa fa-trash"></i>
               </button>
             }
@@ -128,6 +126,8 @@ class LoginModal extends React.Component {
       </React.Fragment>
     );
   }
+
+  return render();
 }
 
 export default LoginModal;

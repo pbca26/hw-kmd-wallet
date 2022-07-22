@@ -24,7 +24,16 @@ const ClaimRewardsButton = ({
     disabled={disabled}
     checkTipTime={checkTipTime}
     className="claim-rewards-btn">
-    <i className="fa fa-donate"></i> Claim {humanReadableSatoshis(Math.max(0, claimableAmount))} rewards
+    {!disabled && 
+      <React.Fragment>
+        <i className="fa fa-donate"></i> Claim {humanReadableSatoshis(Math.max(0, claimableAmount))} rewards
+      </React.Fragment>
+    }
+    {disabled &&
+      <React.Fragment>
+        <i className="fa fa-hourglass-half"></i> Synchronizing data...
+      </React.Fragment>
+    }
   </SendCoinButton>
 );
 

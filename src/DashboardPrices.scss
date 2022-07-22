@@ -35,11 +35,12 @@
 
       tr {
         td {
-          //padding: 20px 0 15px 0;
           padding: 10px 0 4px 0;
           border-bottom: solid 1px #efefef !important;
           
-          img {
+          img,
+          .coin-icons-wrapper-container {
+            display: inline-block;
             width: 30px;
             height: 30px;
           }
@@ -56,7 +57,7 @@
 
       tbody tr:nth-child(1) {
         td {
-          padding-top: 5px;
+          padding-top: 13px;
         }
       }
 

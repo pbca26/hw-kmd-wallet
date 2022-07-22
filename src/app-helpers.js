@@ -1,15 +1,17 @@
 import {sortTransactions} from './lib/sort';
 import {writeLog} from './Debug';
-import {TX_FEE} from './constants';
+import {TX_FEE, SETTINGS} from './constants';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import getRewardEndDate from './lib/get-reward-end-date';
 import asyncForEach from './lib/async';
 import {getAvailableExplorerUrl} from './send-coin-helpers';
-import accountDiscovery from './lib/account-discovery';
+import accountDiscovery, {setConfigVar} from './lib/account-discovery';
+import {getLocalStorageVar, setLocalStorageVar} from './lib/localstorage-util';
+import coinEndpoits from './lib/coins';
 
 const MAX_TIP_TIME_DIFF = 3600 * 24;
 
-export const checkTipTime = (tiptime) => {
+export const checkTipTime = tiptime => {
   if (!tiptime || Number(tiptime) <= 0) return tiptime;
 
   const currentTimestamp = Date.now() / 1000;
@@ -86,6 +88,12 @@ export const removeCoin = (coin, coins) => {
   }
 
   lastOperations = sortTransactions(lastOperations, 'timestamp').slice(0, 3);
+
+  if ((getLocalStorageVar('settings').discoveryGapLimit === SETTINGS.DISCOVERY_GAP_LIMIT_AIRDROP) &&
+      coinEndpoits[coin].airdrop) {
+    setConfigVar('discoveryGapLimit', SETTINGS.DISCOVERY_GAP_LIMIT_DEFAULT);
+    setLocalStorageVar('settings', {discoveryGapLimit: SETTINGS.DISCOVERY_GAP_LIMIT_DEFAULT});
+  }
 
   return {
     coins,
@@ -225,5 +233,19 @@ export const getAppInitState = () => {
     sidebarSizeChanged: false,
     syncInProgress: false,
     explorerEndpointOverride: {},
+    syncRunNum: 0,
   };
+};
+
+export const filterEnabledCoins = coins => {
+  writeLog('check wallet coins availability');
+
+  for (let coin in coins) {
+    if (!coinEndpoits[coin] || (coinEndpoits[coin] && !coinEndpoits[coin].enabled)) {
+      writeLog(`wallet coin ${coin} is disabled, remove`);
+      delete coins[coin];
+    }
+  }
+
+  return coins;
 };

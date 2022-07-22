@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Modal from './Modal';
 import appInfo from '../package.json';
 import {
@@ -6,28 +6,27 @@ import {
   shell,
 } from './Electron';
 
-class AboutModal extends React.Component {
-  state = this.initialState;
-  
-  get initialState() {
-    return {
-      isClosed: true,
-    };
+const AboutModal = props => {
+  const initialState = {
+    isClosed: true,
   };
+  const [state, setState] = useState(initialState);
 
-  close() {
-    this.setState({
+  const close = () => {
+    setState(prevState => ({
+      ...prevState,
       isClosed: true,
-    });
+    }));
   }
 
-  open() {
-    this.setState({
+  const open = () => {
+    setState(prevState => ({
+      ...prevState,
       isClosed: false,
-    });
+    }));
   }
 
-  renderLink(href, title) {
+  const renderLink = (href, title) => {
     return (
       <React.Fragment>
         {isElectron &&
@@ -45,33 +44,35 @@ class AboutModal extends React.Component {
     );
   }
 
-  render() {
+  const render = () => {
     return (
       <React.Fragment>
-        <li onClick={() => this.open()}>
+        <li onClick={() => open()}>
           <i className="fa fa-copyright"></i>
-          {this.props.sidebarSize === 'full' &&
+          {props.sidebarSize === 'full' &&
             <span className="sidebar-item-title">About</span>
           }
         </li>
         <Modal
           title="About"
-          show={this.state.isClosed === false}
-          handleClose={() => this.close()}
+          show={state.isClosed === false}
+          handleClose={() => close()}
           isCloseable={true}
           className="Modal-about">
           <p>
-            <strong>KMD hardware wallet</strong> by {this.renderLink('https://github.com/atomiclabs', 'Atomic Labs')} and {this.renderLink('https://github.com/komodoplatform', 'Komodo Platform')}.
+            <strong>Komodo Hardware Wallet App</strong> by {renderLink('https://github.com/atomiclabs', 'Atomic Labs')} and {renderLink('https://github.com/komodoplatform', 'Komodo Platform')}.
           </p>
           <p>
-            The {this.renderLink(`https://github.com/${appInfo.repository}`, 'source code')} is licensed under {this.renderLink(`https://github.com/${appInfo.repository}/blob/master/LICENSE`, 'MIT')}.
+            The {renderLink(`https://github.com/${appInfo.repository}`, 'source code')} is licensed under {renderLink(`https://github.com/${appInfo.repository}/blob/master/LICENSE`, 'MIT')}.
             <br />
-            View the {this.renderLink(`https://github.com/${appInfo.repository}#usage`, 'README')} for usage instructions.
+            View the {renderLink(`https://github.com/${appInfo.repository}#usage`, 'README')} for usage instructions.
           </p>
         </Modal>
       </React.Fragment>
     );
   }
+
+  return render();
 }
 
 export default AboutModal;

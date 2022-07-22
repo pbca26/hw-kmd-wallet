@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import hw from './lib/hw';
 import {getAccountXpub} from './lib/account-discovery';
 import blockchain, {blockchainAPI} from './lib/blockchain';
@@ -7,88 +7,92 @@ import {VENDOR} from './constants';
 import ActionListModal from './ActionListModal';
 import {writeLog} from './Debug';
 
-class AddAccount extends React.Component {
-  state = this.initialState;
-
-  get initialState() {
-    return {
-      isCheckingRewards: false,
-      error: false,
-      actions: {
-        connect: {
-          icon: 'fab fa-usb',
-          description: this.props.vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
-          state: null
-        },
-        approve: {
-          icon: 'fas fa-microchip',
-          description: <div>Approve all public key export requests on your device. <strong>There will be multiple requests</strong>.</div>,
-          state: null
-        }
+const AddAccount = props => {
+  const initialState = {
+    isCheckingRewards: false,
+    error: false,
+    actions: {
+      connect: {
+        icon: 'fab fa-usb',
+        description: props.vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
+        state: null
+      },
+      approve: {
+        icon: 'fas fa-microchip',
+        description: <div>Approve all public key export requests on your device. <strong>There will be multiple requests</strong>.</div>,
+        state: null
       }
-    };
-  }
+    }
+  };
+  const [state, setState] = useState(initialState);
 
-  resetState = () => this.setState(this.initialState);
+  const resetState = () => setState(initialState);
 
   scanAddresses = async () => {
-    this.setState({
-      ...this.initialState,
+    setState(prevState => ({
+      ...prevState,
+      ...initialState,
       isCheckingRewards: true,
-    });
+    }));
 
     const {vendor, accounts, addAccount};
     let currentAction;
     try {
       currentAction = 'connect';
-      updateActionState(this, currentAction, 'loading');
+      updateActionState({setState}, currentAction, 'loading');
       const hwIsAvailable = await hw[vendor].isAvailable();
       if (!hwIsAvailable) {
         throw new Error(`${VENDOR[vendor]} device is unavailable!`);
       }
-      updateActionState(this, currentAction, true);
+      updateActionState({setState}, currentAction, true);
 
       currentAction = 'approve';
-      updateActionState(this, currentAction, 'loading');
+      updateActionState({setState}, currentAction, 'loading');
       writeLog('add acc', accounts.length);
 
       const xpub = await getAccountXpub(accounts.length, vendor);
       writeLog('xpub', xpub);
-      updateActionState(this, currentAction, true);
+      updateActionState({setState}, currentAction, true);
       addAccount(accounts.length, xpub);
 
-      this.setState({...this.initialState});
+      setState(prevState => ({
+        ...prevState,
+        ...initialState
+      }));
     } catch (error) {
       writeLog(error);
-      updateActionState(this, currentAction, false);
-      this.setState({error: error.message});
+      updateActionState({setState}, currentAction, false);
+      setState(prevState => ({
+        ...prevState,
+        error: error.message
+      }));
     }
   };
 
-  render() {
+  const render = () => {
     const {
       isCheckingRewards,
       actions,
       error,
-    } = this.state;
+    } = state;
     const {
       activeAccount,
       coin,
       vendor,
-    } = this.props;
+    } = props;
 
     return (
       <React.Fragment>
         <span
           className={`coin-add-account-modal-trigger ${activeAccount !== null ? ' single' : ''}`}
-          onClick={this.scanAddresses}>
+          onClick={scanAddresses}>
           <i className="fa fa-plus"></i>
         </span>
         <ActionListModal
           title={`Add ${coin} account`}
           actions={actions}
           error={error}
-          handleClose={this.resetState}
+          handleClose={resetState}
           show={isCheckingRewards}
           className="Scan-balances-modal">
           <p>
@@ -98,6 +102,8 @@ class AddAccount extends React.Component {
       </React.Fragment>
     );
   }
+
+  return render();
 }
 
 export default AddAccount;

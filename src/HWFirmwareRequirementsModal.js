@@ -1,16 +1,9 @@
 import React from 'react';
 import {VENDOR} from './constants';
 
-class HWFirmwareRequirements extends React.Component {
-  state = this.initialState;
-  
-  get initialState() {
-    return {
-    };
-  };
-
-  render() {
-    const {vendor} = this.props;
+const HWFirmwareRequirements = props => {
+  const render = () => {
+    const {vendor} = props;
 
     return (
       <React.Fragment>
@@ -28,6 +21,8 @@ class HWFirmwareRequirements extends React.Component {
       </React.Fragment>
     );
   }
+
+  return render();
 }
 
 export default HWFirmwareRequirements;
