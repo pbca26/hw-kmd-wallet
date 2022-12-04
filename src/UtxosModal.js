@@ -6,15 +6,16 @@ import humanRewardEndDate from './lib/human-reward-end-date';
 import blockchain, {blockchainAPI} from './lib/blockchain';
 import Boolean from './Boolean';
 import './UtxosModal.scss';
+import Translate, {t} from './Translate';
 
 // TODO: display warning sign if one or several utxos are not accruing rewards
 
 const headings = [
-  'Address',
-  'Value',
-  'Locktime',
-  'Rewards',
-  'Rewards Stop Accruing'
+  t('utxo_modal_addres'),
+  t('utxo_modal_value'),
+  t('utxo_modal_locktime'),
+  t('utxo_modal_rewards'),
+  t('utxo_modal_rewards_stop')
 ];
 
 const UtxosModal = props => {
@@ -57,7 +58,7 @@ const UtxosModal = props => {
           <i className="fa fa-wrench"></i>
         </button>
         <Modal
-          title="Check KMD UTXOs"
+          title={t('utxo_modal_check_kmd_utxo')}
           show={isClosed === false}
           handleClose={() => close()}
           isCloseable={true}

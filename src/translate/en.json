@@ -1,0 +1,11 @@
+{
+  "warn_browser_warning": "Warning: This Browser Is Not Supported",
+  "warn_browser_you_are_using": "You are using an unsupported browser.",
+  "warn_browser_for_better": "For better compatibility please use Chrome, Brave or Chromium.",
+  "utxo_modal_check_kmd_utxo": "Check KMD UTXOs",
+  "utxo_modal_addres": "Address",
+  "utxo_modal_value": "Value",
+  "utxo_modal_locktime": "Locktime",
+  "utxo_modal_rewards": "Rewards",
+  "utxo_modal_rewards_stop": "Rewards Stop Accruing"
+}

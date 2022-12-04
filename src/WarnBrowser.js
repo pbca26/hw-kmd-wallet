@@ -5,6 +5,7 @@ import {
   isFirefox,
 } from 'react-device-detect';
 import Modal from './Modal';
+import Translate, {t} from './Translate';
 
 const WarnBrowser = props => {
   const initialState = {
@@ -32,7 +33,7 @@ const WarnBrowser = props => {
 
   return (
     <Modal
-      title="Warning: This Browser Is Not Supported"
+      title={t('warn_browser_warning')}
       show={
         state.isChrome === false ||
         state.isOpera === true ||
@@ -40,8 +41,8 @@ const WarnBrowser = props => {
       }
       handleClose={() => close()}
       isCloseable={true}>
-      <p>You are using an unsupported browser.</p>
-      <p>For better compatibility please use Chrome, Brave or Chromium.</p>
+      <p><Translate name="warn_browser_you_are_using" /></p>
+      <p><Translate name="warn_browser_for_better" /></p>
     </Modal>
   );
 }
