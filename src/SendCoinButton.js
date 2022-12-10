@@ -28,6 +28,7 @@ import QRReaderModal from './QRReaderModal';
 import {SendCoinRawTxRender, SendCoinTxLink} from './SendCoinModalFragments';
 import Dropdown from './Dropdown';
 import Toggle from './Toggle';
+import Translate, {t} from './Translate';
 import './SendCoin.scss';
 
 // TODO: refactor transaction builder, make math more easier to understand and read
@@ -89,7 +90,7 @@ const SendCoinButton = props => {
     const isUserInputValid = props.isClaimRewardsOnly ? false : validate({state, props});
     const isClaimRewardsOnly = props.isClaimRewardsOnly;
 
-    writeLog(isClaimRewardsOnly ? 'claim kmd rewards button clicked' : 'send coin clicked');
+    writeLog(isClaimRewardsOnly ? t('send_claim_rewards_btn') : t('send_send_coin_clicked'));
     
     setState(prevState => ({
       ...prevState,
@@ -113,13 +114,13 @@ const SendCoinButton = props => {
 
           tiptime = await blockchain[blockchainAPI].getTipTime();
           tiptime = props.checkTipTime(tiptime);
-          if (!tiptime) throw new Error('Unable to get tiptime!');
+          if (!tiptime) throw new Error(t('send_error_tiptime'));
         }
 
         updateActionState({setState}, currentAction, 'loading');
         const hwIsAvailable = await hw[vendor].isAvailable();
         if (!hwIsAvailable) {
-          throw new Error(`${VENDOR[vendor]} device is unavailable!`);
+          throw new Error(t('common_error_device', VENDOR[vendor]));
         }
         updateActionState({setState}, currentAction, true);
 
@@ -170,7 +171,7 @@ const SendCoinButton = props => {
         
           writeLog('hwUnusedAddress', hwUnusedAddress);
           if (hwUnusedAddress !== unusedAddress) {
-            throw new Error(`${VENDOR[vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
+            throw new Error(`${t('common_error_address', VENDOR[vendor])} ${t('common_error_address_match', hwUnusedAddress)} "${unusedAddress}"`);
           }
         }
 
@@ -257,7 +258,7 @@ const SendCoinButton = props => {
 
         writeLog('rawtx', rawtx);
         if (!rawtx || typeof rawtx !== 'string') {
-          throw new Error(`${VENDOR[props.vendor]} failed to generate a valid transaction`);
+          throw new Error(t('send_error_generate_tx', VENDOR[props.vendor]));
         }
         updateActionState({setState}, currentAction, true);
         
@@ -282,7 +283,7 @@ const SendCoinButton = props => {
 
           const {txid} = await blockchain[blockchainAPI].broadcast(rawtx);
           if (!txid || txid.length !== 64) {
-            throw new Error('Unable to broadcast transaction');
+            throw new Error(t('send_error_broadcast_tx'));
           }
           updateActionState({setState}, currentAction, true);
 
@@ -378,7 +379,7 @@ const SendCoinButton = props => {
     const {isClaimRewardsOnly, account, accounts} = props;
     const dropdownChangeAddressItems = account && account.addresses ? [{
       value: '',
-      label: 'Unused address (default)'
+      label: t('send_unused_address')
     }]
     .concat(account.addresses.slice(0, KMD_REWARDS_CLAIM_ACCOUNT_OVERRIDE_LIMIT).map((item, index) => (
       {
@@ -392,7 +393,7 @@ const SendCoinButton = props => {
         {((!isClaimRewardsOnly && accounts[accountIndex] && accounts[accountIndex].length > 0) ||
           (isClaimRewardsOnly && account.addresses && account.addresses.length > 0)) &&
           <div className={address ? 'send-coin-modal-style4' : 'send-coin-modal-style5'}>
-            Send change to
+            <Translate name="send_send_change_to" />
             <Dropdown
               value={address}
               name="address"
@@ -403,7 +404,7 @@ const SendCoinButton = props => {
         }
         {address &&
           <div className="send-coin-modal-style6">
-            <strong>Warning:</strong> sending coins to a non-default address will break so called pseudo anonimity (one time address usage) and link your addresses together! This is not recommended option.
+            <strong><Translate name="send_warning" />:</strong> <Translate name="send_warning_send_to_non_default" />.
           </div>
         }
        </React.Fragment>
@@ -413,7 +414,7 @@ const SendCoinButton = props => {
   const renderSkipBroadcastToggle = () => {
     return state.isDebug ? (
       <Toggle
-        label="Don't broadcast transaction"
+        label={t('send_dont_broadcast')}
         name="skipBroadcast"
         value={state.skipBroadcast}
         cb={setSkipBroadcast}
@@ -441,7 +442,7 @@ const SendCoinButton = props => {
 
     return !state.step ? (
       <Modal
-        title={isClaimRewardsOnly ? 'Claim KMD rewards' : 'Send'}
+        title={isClaimRewardsOnly ? t('send_claim_rewards') : t('send_send')}
         show={isClaimingRewards}
         handleClose={resetState}
         isCloseable={true}
@@ -450,10 +451,10 @@ const SendCoinButton = props => {
         !isClaimRewardsOnly &&
           <React.Fragment>
             <p>
-              Select an account to debit.
+              <Translate name="send_select_acount" />.
             </p>
             <div className="receive-account-selector-block">
-              Account
+              <Translate name="send_account" />
               <Dropdown
                 value={accountIndex}
                 name="accountIndex"
@@ -467,29 +468,29 @@ const SendCoinButton = props => {
         !isClaimRewardsOnly &&
           <div className="send-form send-coin-modal-style1">
             <div>
-              Amount <input
+              <Translate name="send_amount" /> <input
                 type="text"
                 className="form-control edit send-coin-modal-style3"
                 name="amountIn"
                 onChange={updateInput}
                 value={state.amountIn}
-                placeholder="Enter an amount"
+                placeholder={t('send_enter_amount')}
                 autoComplete="off"
                 required />
               <button
                 className="button is-light send-max"
                 onClick={() => setSendToMaxAmount(balance)}>
-                Max
+                <Translate name="send_max" />
               </button>
             </div>
             <div className="send-coin-modal-style2">
-              Send to <input
+              <Translate name="send_send_to" /> <input
                 type="text"
                 className="form-control edit send-coin-modal-style3"
                 name="sendToIn"
                 onChange={updateInput}
                 value={state.sendToIn}
-                placeholder="Enter an address"
+                placeholder={t('send_enter_address')}
                 autoComplete="off"
                 required />
               <QRReaderModal setRecieverFromScan={setRecieverFromScan} />
@@ -504,7 +505,7 @@ const SendCoinButton = props => {
           }
           className="button is-primary"
           onClick={nextStep}>
-          Next
+          <Translate name="send_next" />
         </button>
       </Modal>
     ) : null;
@@ -517,45 +518,46 @@ const SendCoinButton = props => {
     return state.step ? (
       <ActionListModal
         {...state}
-        title={isClaimRewardsOnly ? 'Claim KMD rewards' : 'Send'}
+        title={isClaimRewardsOnly ? t('send_claim_rewards') : t('send_send')}
         handleClose={resetState}
         show={isClaimingRewards}
         className="send-coin-modal">
         {state.error &&
           <React.Fragment>
-            <span className="send-form-error">Something is wrong</span>
+            <span className="send-form-error"><Translate name="send_something_wrong" /></span>
             <button
               className="button is-primary btn-back"
               onClick={nextStep}>
-              Back
+              <Translate name="send_back" />
             </button>
           </React.Fragment>       
         }
         {!state.error &&
           <React.Fragment>
             {!state.sendTo &&
-              <p>Awaiting user input...</p>
+             !state.success &&
+              <p><Translate name="send_awaiting_user" />...</p>
             }
             {state.sendTo &&
             !isClaimRewardsOnly &&
               <p>
-                Send <strong>{humanReadableSatoshis(state.amount)} {coin}</strong> to <strong>{state.sendTo}</strong>
+                <Translate name="send_send" /> <strong>{humanReadableSatoshis(state.amount)} {coin}</strong> <Translate name="send_to" /> <strong>{state.sendTo}</strong>
               </p>
             }
             {state.change > 0 &&
               state.isDebug &&
               <p>
-                Send change <strong>{humanReadableSatoshis(state.change)} {coin}</strong> to address: <strong>{state.changeTo}</strong>
+                <Translate name="send_send_change" /> <strong>{humanReadableSatoshis(state.change)} {coin}</strong> <Translate name="send_to_address" />: <strong>{state.changeTo}</strong>
               </p>
             }
             {state.rewards > 0 &&
               <React.Fragment>
                 <p>
-                  Claim <strong>{humanReadableSatoshis(state.rewards - TX_FEE)} {coin}</strong> rewards to address: <strong>{state.changeTo}</strong>.
+                  <Translate name="send_claim" /> <strong>{humanReadableSatoshis(state.rewards - TX_FEE)} {coin}</strong> <Translate name="send_rewards_to_address" />: <strong>{state.changeTo}</strong>.
                 </p>
                 {isClaimRewardsOnly &&
                   <p>
-                    You should receive a total of <strong>{humanReadableSatoshis(state.amount)} {coin}</strong>.
+                    <Translate name="send_you_should_receive" /> <strong>{humanReadableSatoshis(state.amount)} {coin}</strong>.
                   </p>
                 }
               </React.Fragment>
@@ -563,7 +565,7 @@ const SendCoinButton = props => {
             {coin === 'KMD' &&
              vendor === 'trezor' &&
             (isClaimingRewards || state.rewards > 0) &&
-              <p>There will be an additional message on the latest firmware versions <strong>"Warning! Locktime is set but will have no effect. Continue?"</strong>. You need to approve it in order to claim interest.</p>
+              <p><Translate name="send_warning_there_will_be" /> <strong><Translate name="send_warning_locktime" /></strong>. <Translate name="send_warning_approval" />.</p>
             }
             {renderSkipBroadcastToggle()}
           </React.Fragment>
@@ -606,7 +608,7 @@ const SendCoinButton = props => {
             className={disabled && coin === 'KMD' ? 'disabled': ''}>
             <i className="fa fa-paper-plane"></i>
             {sidebarSize === 'full' &&
-              <span className="sidebar-item-title">Send</span>
+              <span className="sidebar-item-title"><Translate name="send_send" /></span>
             }
           </li>
         }
