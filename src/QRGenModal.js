@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import Modal from './Modal';
 import QRModal from './QR';
+import {t} from './Translate';
 
 const QRGenModal = props => {
   const initialState = {
@@ -24,7 +25,7 @@ const QRGenModal = props => {
           className="fa fa-qrcode"
           onClick={triggerModal}></i>
         <Modal
-          title={`QR code for your ${coin} address`}
+          title={t('qr_gen_modal', coin)}
           show={state.isClosed === false}
           handleClose={triggerModal}
           isCloseable={true}

@@ -99,5 +99,16 @@
   "send_error_invalid_address": "Invalid send to address",
   "send_confirm_address": "Confirm the address on your device matches the new unused address shown above",
   "send_approve_tx": "Approve the transaction on your device after carefully checking the values and addresses match those shown above",
-  "send_broadcasting_tx": "Broadcasting transaction to the network"
+  "send_broadcasting_tx": "Broadcasting transaction to the network",
+  "receive_approve_public_key": "Approve a public key export request on your device.",
+  "receive_this_is": "This is your new",
+  "receive_deposit_address": "deposit address",
+  "receive_faucet": "Get funds from a faucet",
+  "receive_receive": "Receive",
+  "receive_select_account": "Select an account to get a new address for.",
+  "receive_account": "Account",
+  "receive_try_again": "Try again",
+  "receive_confirm": "Confirm",
+  "qr_reader_modal": "QR code scan",
+  "qr_gen_modal": "QR code for your {{template}} address"
 }
