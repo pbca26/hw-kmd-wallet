@@ -1,4 +1,13 @@
 {
+  "common_connect_and_unlock_ledger": "Connect and unlock your Ledger, then open the Komodo app on your device.",
+  "common_connect_and_unlock_trezor": "Connect and unlock your Trezor.",
+  "common_approve_public_key": "Approve all public key export requests on your device.",
+  "common_multiple_req": "There will be multiple requests",
+  "common_exporting_public_key": "Exporting a public key from your {{template} device. Please approve public key export request on your device.",
+  "common_error_device": "{{template}} device is unavailable!",
+  "common_error_address": "{{template}} derived address",
+  "common_error_address_match": "\"{{template}}\" doesn't match browser derived address",
+  "common_copy": "Copy",
   "warn_browser_warning": "Warning: This Browser Is Not Supported",
   "warn_browser_you_are_using": "You are using an unsupported browser.",
   "warn_browser_for_better": "For better compatibility please use Chrome, Brave or Chromium.",
