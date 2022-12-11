@@ -154,5 +154,20 @@
   "check_balances_modal_no_balances": "No active balances are found",
   "check_balances_modal_confirm": "Confirm",
   "beta_warning_modal": "Warning",
-  "beta_warning_modal_beta_version": "This is a beta version! Please do not use it to transact any substantial amounts."
+  "beta_warning_modal_beta_version": "This is a beta version! Please do not use it to transact any substantial amounts.",
+  "accounts_rewards_overdue": "Rewards claim overdue!",
+  "accounts_account_details": "Account details",
+  "accounts_accounts": "Accounts",
+  "accounts_account": "Account",
+  "accounts_balance": "Balance",
+  "accounts_rewards": "Rewards",
+  "accounts_unable_to_find_airdrop": "Unable to find airdrop coins?",
+  "about_about": "About",
+  "about_by_sm": "by",
+  "about_and_sm": "and",
+  "about_the": "The",
+  "about_source_code": "source code",
+  "about_is_licensed": "is licensed under",
+  "about_view": "View the",
+  "about_usage_intructions": "for usage instructions"
 }

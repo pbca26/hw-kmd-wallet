@@ -14,6 +14,7 @@ import coinsList from './lib/coins';
 import {checkTimestamp} from './lib/time';
 import './Accounts.scss';
 import './Account.scss';
+import Translate, {t} from './Translate';
 
 const Account = props => {
   const render = () => {
@@ -59,7 +60,7 @@ const Account = props => {
             {account.isRewardsOverdue &&
               <span
                 className="kmd-rewards-account-overdue-badge"
-                title="Rewards claim overdue!">
+                title={t('accounts_rewards_overdue')}>
               <i>!</i>
               </span>
             }
@@ -88,7 +89,7 @@ const Accounts = ({
   <div className="container content">
     <div className="accounts-block">
       <h4>
-        {activeAccount !== null ? 'Account details' : 'Accounts' }
+        {activeAccount !== null ? t('accounts_account_details') : t('accounts_accounts') }
       </h4>
       {activeAccount === null &&
         <CoinSettingsModal
@@ -102,10 +103,10 @@ const Accounts = ({
         <table>
           <thead>
             <tr>
-              <th>{activeAccount !== null ? '' : 'Account'}</th>
-              <th>Balance</th>
+              <th>{activeAccount !== null ? '' : t('accounts_account')}</th>
+              <th><Translate name="accounts_balance" /></th>
               {activeCoin === 'KMD' &&
-                <th>Rewards</th>
+                <th><Translate name="accounts_rewards" /></th>
               }
             </tr>
           </thead>
@@ -130,13 +131,13 @@ const Accounts = ({
         {isElectron &&
           <a
             href="!#"
-            onClick={() => shell.openExternal('https://github.com/pbca26/hw-kmd-wallet/wiki/How-to-use-address-discovery-options-to-claim-airdrop-coins')}>Unable to find airdrop coins?</a>
+            onClick={() => shell.openExternal('https://github.com/pbca26/hw-kmd-wallet/wiki/How-to-use-address-discovery-options-to-claim-airdrop-coins')}><Translate name="accounts_unable_to_find_airdrop" /></a>
         }
         {!isElectron &&
           <a
             target="_blank"
             rel="noopener noreferrer"
-            href="https://github.com/pbca26/hw-kmd-wallet/wiki/How-to-use-address-discovery-options-to-claim-airdrop-coins">Unable to find airdrop coins?</a>
+            href="https://github.com/pbca26/hw-kmd-wallet/wiki/How-to-use-address-discovery-options-to-claim-airdrop-coins"><Translate name="accounts_unable_to_find_airdrop" /></a>
         }
       </div>
     }
