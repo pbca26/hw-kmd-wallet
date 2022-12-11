@@ -132,5 +132,17 @@
   "dashboard_prices_price": "Price",
   "dashboard_prices_change": "Change",
   "dashboard_ops_recent": "Recent operations",
-  "dashboard_ops_no_history": "No history"
+  "dashboard_ops_no_history": "No history",
+  "conn_error_modal_err": "Error",
+  "conn_error_modal_unable_to_connect": "unable to connect to API endpoint. Please retry later.",
+  "coins_selector_holdings": "Holdings",
+  "coins_selector_rewards_overdue": "Rewards claim overdue!",
+  "coins_selector_account_overdue": "accounts have rewards claim overdue!",
+  "coin_settings_modal_accounts": "Accounts",
+  "coin_settings_modal_account": "Account",
+  "coin_settings_modal": "Coin Settings",
+  "coin_settings_modal_resync": "Resync",
+  "coin_settings_modal_remove": "Remove",
+  "claim_rewards_btn": "Claim {{template} rewards",
+  "claim_rewards_btn_sync_data": "Synchronizing data"
 }
