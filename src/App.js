@@ -1,6 +1,6 @@
 import 'babel-polyfill';
-import React, {useState, useEffect} from 'react';
 import {hot} from 'react-hot-loader';
+import React, {useState, useEffect} from 'react';
 import BetaWarning from './BetaWarning';
 import Accounts from './Accounts';
 import WarnBrowser from './WarnBrowser';
@@ -39,6 +39,7 @@ import LoginModal from './LoginModal';
 import {DesktopDownloadButton, HeaderNonAuth, HeaderAuth, VendorSelector, VendorImage} from './AppFragments';
 import {getPrices} from './lib/prices';
 import {checkTipTime, handleScanData, emptyAccountState, removeCoin, scanCoins, getAppInitState, filterEnabledCoins} from './app-helpers';
+import Translate, {t} from './Translate';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
 let syncDataInterval, autoLogoutTimer;
@@ -223,7 +224,7 @@ const App = props => {
       });
     }
 
-    document.title = `Komodo Hardware Wallet (v${appInfo.version})`;
+    document.title = `Komodo ${t('app_hw')} (v${appInfo.version})`;
     if (!isElectron || (isElectron && !appData.isNspv)) {
       syncDataInterval = setInterval(() => {
         if (!state.syncInProgress) {
@@ -473,7 +474,7 @@ const App = props => {
         <section className={'main main-' + (getLocalStorageVar('settings').sidebarSize || 'short')}>
           <React.Fragment>
             <div className="container content text-center">
-              <h2>{state.coin === voteCoin ? 'Cast your VOTEs' : 'Manage your coins'} from a hardware wallet device.</h2>
+              <h2>{state.coin === voteCoin ? t('app_cast_your') : t('app_manage_coins')} <Translate name="app_from_hw_device" />.</h2>
             </div>
             <VendorSelector setVendor={setVendor} />
           </React.Fragment>

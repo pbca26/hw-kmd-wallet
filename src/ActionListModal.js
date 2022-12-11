@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from './Modal';
 import Boolean from './Boolean';
 import './ActionListModal.scss';
+import Translate from './Translate';
 
 const ActionListModal = ({
   children,
@@ -58,14 +59,14 @@ const ActionListModal = ({
 
       {error ? (
         <div className="notification is-danger">
-          <strong>Error</strong>
+          <strong><Translate name="action_list_modal_error" /></strong>
           <p>{error}</p>
         </div>
       ) : null}
 
       {success ? (
         <div className="notification is-success">
-          <strong>Success</strong>
+          <strong><Translate name="action_list_modal_success" /></strong>
           <p>{success}</p>
         </div>
       ) : null}
