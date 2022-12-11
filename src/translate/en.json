@@ -144,5 +144,15 @@
   "coin_settings_modal_resync": "Resync",
   "coin_settings_modal_remove": "Remove",
   "claim_rewards_btn": "Claim {{template} rewards",
-  "claim_rewards_btn_sync_data": "Synchronizing data"
+  "claim_rewards_btn_sync_data": "Synchronizing data",
+  "check_balances_modal_coin": "Coin",
+  "check_balances_modal_balance": "Balance",
+  "check_balances_modal_all_checked": "All coins are checked.",
+  "check_balances_modal_scanning_bc": "Scanning Blockchain",
+  "check_balances_modal_scan_end": "Scan complete",
+  "check_balances_modal_exporting_keys": "Exporting public keys from your {{template}} device, scanning the blockchain for funds, and calculating any claimable rewards. Please approve any public key export requests on your device.",
+  "check_balances_modal_no_balances": "No active balances are found",
+  "check_balances_modal_confirm": "Confirm",
+  "beta_warning_modal": "Warning",
+  "beta_warning_modal_beta_version": "This is a beta version! Please do not use it to transact any substantial amounts."
 }
