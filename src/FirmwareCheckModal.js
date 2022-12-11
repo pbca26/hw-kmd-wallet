@@ -11,6 +11,7 @@ import {
 import ActionListModal from './ActionListModal';
 import updateActionState from './lib/update-action-state';
 import Modal from './Modal';
+import Translate, {t} from './Translate';
 
 const FirmwareCheckModal = props => {
   const initialState = {
@@ -20,12 +21,12 @@ const FirmwareCheckModal = props => {
     actions: {
       connect: {
         icon: 'fab fa-usb',
-        description: <div>Connect and unlock your Ledger, then open the dashboard on your device.</div>,
+        description: <div><Translate name="fw_check_modal_connect_ledger" /></div>,
         state: null
       },
       komodoApp: {
         icon: 'fas fa-search-dollar',
-        description: <div>Open Komodo app on your device</div>,
+        description: <div><Translate name="fw_check_modal_open_kmd_app" /></div>,
         state: null
       },
     },
@@ -71,7 +72,7 @@ const FirmwareCheckModal = props => {
         ...prevState,
         updateLedgerKMDApp,
         show: updateLedgerKMDApp,
-        error: updateLedgerKMDApp ? 'Please update Bitcoin and Komodo apps to version 1.4.0 or greater.' : false,
+        error: updateLedgerKMDApp ? t('fw_check_modal_update_ledger_apps') : false,
       }));
       hw.ledger.setLedgerTransport();
     }
@@ -99,9 +100,9 @@ const FirmwareCheckModal = props => {
           {...state}
           isCloseable={true}
           handleClose={handleClose}
-          title="Warning: Trezor is not up to date"
+          title={t('fw_check_modal_warning_trezor')}
           show={state.show}>
-          <p>Your Trezor is not up to date. Please <a target="_blank" rel="noopener noreferrer" href="https://trezor.io">update firmware</a> to the latest available.</p>
+          <p><Translate name="fw_check_modal_your_trezor" /> <a target="_blank" rel="noopener noreferrer" href="https://trezor.io"><Translate name="fw_check_modal_update_fw" /></a> <Translate name="fw_check_modal_to_latest" />.</p>
         </Modal>
       );
     } else {
@@ -110,13 +111,13 @@ const FirmwareCheckModal = props => {
           {...state}
           isCloseable={true}
           handleClose={handleClose}
-          title="Ledger firmware and app version check"
+          title={t('fw_check_modal_ledger_fw_check')}
           show={state.show}>
-          <p>Please follow steps below to validate your Ledger device firmware and Komodo app version.</p>
+          <p><Translate name="fw_check_modal_ledger_info" /></p>
           <p className="text-center fw-check-modal-padding-bottom">
             <a
               href="!#"
-              onClick={handleClose}>Skip this step</a>
+              onClick={handleClose}><Translate name="fw_check_modal_skip" /></a>
           </p>
         </ActionListModal>
       );

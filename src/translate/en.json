@@ -110,5 +110,22 @@
   "receive_try_again": "Try again",
   "receive_confirm": "Confirm",
   "qr_reader_modal": "QR code scan",
-  "qr_gen_modal": "QR code for your {{template}} address"
+  "qr_gen_modal": "QR code for your {{template}} address",
+  "hw_fw_req_modal_manage_coins": "Manage your coins from {{template}} device.",
+  "hw_fw_req_modal_ledger_info": "Make sure the KMD app and firmware on your Ledger are up to date, close any apps that might be using connection to your device such as Ledger Live, then connect your Ledger, open the KMD app, and click the \"Check Balance\" button.",
+  "hw_fw_req_modal_tezor_info": "Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the \"Check Balance\" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.",
+  "hw_fw_req_modal_vendor_info": "Also, make sure that your {{template}} is initialized prior using",
+  "hw_fw_req_modal_wallet": "KMD wallet",
+  "hw_fw_req_modal_have_trouble": "Have trouble accessing your Ledger device? Read here about",
+  "hw_fw_req_modal_first_time": "first time use",
+  "fw_check_modal_connect_ledger": "Connect and unlock your Ledger, then open the dashboard on your device.",
+  "fw_check_modal_open_kmd_app": "Open Komodo app on your device",
+  "fw_check_modal_update_ledger_apps": "Please update Bitcoin and Komodo apps to version 1.4.0 or greater.",
+  "fw_check_modal_warning_trezor": "Warning: Trezor is not up to date",
+  "fw_check_modal_your_trezor": "Your Trezor is not up to date. Please",
+  "fw_check_modal_update_fw": "update firmware",
+  "fw_check_modal_to_latest": "to the latest available",
+  "fw_check_modal_ledger_fw_check": "Ledger firmware and app version check",
+  "fw_check_modal_ledger_info": "Please follow steps below to validate your Ledger device firmware and Komodo app version.",
+  "fw_check_modal_skip": "Skip this step"
 }

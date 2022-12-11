@@ -1,5 +1,6 @@
 import React from 'react';
 import {VENDOR} from './constants';
+import Translate from './Translate';
 
 const HWFirmwareRequirements = props => {
   const render = () => {
@@ -7,16 +8,16 @@ const HWFirmwareRequirements = props => {
 
     return (
       <React.Fragment>
-        <h2>Manage your coins from {VENDOR[vendor]} device.</h2>
+        <h2><Translate name="hw_fw_req_modal_manage_coins" template={VENDOR[vendor]} /></h2>
         {vendor === 'ledger' &&
-          <p>Make sure the KMD app and firmware on your Ledger are up to date, close any apps that might be using connection to your device such as Ledger Live, then connect your Ledger, open the KMD app, and click the "Check Balance" button.</p>
+          <p><Translate name="hw_fw_req_modal_ledger_info" /></p>
         }
         {vendor === 'trezor' &&
-          <p>Make sure the firmware on your Trezor are up to date, then connect your Trezor and click the "Check Balance" button. Please be aware that you'll need to allow popup windows for Trezor to work properly.</p>
+          <p><Translate name="hw_fw_req_modal_trezor_info" /></p>
         }
-        <p>Also, make sure that your {VENDOR[vendor]} is initialized prior using <strong>KMD wallet</strong>.</p>
+        <p><Translate name="hw_fw_req_modal_vendor_info" template={VENDOR[vendor]} /> <strong><Translate name="hw_fw_req_modal_wallet" /></strong>.</p>
         {vendor === 'ledger' &&
-          <p>Have trouble accessing your Ledger device? Read here about <a target="_blank" rel="noopener noreferrer" href="https://github.com/pbca26/hw-kmd-reward-claim/wiki/First-time-using-Ledger-Nano-S-(firmware-v1.6)---Nano-X">first time use</a>.</p>
+          <p><Translate name="hw_fw_req_modal_have_trouble" /> <a target="_blank" rel="noopener noreferrer" href="https://github.com/pbca26/hw-kmd-reward-claim/wiki/First-time-using-Ledger-Nano-S-(firmware-v1.6)---Nano-X"><Translate name="hw_fw_req_modal_first_time" /></a>.</p>
         }
       </React.Fragment>
     );
