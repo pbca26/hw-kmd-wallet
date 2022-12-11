@@ -127,5 +127,10 @@
   "fw_check_modal_to_latest": "to the latest available",
   "fw_check_modal_ledger_fw_check": "Ledger firmware and app version check",
   "fw_check_modal_ledger_info": "Please follow steps below to validate your Ledger device firmware and Komodo app version.",
-  "fw_check_modal_skip": "Skip this step"
+  "fw_check_modal_skip": "Skip this step",
+  "dashboard_prices_currency": "Currency",
+  "dashboard_prices_price": "Price",
+  "dashboard_prices_change": "Change",
+  "dashboard_ops_recent": "Recent operations",
+  "dashboard_ops_no_history": "No history"
 }
