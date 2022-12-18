@@ -16,9 +16,7 @@ import Translate, {t} from './Translate';
 import './Sidebar.scss';
 
 const Sidebar = props => {
-  const logout = () => {
-    props.resetState('logout');
-  }
+  const logout = () => props.resetState('logout');
 
   const render = () => {
     const sidebarSize = getLocalStorageVar('settings').sidebarSize || 'short';

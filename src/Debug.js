@@ -5,7 +5,7 @@ import {
 
 export let isDev = false;
 
-if ((!process || (process && process.title !== 'node')) &&
+if ((!process || (process && process.title !== 'node') && typeof window !== 'undefined') &&
     window.location.href.indexOf('devmode') > -1) {
   isDev = true;
 }

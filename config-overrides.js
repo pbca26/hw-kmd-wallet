@@ -11,6 +11,7 @@ module.exports = function override(config) {
     'buffer': require.resolve('buffer'),
     'stream': require.resolve('stream-browserify'),
   })
+  config.resolve.alias['react-dom'] = '@hot-loader/react-dom';
   config.resolve.fallback = fallback;
   config.plugins = (config.plugins || []).concat([
     new webpack.ProvidePlugin({

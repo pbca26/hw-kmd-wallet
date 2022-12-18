@@ -6,8 +6,8 @@ import getRewardEndDate from './lib/get-reward-end-date';
 import asyncForEach from './lib/async';
 import {getAvailableExplorerUrl} from './send-coin-helpers';
 import accountDiscovery, {setConfigVar} from './lib/account-discovery';
-import {getLocalStorageVar, setLocalStorageVar} from './lib/localstorage-util';
 import coinEndpoits from './lib/coins';
+import blockchain from './lib/blockchain';
 
 const MAX_TIP_TIME_DIFF = 3600 * 24;
 
@@ -68,7 +68,7 @@ export const handleScanData = (coins, tiptime, stateCoins) => {
   };
 };
 
-export const removeCoin = (coin, coins) => {
+export const removeCoin = (coin, coins, localStorageRef) => {
   let lastOperations = [];
   delete coins[coin];
 
@@ -89,10 +89,10 @@ export const removeCoin = (coin, coins) => {
 
   lastOperations = sortTransactions(lastOperations, 'timestamp').slice(0, 3);
 
-  if ((getLocalStorageVar('settings').discoveryGapLimit === SETTINGS.DISCOVERY_GAP_LIMIT_AIRDROP) &&
+  if ((localStorageRef.getLocalStorageVar('settings').discoveryGapLimit === SETTINGS.DISCOVERY_GAP_LIMIT_AIRDROP) &&
       coinEndpoits[coin].airdrop) {
     setConfigVar('discoveryGapLimit', SETTINGS.DISCOVERY_GAP_LIMIT_DEFAULT);
-    setLocalStorageVar('settings', {discoveryGapLimit: SETTINGS.DISCOVERY_GAP_LIMIT_DEFAULT});
+    localStorageRef.setLocalStorageVar('settings', {discoveryGapLimit: SETTINGS.DISCOVERY_GAP_LIMIT_DEFAULT});
   }
 
   return {
@@ -155,7 +155,8 @@ export const checkRewardsOverdue = accounts => {
   return accounts;
 };
 
-export const scanCoins = async (coinTickers, blockchain, explorerEndpointOverride, vendor, stateCoins, historyLength) => {
+export const scanCoins = async (coinTickers, explorerEndpointOverride, vendor, stateCoins, historyLength) => {
+  const bc = blockchain.insight;
   let balances = [], tiptime;
 
   await asyncForEach(coinTickers, async (coin, index) => {
@@ -164,24 +165,22 @@ export const scanCoins = async (coinTickers, blockchain, explorerEndpointOverrid
     
     if (coin in explorerEndpointOverride) {
       writeLog(`${coin} set api endpoint to ${explorerEndpointOverride[coin]}`);
-      blockchain.setExplorerUrl(explorerEndpointOverride[coin]);
+      bc.setExplorerUrl(explorerEndpointOverride[coin]);
       isExplorerEndpointSet = true;
     } else {
       const explorerUrl = await getAvailableExplorerUrl(coin, blockchain);
 
       writeLog(`${coin} set api endpoint to ${explorerUrl}`);
-      blockchain.setExplorerUrl(explorerUrl);
+      bc.setExplorerUrl(explorerUrl);
       isExplorerEndpointSet = true;
     }
 
     if (isExplorerEndpointSet) {
       writeLog('app vendor', vendor);
-      let [accounts, tiptime] = await Promise.all([
-        accountDiscovery(vendor, coin, stateCoins[coin].accounts, historyLength),
-        blockchain.getTipTime()
-      ]);
+      let accounts = await accountDiscovery(vendor, coin, stateCoins[coin].accounts, historyLength);
 
       if (coin === 'KMD') {
+        tiptime = await bc.getTipTime();
         tiptime = checkTipTime(tiptime);
         accounts = calculateRewardData({accounts, tiptime});
         writeLog('check if any KMD rewards are overdue');

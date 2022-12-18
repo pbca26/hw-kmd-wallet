@@ -216,7 +216,9 @@ const ReceiveCoinButton = props => {
           }
           {isExtractingNewAddress &&
             <p>
-              <Translate name="common_exporting_public_key" template={VENDOR[vendor]} />
+              <Translate
+                name="common_exporting_public_key"
+                template={VENDOR[vendor]} />
             </p>
           }
         </ActionListModal>

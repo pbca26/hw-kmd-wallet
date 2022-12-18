@@ -45,8 +45,22 @@ import Translate, {t} from './Translate';
 let syncDataInterval, autoLogoutTimer;
 
 const App = props => {
+  const workerInstance = new Worker(new URL('./lib/sync-worker.js', import.meta.url));
   const initialState = getAppInitState();
   const [state, setState] = useState(initialState);
+
+  workerInstance.onmessage = message => {
+    if (message) {
+      writeLog('message from blockchain sync worker', message.data);
+      const {balances, tiptime} = message.data;
+      writeLog('coin data sync finished', balances);
+      
+      processDiscoveryData({
+        coins: balances,
+        tiptime,
+      });
+    }
+  };
 
   const triggerSidebarSizeChange = () => {
     setState(prevState => ({
@@ -101,11 +115,19 @@ const App = props => {
       setState(prevState => ({
         ...prevState,
         syncInProgress: true,
-      }));      
+      }));
 
-      const {balances, tiptime} = await scanCoins(
+      workerInstance.postMessage(JSON.stringify({
+        tickers: coinTickers,
+        explorer: state.explorerEndpointOverride,
+        vendor: state.vendor,
+        coins: state.coins,
+        historyLength: getLocalStorageVar('settings') && getLocalStorageVar('settings').historyLength
+      }));
+
+      /*const {balances, tiptime} = await scanCoins(
         coinTickers,
-        blockchain[blockchainAPI],
+        //blockchain[blockchainAPI],
         state.explorerEndpointOverride,
         state.vendor,
         state.coins,
@@ -117,7 +139,7 @@ const App = props => {
       processDiscoveryData({
         coins: balances,
         tiptime,
-      });
+      });*/
     }
   }
 
@@ -177,7 +199,10 @@ const App = props => {
   }
 
   const removeCoinHandler = coin => {
-    const {lastOperations, coins} = removeCoin(coin, state.coins);
+    const {lastOperations, coins} = removeCoin(coin, state.coins, {
+      setLocalStorageVar,
+      getLocalStorageVar,
+    });
 
     setState(prevState => ({
       ...prevState,

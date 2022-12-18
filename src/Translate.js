@@ -14,7 +14,7 @@ const Translate = props => {
       <React.Fragment>{_t}</React.Fragment>
     );
   } catch (e) {
-    console.warn(e);
+    console.debug(e);
     return <React.Fragment>!!translate name prop error!!</React.Fragment>;
   }
 }

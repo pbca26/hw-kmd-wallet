@@ -176,19 +176,17 @@ const CheckAllBalancesButton = props => {
 
           currentAction = 'approve';
           updateActionState({setState}, currentAction, 'loading');
-          let [accounts, tiptime] = await Promise.all([
-            accountDiscovery(
-              vendor,
-              coin,
-              null,
-              getLocalStorageVar('settings') && getLocalStorageVar('settings').historyLength
-            ),
-            blockchain[blockchainAPI].getTipTime()
-          ]);
+          let accounts = accountDiscovery(
+            vendor,
+            coin,
+            null,
+            getLocalStorageVar('settings') && getLocalStorageVar('settings').historyLength
+          );
 
           updateActionState({setState}, currentAction, true);
 
           if (coin === 'KMD') {
+            let tiptime = await blockchain[blockchainAPI].getTipTime();
             tiptime = checkTipTime(tiptime);
             accounts = calculateRewardData({accounts, tiptime});
             writeLog('check if any KMD rewards are overdue');

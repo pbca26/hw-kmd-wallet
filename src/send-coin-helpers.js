@@ -6,6 +6,7 @@ import {writeLog} from './Debug';
 import coins from './lib/coins';
 import {TX_FEE} from './constants';
 import Translate, {t} from './Translate';
+import blockchain from './lib/blockchain';
 
 export const formatUtxos = (utxos, coin, tiptime) => {
   let formattedUtxos = [];
@@ -71,10 +72,13 @@ export const validate = data => {
   return error;
 };
 
-export const getAvailableExplorerUrl = async (coin, blockchain) => {
-  const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
-    blockchain.setExplorerUrl(value);
-    return blockchain.getInfo(value);
+export const getAvailableExplorerUrl = async (coin, _blockchain) => {
+  if (!_blockchain) _blockchain = blockchain.insight;
+  else _blockchain = _blockchain.insight;
+
+  const getInfoRes = await Promise.all(coins[coin].api.map((value) => {
+    _blockchain.setExplorerUrl(value);
+    return _blockchain.getInfo(value);
   }));
   let longestBlockHeight = 0;
   let apiEndPointIndex = null;

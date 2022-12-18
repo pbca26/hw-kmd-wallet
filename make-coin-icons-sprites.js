@@ -12,11 +12,11 @@ const maxSize = { // max size of icon item
   },
 };
 
-let iconsList = [];
+const iconsList = [];
 // get all icons in a list
 const directoryPath = path.join(__dirname, '/public/coins');
 const files = fs.readdirSync(directoryPath);
-files.forEach((file) => {
+files.forEach(file => {
   if (file.indexOf('.png') > -1) {
     iconsList.push(file.substr(0, file.indexOf('.png')));
   }
@@ -27,7 +27,7 @@ console.log(iconsList);
 
 // generate spritesheet
 Spritesmith.run({
-  src: iconsList.map((x) => `${__dirname}/public/coins/${x}.png`),
+  src: iconsList.map(x => `${__dirname}/public/coins/${x}.png`),
   algorithm: 'binary-tree'
 }, (err, result) => {
   if (err) {
@@ -39,9 +39,9 @@ Spritesmith.run({
   //console.log(result.coordinates)
   //console.log(result.properties)
 
-  let coinsCss = [];
-  let coinsCssResize = [];
-  let resultKeys = Object.keys(result.coordinates);
+  const coinsCss = [];
+  const coinsCssResize = [];
+  const resultKeys = Object.keys(result.coordinates);
 
   for (let i = 0; i < iconsList.length; i++) {
     coinsCss.push(`

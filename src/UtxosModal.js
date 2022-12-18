@@ -6,7 +6,7 @@ import humanRewardEndDate from './lib/human-reward-end-date';
 import blockchain, {blockchainAPI} from './lib/blockchain';
 import Boolean from './Boolean';
 import './UtxosModal.scss';
-import Translate, {t} from './Translate';
+import {t} from './Translate';
 
 // TODO: display warning sign if one or several utxos are not accruing rewards
 
