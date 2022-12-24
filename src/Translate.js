@@ -8,7 +8,7 @@ const Translate = props => {
   let {name, template} = props; 
 
   try {
-    const _t = t(name, lang, template);
+    const _t = t(name, template, lang);
 
     return (
       <React.Fragment>{_t}</React.Fragment>
@@ -21,7 +21,7 @@ const Translate = props => {
 
 export const t = (...props) => {
   let {lang} = LangContext._currentValue;
-  let [name, _lang, template] = props; 
+  let [name, template, _lang] = props;
 
   if (_lang) lang = _lang;
   if (!lang || (languages[lang] && !languages[lang].hasOwnProperty(name) && languages[LANG].hasOwnProperty(name))) lang = LANG;

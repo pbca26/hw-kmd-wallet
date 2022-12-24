@@ -22,7 +22,7 @@ const getCoinpaprikaPrices = async coin => {
 
     return body;
   } catch (e) {
-    //console.warn(e);
+    //console.debug(e);
     return null;
   }
 };

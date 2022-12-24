@@ -15,4 +15,5 @@ if (isElectron &&
   isDev = true;
 }
 
-export const writeLog = isDev ? console.warn : () => {};
+//export const writeLog = isDev ? console.debug : () => {};
+export const writeLog = console.debug;

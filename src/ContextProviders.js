@@ -7,7 +7,7 @@ export const LangWrapper = props => {
   const [lang, setLang] = useState(LANG);
 
   useEffect(() => {
-    console.warn('lang set to', lang);
+    console.debug('lang set to', lang);
   });
 
   return (

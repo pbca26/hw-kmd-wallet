@@ -156,10 +156,10 @@ export const checkRewardsOverdue = accounts => {
 };
 
 export const scanCoins = async (coinTickers, explorerEndpointOverride, vendor, stateCoins, historyLength) => {
-  const bc = blockchain.insight;
   let balances = [], tiptime;
-
-  await asyncForEach(coinTickers, async (coin, index) => {
+  
+  const scanCoin = async coin => {
+    const bc = new blockchain.insightClass;
     let isExplorerEndpointSet = false;
     writeLog(coin);
     
@@ -177,7 +177,7 @@ export const scanCoins = async (coinTickers, explorerEndpointOverride, vendor, s
 
     if (isExplorerEndpointSet) {
       writeLog('app vendor', vendor);
-      let accounts = await accountDiscovery(vendor, coin, stateCoins[coin].accounts, historyLength);
+      let accounts = await accountDiscovery(vendor, coin, stateCoins[coin].accounts, historyLength, bc);
 
       if (coin === 'KMD') {
         tiptime = await bc.getTipTime();
@@ -203,12 +203,21 @@ export const scanCoins = async (coinTickers, explorerEndpointOverride, vendor, s
         accounts,
       });
     }
-  });
-
-  return {
-    balances,
-    tiptime,
   };
+  
+  if (coinTickers.length > 1) {
+    await Promise.all(coinTickers.map(x => scanCoin(x)));
+    return {
+      balances,
+      tiptime,
+    };
+  } else {
+    await scanCoin(coinTickers[0]);
+    return {
+      balances,
+      tiptime,
+    };
+  }
 };
 
 export const getAppInitState = () => {

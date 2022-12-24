@@ -38,21 +38,21 @@ import Sidebar from './Sidebar';
 import LoginModal from './LoginModal';
 import {DesktopDownloadButton, HeaderNonAuth, HeaderAuth, VendorSelector, VendorImage} from './AppFragments';
 import {getPrices} from './lib/prices';
-import {checkTipTime, handleScanData, emptyAccountState, removeCoin, scanCoins, getAppInitState, filterEnabledCoins} from './app-helpers';
+import {checkTipTime, handleScanData, emptyAccountState, removeCoin, getAppInitState, filterEnabledCoins} from './app-helpers';
 import Translate, {t} from './Translate';
 
 // TODO: receive modal, tos modal, move api end point conn test to blockchain module
 let syncDataInterval, autoLogoutTimer;
 
-const App = props => {
+const App = () => {
   const workerInstance = new Worker(new URL('./lib/sync-worker.js', import.meta.url));
   const initialState = getAppInitState();
   const [state, setState] = useState(initialState);
 
   workerInstance.onmessage = message => {
     if (message) {
-      writeLog('message from blockchain sync worker', message.data);
       const {balances, tiptime} = message.data;
+      writeLog('message from blockchain sync worker', message.data);
       writeLog('coin data sync finished', balances);
       
       processDiscoveryData({
@@ -124,22 +124,6 @@ const App = props => {
         coins: state.coins,
         historyLength: getLocalStorageVar('settings') && getLocalStorageVar('settings').historyLength
       }));
-
-      /*const {balances, tiptime} = await scanCoins(
-        coinTickers,
-        //blockchain[blockchainAPI],
-        state.explorerEndpointOverride,
-        state.vendor,
-        state.coins,
-        getLocalStorageVar('settings') && getLocalStorageVar('settings').historyLength
-      );
-
-      writeLog('coin data sync finished', balances);
-      
-      processDiscoveryData({
-        coins: balances,
-        tiptime,
-      });*/
     }
   }
 

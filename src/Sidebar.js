@@ -12,11 +12,13 @@ import {getLocalStorageVar} from './lib/localstorage-util';
 import appInfo from '../package.json';
 import {CACHE_MAX_LIFETIME} from './constants';
 import {checkTimestamp} from './lib/time';
-import Translate, {t} from './Translate';
+import Translate from './Translate';
 import './Sidebar.scss';
 
 const Sidebar = props => {
-  const logout = () => props.resetState('logout');
+  const logout = () => {
+    props.resetState('logout');
+  }
 
   const render = () => {
     const sidebarSize = getLocalStorageVar('settings').sidebarSize || 'short';

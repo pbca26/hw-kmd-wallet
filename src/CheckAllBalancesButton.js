@@ -5,7 +5,6 @@ import blockchain, {blockchainAPI} from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
 import {VENDOR, SETTINGS} from './constants';
 import ActionListModal from './ActionListModal';
-import asyncForEach from './lib/async';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import {
   isElectron,

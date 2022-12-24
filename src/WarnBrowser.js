@@ -7,7 +7,7 @@ import {
 import Modal from './Modal';
 import Translate, {t} from './Translate';
 
-const WarnBrowser = () => {
+const WarnBrowser = props => {
   const initialState = {
     isChrome: false,
     isOpera: false,

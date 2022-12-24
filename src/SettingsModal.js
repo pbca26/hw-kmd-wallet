@@ -213,7 +213,10 @@ const SettingsModal = props => {
                       name="lang"
                       className="explorer-selector"
                       items={dropdownItems.languages}
-                      cb={(e) => setLang(e.target.value)} />
+                      cb={(e) => {
+                        setLang(e.target.value);
+                        props.triggerSidebarSizeChange();
+                      }} />
                   </React.Fragment>
                 )}
               </LangContext.Consumer>

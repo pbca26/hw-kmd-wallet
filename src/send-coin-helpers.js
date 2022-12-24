@@ -74,9 +74,10 @@ export const validate = data => {
 
 export const getAvailableExplorerUrl = async (coin, _blockchain) => {
   if (!_blockchain) _blockchain = blockchain.insight;
-  else _blockchain = _blockchain.insight;
+  else if (_blockchain.insight) _blockchain = _blockchain.insight;
 
-  const getInfoRes = await Promise.all(coins[coin].api.map((value) => {
+  const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
+    console.debug('getAvailableExplorerUrl', _blockchain);
     _blockchain.setExplorerUrl(value);
     return _blockchain.getInfo(value);
   }));
