@@ -12,6 +12,8 @@ import {writeLog} from './Debug';
 import Dropdown from './Dropdown';
 import Toggle from './Toggle';
 import dropdownItems from './SettingsModalHelpers';
+import {LangContext} from './ContextProviders';
+import Translate, {t} from './Translate';
 
 // TODO: individual settings for each coin
 
@@ -191,19 +193,37 @@ const SettingsModal = props => {
           onClick={triggerModal}>
           <i className="fa fa-cogs"></i>
           {props.sidebarSize === 'full' &&
-            <span className="sidebar-item-title">Settings</span>
+            <span className="sidebar-item-title"><Translate name="settings_settings" /></span>
           }
         </div>
         <Modal
-          title="Settings"
+          title={t('settings_settings')}
           show={state.isClosed === false}
           handleClose={triggerModal}
           isCloseable={true}
           className="settings-modal">
           <ul>
+            <li>
+              <LangContext.Consumer>
+                {({value, setLang}) => (
+                  <React.Fragment>
+                    <Translate name="settings_lang" />
+                    <Dropdown
+                      value={value}
+                      name="lang"
+                      className="explorer-selector"
+                      items={dropdownItems.languages}
+                      cb={(e) => {
+                        setLang(e.target.value);
+                        props.triggerSidebarSizeChange();
+                      }} />
+                  </React.Fragment>
+                )}
+              </LangContext.Consumer>
+            </li>
             {isAuth &&
               <li>
-                Sidebar
+                <Translate name="settings_sidebar" />
                 <Dropdown
                   value={state.sidebarSize}
                   name="sidebarSize"
@@ -214,7 +234,7 @@ const SettingsModal = props => {
             }
             {isAuth &&
               <li>
-                Auto-lock
+                <Translate name="settings_autolock" />
                 <Dropdown
                   value={state.autolock}
                   name="autolock"
@@ -226,14 +246,14 @@ const SettingsModal = props => {
             {!isElectron &&
               <li>
                 <Toggle
-                  label="Always check firmware version"
+                  label={t('settings_check_fw')}
                   name="fwCheck"
                   value={state.fwCheck}
                   cb={setFwCheck} />
               </li>
             }
             <li>
-              Vendor
+              <Translate name="settings_vendor" />
               <Dropdown
                 value={state.vendor}
                 name="vendor"
@@ -243,13 +263,13 @@ const SettingsModal = props => {
             </li>
             <li>
               <Toggle
-                label="Enable debug controls (display xpub, raw tx hex)"
+                label={t('settings_enable_debug')}
                 name="enableDebugTools"
                 value={state.enableDebugTools}
                 cb={setEnableDebugTools} />
             </li>
             <li>
-              Address discovery gap limit
+              <Translate name="settings_address_discovery_gap" />
               <Dropdown
                 value={state.discoveryGapLimit}
                 name="discoveryGapLimit"
@@ -259,7 +279,7 @@ const SettingsModal = props => {
                 cbArgs="discoveryGapLimit" />
             </li>
             <li>
-              Address discovery concurrency limit
+              <Translate name="settings_address_concurrency" />
               <Dropdown
                 value={state.discoveryAddressConcurrency}
                 name="discoveryAddressConcurrency"
@@ -269,7 +289,7 @@ const SettingsModal = props => {
                 cbArgs="discoveryAddressConcurrency" />
             </li>
             <li>
-              Account index
+              <Translate name="settings_account_index" />
               <Dropdown
                 value={state.accountIndex}
                 name="accountIndex"
@@ -279,7 +299,7 @@ const SettingsModal = props => {
                 cbArgs="accountIndex" />
             </li>
             <li>
-              Account history max length
+              <Translate name="settings_account_history" />
               <Dropdown
                 value={state.historyLength}
                 name="historyLength"
@@ -290,7 +310,7 @@ const SettingsModal = props => {
             </li>
             {apiEndpoints[coin].api.length > 1 &&
               <li>
-                Explorer API end point
+                <Translate name="settings_explorer_api" />
                 <Dropdown
                   value={state.explorerEndpoint}
                   name="explorerEndpoint"
@@ -302,14 +322,14 @@ const SettingsModal = props => {
             <li>
               <Toggle
                 style={{'paddingRight': '20px'}}
-                label="Reset app data"
+                label={t('settings_reset_data')}
                 name="resetAppData"
                 value={state.resetAppData}
                 cb={setResetAppData} />
                 {state.resetAppData &&
                   <p>
                     <small>
-                      <strong>Warning:</strong> "Reset app data" will delete all cached data so you will have to go through setup process again!
+                      <strong><Translate name="settings_warning" />:</strong> <Translate name="settings_reset_data_warning" />
                     </small>
                   </p>
                 }
@@ -317,7 +337,7 @@ const SettingsModal = props => {
             <li>
               <Toggle
                 style={{'paddingRight': '20px'}}
-                label="Import app data"
+                label={t('settings_import_data')}
                 name="enableImportAppData"
                 value={state.enableImportAppData}
                 cb={setImportAppData} />
@@ -328,18 +348,18 @@ const SettingsModal = props => {
                     rows="5"
                     cols="33"
                     name="importAppDataStr"
-                    placeholder="Paste import data here"
+                    placeholder={t('settings_paste_import_data')}
                     value={state.importAppDataStr}
                     onChange={updateInput}></textarea>
                   <p>
                     <small>
-                      <strong>Warning:</strong> pressing on "Import app data" button will override all cached data!
+                      <strong><Translate name="settings_warning" />:</strong> <Translate name="settings_pressing_on_import" />
                     </small>
                   </p>
                   {state.importAppDataError &&
                     <p>
                       <small>
-                        <strong>Error:</strong> app data import format is wrong!
+                        <strong><Translate name="settings_error" />:</strong> <Translate name="settings_import_data_error" />
                       </small>
                     </p>
                   }
@@ -347,7 +367,7 @@ const SettingsModal = props => {
                     className="button"
                     onClick={importAppData}
                     disabled={!state.importAppDataStr}>
-                    Import app data
+                    <Translate name="settings_import_data" />
                   </button>
                 </React.Fragment>
               }
@@ -358,7 +378,7 @@ const SettingsModal = props => {
                   href="!#"
                   id="saveModalImage"
                   onClick={exportAppData}>
-                  <button className="button">Export app data</button>
+                  <button className="button"><Translate name="settings_export_data" /></button>
                 </a>
               </li>
             }
@@ -367,7 +387,7 @@ const SettingsModal = props => {
             <button
               onClick={triggerModal}
               className="button is-primary">
-              OK
+              <Translate name="settings_ok" />
             </button>
           </div>
         </Modal>

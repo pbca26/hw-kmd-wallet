@@ -22,7 +22,7 @@ let coinsToRemove = [];
   };
 
   const checkApiEndpoints = async coin => {
-    const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
+    const getInfoRes = await Promise.all(coins[coin].api.map((value) => {
       return getInfo(value);
     }));
     let longestBlockHeight = 0;

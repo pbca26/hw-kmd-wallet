@@ -18,6 +18,7 @@ import {writeLog} from './Debug';
 import copyToClipboard from './lib/copy-to-clipboard';
 import QRGenModal from './QRGenModal';
 import Dropdown from './Dropdown';
+import Translate, {t} from './Translate';
 
 const ReceiveCoinButton = props => {
   const initialState = {
@@ -29,12 +30,12 @@ const ReceiveCoinButton = props => {
     actions: {
       connect: {
         icon: 'fab fa-usb',
-        description: props.vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
+        description: props.vendor === 'ledger' ? <div><Translate name="common_connect_and_unlock_ledger" /></div> : <div><Translate name="common_connect_and_unlock_trezor" /></div>,
         state: null
       },
       confirmAddress: {
         icon: 'fas fa-microchip',
-        description: <div>Approve a public key export request on your device.</div>,
+        description: <div><Translate name="common_connect_and_unlock_ledger" /></div>,
         state: null
       }
     }
@@ -73,12 +74,12 @@ const ReceiveCoinButton = props => {
       actions: {
         connect: {
           icon: 'fab fa-usb',
-          description: vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
+          description: props.vendor === 'ledger' ? <div><Translate name="common_connect_and_unlock_ledger" /></div> : <div><Translate name="common_connect_and_unlock_trezor" /></div>,
           state: null
         },
         confirmAddress: {
           icon: 'fas fa-microchip',
-          description: <div>Approve a public key export request on your device.</div>,
+          description: <div><Translate name="common_connect_and_unlock_ledger" /></div>,
           state: null
         }
       },
@@ -91,7 +92,7 @@ const ReceiveCoinButton = props => {
       updateActionState({setState}, currentAction, 'loading');
       const hwIsAvailable = await hw[vendor].isAvailable();
       if (!hwIsAvailable) {
-        throw new Error(`${VENDOR[vendor]} device is unavailable!`);
+        throw new Error(t('common_error_device', VENDOR[vendor]));
       }
       updateActionState({setState}, currentAction, true);
 
@@ -105,7 +106,7 @@ const ReceiveCoinButton = props => {
       const verify = true;
       const hwUnusedAddress = await hw[vendor].getAddress(derivationPath, verify);
       if (hwUnusedAddress !== unusedAddress) {
-        throw new Error(`${VENDOR[vendor]} derived address "${hwUnusedAddress}" doesn't match browser derived address "${unusedAddress}"`);
+        throw new Error(`${t('common_error_address', VENDOR[vendor])} ${t('common_error_address_match', hwUnusedAddress)} "${unusedAddress}"`);
       }
       updateActionState({setState}, currentAction, true);
 
@@ -114,7 +115,7 @@ const ReceiveCoinButton = props => {
         success: 
           <React.Fragment>
             <span className="receive-coin-modal-success">
-              This your new <strong>{coin} {accountIndex + 1}</strong> deposit address
+              <Translate name="receive_this_is" /> <strong>{coin} {accountIndex + 1}</strong> <Translate name="receive_deposit_address" />
               <span className="new-address">
                 <strong>{unusedAddress}</strong>
                 <QRGenModal
@@ -123,7 +124,7 @@ const ReceiveCoinButton = props => {
                 <button
                   className="button is-light copy-btn"
                   onClick={() => triggerCopyToClipboard(unusedAddress)}>
-                  <i className="fa fa-copy"></i> <span className="copy-btn-text">Copy</span>
+                  <i className="fa fa-copy"></i> <span className="copy-btn-text"><Translate name="common_copy" /></span>
                 </button>
               </span>
             {FAUCET_URL[coin] &&
@@ -133,12 +134,12 @@ const ReceiveCoinButton = props => {
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
-                      href={`${FAUCET_URL[coin]}${unusedAddress}`}>Get funds from a faucet</a>
+                      href={`${FAUCET_URL[coin]}${unusedAddress}`}><Translate name="receive_faucet" /></a>
                   }
                   {isElectron &&
                     <a
                       href="!#"
-                      onClick={() => shell.openExternal(`${FAUCET_URL[coin]}${unusedAddress}`)}>Get funds from a faucet</a>
+                      onClick={() => shell.openExternal(`${FAUCET_URL[coin]}${unusedAddress}`)}><Translate name="receive_faucet" /></a>
                   }
                 </strong>
               </span>
@@ -179,7 +180,7 @@ const ReceiveCoinButton = props => {
         <li onClick={open}>
           <i className="fa fa-paper-plane plane-icon-invert"></i>
           {sidebarSize === 'full' &&
-            <span className="sidebar-item-title">Receive</span>
+            <span className="sidebar-item-title"><Translate name="receive_receive" /></span>
           }
         </li>
         <ActionListModal
@@ -195,10 +196,10 @@ const ReceiveCoinButton = props => {
           {!isExtractingNewAddress && !success &&
             <React.Fragment>
               <p>
-                Select an account to get a new address for.
+                <Translate name="receive_faucet" />
               </p>
               <div className={`receive-account-selector-block${error ? ' receive-coin-modal-padding-bottom' : ''}`}>
-                Account
+                <Translate name="receive_account" />
                 <Dropdown
                   value={state.accountIndex}
                   name="accountIndex"
@@ -208,14 +209,14 @@ const ReceiveCoinButton = props => {
                 <button
                   className="button is-primary"
                   onClick={getNewAddress}>
-                  {error ? 'Try again' : 'Confirm'}
+                  {error ? t('receive_try_again') : t('receive_confirm')}
                 </button>
               </div>
             </React.Fragment>
           }
           {isExtractingNewAddress &&
             <p>
-              Exporting a public key from your {VENDOR[vendor]} device. Please approve public key export request on your device.
+              <Translate name="common_exporting_public_key" template={VENDOR[vendor]} />
             </p>
           }
         </ActionListModal>

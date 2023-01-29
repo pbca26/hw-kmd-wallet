@@ -83,3 +83,4 @@ export const KMD_REWARDS_CLAIM_ACCOUNT_OVERRIDE_LIMIT = 10;
 export const PRICE_DEFAULT_COINS = ['KMD', 'VRSC', 'TOKEL'];
 export const COIN_DERIVATION_PATH = `44'/141'`;
 export const CACHE_MAX_LIFETIME = 10 * 60;
+export const LANG = 'en';

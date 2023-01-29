@@ -1,12 +1,13 @@
 import React from 'react';
 import formatValue from './lib/format-value';
 import './DashboardOperations.scss';
+import Translate from './Translate';
 
 const DashboardOperations = props => {
   const render = () => {
     return (
       <div className="recent-operations-block">
-        <h4>Recent operations</h4>
+        <h4><Translate name="dashboard_ops_recent" /></h4>
         <div className="recent-operations">
           {props.lastOperations.map((item, index) => (
             <div
@@ -31,7 +32,7 @@ const DashboardOperations = props => {
             </div>
           ))}
           {props.lastOperations.length < 1 &&
-            <span>No history</span>
+            <span><Translate name="dashboard_ops_no_history" /></span>
           }
         </div>
       </div>

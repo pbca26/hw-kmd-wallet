@@ -2,6 +2,7 @@ import React from 'react';
 import SelectCoinModal from './SelectCoinModal';
 import {writeLog} from './Debug';
 import './CoinsSelector.scss';
+import Translate, {t} from './Translate';
 
 const CoinsSelector = props => {
   const checkKMDRewards = () => {
@@ -20,7 +21,7 @@ const CoinsSelector = props => {
 
     return (
       <div className="coins-holdings-block">
-        <h3>Holdings</h3>
+        <h3><Translate name="coins_selector_holdings" /></h3>
         <div className="inline-coin-icons">
           {Object.keys(props.coins).map((coinTicker, index) => (
             <div
@@ -38,7 +39,7 @@ const CoinsSelector = props => {
                checkKMDRewards() > 0 &&
                <div
                 className="kmd-rewards-main-overdue-badge"
-                title={`${checkKMDRewards() > 0 && checkKMDRewards() < 2 ? 'Rewards claim overdue!' : checkKMDRewards() + ' accounts have rewards claim overdue!'}`}>
+                title={`${checkKMDRewards() > 0 && checkKMDRewards() < 2 ? t('coins_selector_rewards_overdue') : checkKMDRewards() + t('coins_selector_account_overdue')}`}>
                 <i>{checkKMDRewards()}</i>
                </div>
               }

@@ -6,6 +6,7 @@ import {
   shell,
 } from './Electron';
 import './TransactionDetailsModal.scss';
+import Translate, {t} from './Translate';
 
 const TransactionDetailsModal = props => {
   const initialState = {
@@ -36,10 +37,10 @@ const TransactionDetailsModal = props => {
           className="button is-primary hidden"
           id="transactionDetailsModal"
           onClick={() => open()}>
-          Operation details
+          <Translate name="tx_view_modal_op_details" />
         </button>
         <Modal
-          title="Operation Details"
+          title={t('tx_view_modal_op_details')}
           show={state.isClosed === false}
           handleClose={() => close()}
           isCloseable={true}
@@ -49,7 +50,7 @@ const TransactionDetailsModal = props => {
               <div className="cap--first text-center">
                 <div className="direction">
                   <i className={`fa fa-long-arrow-alt-${tx.type === 'sent' ? 'up' : 'down'}`}></i>
-                  {Number(tx.height) === -1 || Number(tx.height) === 0 || Number(tx.confirmations) === 0 ? 'pending' : tx.type}
+                  {Number(tx.height) === -1 || Number(tx.height) === 0 || Number(tx.confirmations) === 0 ? t('tx_view_modal_pending') : tx.type}
                 </div>
                 <div className={`amount ${tx.type === 'received' || tx.type === 'rewards' ? 'amount-increase' : 'amount-decrease'}`}>
                   {tx.type === 'received' || tx.type === 'rewards' ? '+' + tx.amount : '-' + tx.amount} {coin}
@@ -59,19 +60,19 @@ const TransactionDetailsModal = props => {
                 <tbody>
                   <tr>
                     <td>
-                      <strong>Account</strong>
+                      <strong><Translate name="tx_view_modal_account" /></strong>
                     </td>
                     <td>{coin} {(tx.accountIndex || props.activeAccount) + 1}</td>
                   </tr>
                   <tr>
                     <td>
-                      <strong>Date</strong>
+                      <strong><Translate name="tx_view_modal_date" /></strong>
                     </td>
                     <td>{Number(tx.height) === -1 || Number(tx.height) === 0 ? '' : tx.date}</td>
                   </tr>
                   <tr>
                     <td>
-                      <strong>Confirmations</strong>
+                      <strong><Translate name="tx_view_modal_confs" /></strong>
                     </td>
                     <td>{tx.confirmations}</td>
                   </tr>
@@ -79,7 +80,7 @@ const TransactionDetailsModal = props => {
                     <td
                       colSpan="2"
                       className="text-left no-border">
-                      <strong>Transaction ID</strong>
+                      <strong><Translate name="tx_view_modal_tx_id" /></strong>
                     </td>
                   </tr>
                   <tr>
@@ -97,7 +98,7 @@ const TransactionDetailsModal = props => {
                     href="!#"
                     onClick={() => shell.openExternal(`${coins[coin].explorer}tx/${tx.txid}`)}>
                     <button className="button is-primary">
-                      Open in explorer <i className="fa fa-external-link-alt"></i>
+                      <Translate name="tx_view_modal_open_explorer" /> <i className="fa fa-external-link-alt"></i>
                     </button>
                   </a>
                 }
@@ -107,7 +108,7 @@ const TransactionDetailsModal = props => {
                     href={`${coins[coin].explorer}tx/${tx.txid}`}
                     rel="noopener noreferrer">
                     <button className="button is-primary">
-                      Open in explorer <i className="fa fa-external-link-alt"></i>
+                      <Translate name="tx_view_modal_open_explorer" /> <i className="fa fa-external-link-alt"></i>
                     </button>
                   </a>
                 }

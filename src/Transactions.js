@@ -3,16 +3,17 @@ import {sortTransactions} from './lib/sort';
 import TransactionViewModal from './TransactionViewModal';
 import {writeLog} from './Debug';
 import useScrollPosition from './scrollPosHook';
+import Translate, {t} from './Translate';
 
 const headings = {
   many: [
-    'Direction',
-    'Account',
-    'Amount',
+    t('transactions_direction'),
+    t('transactions_account'),
+    t('transactions_amount'),
   ],
   one: [
-    'Direction',
-    'Amount',
+    t('transactions_direction'),
+    t('transactions_amount'),
   ],
 };
 
@@ -79,7 +80,7 @@ const Transactions = props => {
       <React.Fragment>
         {getTransactionsHistory(accounts, activeAccount).length > 0 &&
           <div className="transactions-block">
-            <h4>Operations</h4>
+            <h4><Translate name="transactions_ops" /></h4>
             <div className="accounts">
               <table className="table is-striped">
                 <thead>
@@ -96,10 +97,10 @@ const Transactions = props => {
                       <td className="cap--first">
                         <span className="direction">
                           <i className={`fa fa-long-arrow-alt-${tx.type === 'sent' ? 'up' : 'down'}`}></i>
-                          {Number(tx.height) === -1 || Number(tx.height) === 0 || Number(tx.confirmations) === 0 ? 'pending' : tx.type}
+                          {Number(tx.height) === -1 || Number(tx.height) === 0 || Number(tx.confirmations) === 0 ? t('transactions_pending') : tx.type}
                         </span>
                         <span className="date">
-                          {Number(tx.height) === -1 || Number(tx.height) === 0 ? '' : tx.date === 'pending' ? 'Awaiting confirmations' : tx.date}
+                          {Number(tx.height) === -1 || Number(tx.height) === 0 ? '' : tx.date === 'pending' ? t('transactions_awaiting_confs') : tx.date}
                         </span>
                       </td>
                       {activeAccount === null &&

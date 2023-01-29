@@ -19,6 +19,8 @@ let config = {
   discoveryAddressConcurrency: SETTINGS.DISCOVERY_ADDRESS_CONCURRENCY_DEFAULT,
   accountIndex: 0,
 };
+// TODO: rewrite as class
+let bc = {};
 
 export const setConfigVar = (name, val) => {
   config[name] = val;
@@ -26,8 +28,8 @@ export const setConfigVar = (name, val) => {
   writeLog('setConfigVar', config);
 };
 
-const searchCache = async(txid, cacheData) => {
-  if (!cacheData) return blockchain[blockchainAPI].getRawTransaction(txid);
+const searchCache = async(txid, cacheData, coin) => {
+  if (!cacheData) return bc[coin] ? bc[coin].getRawTransaction(txid) : blockchain[blockchainAPI].getRawTransaction(txid);
 
   for (let i = 0; i < cacheData.utxos.length; i++) {
     if (cacheData.utxos[i].txid === txid) {
@@ -36,23 +38,23 @@ const searchCache = async(txid, cacheData) => {
     }
   }
 
-  return blockchain[blockchainAPI].getRawTransaction(txid);
+  return bc[coin] ? bc[coin].getRawTransaction(txid) : blockchain[blockchainAPI].getRawTransaction(txid);
 };
 
-const walkDerivationPath = async node => {
+const walkDerivationPath = async (node, coin) => {
   const addresses = [];
   let addressConcurrency = config.discoveryAddressConcurrency;
   let gapLimit = config.discoveryGapLimit;
   let consecutiveUnusedAddresses = 0;
   let addressIndex = 0;
 
-  if (window.location.href.indexOf('extgap=s') > -1) gapLimit = 30;
-  if (window.location.href.indexOf('extgap=m') > -1) gapLimit = 40;
-  if (window.location.href.indexOf('extgap=l') > -1) gapLimit = 50;
-  if (window.location.href.indexOf('extgap=xl') > -1) gapLimit = 100;
+  if (typeof window !== 'undefined' && window.location.href.indexOf('extgap=s') > -1) gapLimit = 30;
+  if (typeof window !== 'undefined' && window.location.href.indexOf('extgap=m') > -1) gapLimit = 40;
+  if (typeof window !== 'undefined' && window.location.href.indexOf('extgap=l') > -1) gapLimit = 50;
+  if (typeof window !== 'undefined' && window.location.href.indexOf('extgap=xl') > -1) gapLimit = 100;
 
-  if (window.location.href.indexOf('timeout=s') > -1) addressConcurrency = 2;
-  if (window.location.href.indexOf('timeout=m') > -1) addressConcurrency = 5;
+  if (typeof window !== 'undefined' && window.location.href.indexOf('timeout=s') > -1) addressConcurrency = 2;
+  if (typeof window !== 'undefined' && window.location.href.indexOf('timeout=m') > -1) addressConcurrency = 5;
 
   if (gapLimit > 20) addressConcurrency = 5;
   if (gapLimit > 50) addressConcurrency = 3;
@@ -72,7 +74,7 @@ const walkDerivationPath = async node => {
     for (let i = 0; i < addressConcurrency; i++) {
       const address = getAddress(node.derive(addressIndex).publicKey);
 
-      addressApiRequests.push(blockchain[blockchainAPI].getAddress(address));
+      addressApiRequests.push(bc[coin] ? bc[coin].getAddress(address) : blockchain[blockchainAPI].getAddress(address));
       addresses.push({address, addressIndex});
 
       addressIndex++;
@@ -92,7 +94,7 @@ const walkDerivationPath = async node => {
   return addresses.slice(0, addresses.length - consecutiveUnusedAddresses);
 };
 
-const getAccountAddresses = async (account, vendor, _xpub) => {
+const getAccountAddresses = async (account, vendor, _xpub, coin) => {
   const derivationPath = `${COIN_DERIVATION_PATH}/${account}'`;
   const xpub = _xpub || pubKeysCache[derivationPath] || await hw[vendor].getXpub(derivationPath);
   const node = bip32.fromBase58(xpub);
@@ -104,8 +106,8 @@ const getAccountAddresses = async (account, vendor, _xpub) => {
   }
 
   const [externalAddresses, internalAddresses] = await Promise.all([
-    walkDerivationPath(externalNode),
-    walkDerivationPath(internalNode)
+    walkDerivationPath(externalNode, coin),
+    walkDerivationPath(internalNode, coin)
   ]);
 
   const addAddressMeta = ({isChange}) => {
@@ -130,8 +132,8 @@ const getAccountAddresses = async (account, vendor, _xpub) => {
   };
 };
 
-const getAddressUtxos = async (addresses, accountDataCache) => {
-  const utxos = await blockchain[blockchainAPI].getUtxos(addresses.map(a => a.address));
+const getAddressUtxos = async (addresses, accountDataCache, coin) => {
+  const utxos = bc[coin] ? await bc[coin].getUtxos(addresses.map(a => a.address)) : await blockchain[blockchainAPI].getUtxos(addresses.map(a => a.address));
 
   return await Promise.all(utxos.map(async (utxo, index) => {
     const addressInfo = addresses.find(a => a.address === utxo.address);
@@ -146,8 +148,8 @@ const getAddressUtxos = async (addresses, accountDataCache) => {
         nExpiryHeight,
       }
     ] = await Promise.all([
-      searchCache(utxo.txid, accountDataCache),
-      blockchain[blockchainAPI].getTransaction(utxo.txid),
+      searchCache(utxo.txid, accountDataCache, coin),
+      bc[coin] ? bc[coin].getTransaction(utxo.txid) : blockchain[blockchainAPI].getTransaction(utxo.txid),
     ]);
 
     // fix for insight explorer value rounding issue
@@ -174,7 +176,8 @@ const getAddressUtxos = async (addresses, accountDataCache) => {
 };
 
 const getAddressHistory = async (addresses, coin, historyLength) => {
-  const history = await blockchain[blockchainAPI].getHistory(addresses.map(a => a.address), historyLength);
+  const history = bc[coin] ? await bc[coin].getHistory(addresses.map(a => a.address), historyLength) : await blockchain[blockchainAPI].getHistory(addresses.map(a => a.address), historyLength);
+
   return {
     addresses: addresses,
     allTxs: history.items,
@@ -182,13 +185,17 @@ const getAddressHistory = async (addresses, coin, historyLength) => {
   };
 };
 
-const accountDiscovery = async (vendor, coin, _accounts, historyLength) => {
+const accountDiscovery = async (vendor, coin, _accounts, historyLength, _blockchain) => {
+  if (_blockchain) {
+    bc[coin] = _blockchain;
+  }
+  
   const accounts = [];
   let accountIndex = config.accountIndex > 0 ? config.accountIndex - 1 : 0;
   
   // TODO
   if (isElectron && appData.isNspv) {
-    const account = await getAccountAddresses(accountIndex, vendor);
+    const account = await getAccountAddresses(accountIndex, vendor, coin);
     writeLog('accountDiscovery accountIndex', accountIndex);
     
     if (account.addresses.length === 0) {
@@ -202,7 +209,7 @@ const accountDiscovery = async (vendor, coin, _accounts, historyLength) => {
       account.enabled = true;
       accounts.push(account);
     } else {
-      account.utxos = await getAddressUtxos(account.addresses);
+      account.utxos = await getAddressUtxos(account.addresses, coin);
       account.history = await getAddressHistory(account.addresses, coin, historyLength); 
       account.accountIndex = accountIndex;
       account.enabled = true;
@@ -226,7 +233,8 @@ const accountDiscovery = async (vendor, coin, _accounts, historyLength) => {
         const account = await getAccountAddresses(
           accountIndex,
           vendor,
-          _accounts && _accounts[accountIndex] ? _accounts[accountIndex].xpub : null
+          _accounts && _accounts[accountIndex] ? _accounts[accountIndex].xpub : null,
+          coin
         );
         writeLog('accountDiscovery accountIndex', accountIndex);
 

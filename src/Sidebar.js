@@ -12,6 +12,7 @@ import {getLocalStorageVar} from './lib/localstorage-util';
 import appInfo from '../package.json';
 import {CACHE_MAX_LIFETIME} from './constants';
 import {checkTimestamp} from './lib/time';
+import Translate from './Translate';
 import './Sidebar.scss';
 
 const Sidebar = props => {
@@ -32,7 +33,7 @@ const Sidebar = props => {
             <li onClick={() => props.setActiveCoin(null)}>
               <i className="fa fa-coins"></i>
               {sidebarSize === 'full' &&
-                <span className="sidebar-item-title">Holdings</span>
+                <span className="sidebar-item-title"><Translate name="sidebar_holdings" /></span>
               }
             </li>
           }
@@ -40,7 +41,7 @@ const Sidebar = props => {
             <li onClick={() => props.setActiveAccount(null)}>
               <i className="fa fa-wallet"></i>
               {sidebarSize === 'full' &&
-                <span className="sidebar-item-title">Accounts</span>
+                <span className="sidebar-item-title"><Translate name="sidebar_accounts" /></span>
               }
             </li>
           }
@@ -56,7 +57,7 @@ const Sidebar = props => {
                 (props.activeCoin === 'KMD' && !props.coins.KMD.lastChecked) ||
                 (props.activeCoin === 'KMD' && props.coins.KMD.lastChecked && checkTimestamp(props.coins.KMD.lastChecked) > CACHE_MAX_LIFETIME)
               }>
-              Send
+              <Translate name="sidebar_send" />
             </SendCoinButton>
           }
           {props.activeCoin &&
@@ -65,7 +66,7 @@ const Sidebar = props => {
               coin={props.activeCoin}
               accounts={props.accounts}
               sidebarSize={sidebarSize}>
-              Receive
+              <Translate name="sidebar_receive" />
             </ReceiveCoinButton>
           }
           {props.loginModalClosed &&
@@ -87,7 +88,7 @@ const Sidebar = props => {
                 onClick={() => shell.openExternal('https://github.com/pbca26/hw-kmd-wallet/issues/new')}>
                 <i className="fa fa-life-ring"></i>
                 {sidebarSize === 'full' &&
-                  <span className="sidebar-item-title">Feedback</span>
+                  <span className="sidebar-item-title"><Translate name="sidebar_feedback" /></span>
                 }
               </a>
             }
@@ -99,7 +100,7 @@ const Sidebar = props => {
                 className="sidebar-item-no-pad">
                 <i className="fa fa-life-ring"></i>
                 {sidebarSize === 'full' &&
-                  <span className="sidebar-item-title">Feedback</span>
+                  <span className="sidebar-item-title"><Translate name="sidebar_feedback" /></span>
                 }
               </a>
             }
@@ -109,7 +110,7 @@ const Sidebar = props => {
             <li onClick={() => logout()}>
               <i className="fa fa-lock"></i>
               {sidebarSize === 'full' &&
-                <span className="sidebar-item-title">Lock</span>
+                <span className="sidebar-item-title"><Translate name="sidebar_lock" /></span>
               }
             </li>
           }

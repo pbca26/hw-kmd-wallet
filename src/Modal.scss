@@ -3,6 +3,25 @@
 
 .Modal .card {
   border-radius: $radius-small;
+
+  .card-content {
+    padding-top: 60px;
+  }
+  .card-header {
+    position: fixed;
+    width: 640px;
+    z-index: 100;
+    background: #fff;
+  }
+}
+
+.Modal.Modal-add-coin .card {
+  .card-header {
+    width: 704px;
+  }
+  .card-content {
+    padding-top: 75px;
+  }
 }
 
 .sidebar-right .Modal {
