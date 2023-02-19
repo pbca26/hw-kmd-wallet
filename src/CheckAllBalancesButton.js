@@ -143,7 +143,7 @@ const CheckAllBalancesButton = props => {
       let isExplorerEndpointSet = false;
 
       if (explorerUrl) {
-        writeLog(`${coin} set api endpoint to ${explorerUrl}`);
+        writeLog(`${coin} set api endpoint to ${explorerUrl}`, blockchainAPI);
         blockchain[blockchainAPI].setExplorerUrl(explorerUrl);
         isExplorerEndpointSet = true;
     
@@ -175,7 +175,7 @@ const CheckAllBalancesButton = props => {
 
           currentAction = 'approve';
           updateActionState({setState}, currentAction, 'loading');
-          let accounts = accountDiscovery(
+          let accounts = await accountDiscovery(
             vendor,
             coin,
             null,
@@ -184,15 +184,17 @@ const CheckAllBalancesButton = props => {
 
           updateActionState({setState}, currentAction, true);
 
-          if (coin === 'KMD') {
-            let tiptime = await blockchain[blockchainAPI].getTipTime();
-            tiptime = checkTipTime(tiptime);
-            accounts = calculateRewardData({accounts, tiptime});
-            writeLog('check if any KMD rewards are overdue');
-            accounts = checkRewardsOverdue(accounts);            
-          }
+          if (accounts.length) {
+            if (coin === 'KMD') {
+              let tiptime = await blockchain[blockchainAPI].getTipTime();
+              tiptime = checkTipTime(tiptime);
+              accounts = calculateRewardData({accounts, tiptime});
+              writeLog('check if any KMD rewards are overdue');
+              accounts = checkRewardsOverdue(accounts);
+            }
 
-          accounts = calculateBalanceData(accounts);
+            accounts = calculateBalanceData(accounts);
+          }
 
           let balanceSum = 0;
           let rewardsSum = 0;
@@ -206,7 +208,7 @@ const CheckAllBalancesButton = props => {
             coin,
             balance: balanceSum,
             rewards: rewardsSum,
-            accounts,
+            accounts: accounts || [],
           });
 
           if (index === coinTickers.length - 1) {

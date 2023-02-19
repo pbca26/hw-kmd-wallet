@@ -3,7 +3,6 @@ import {writeLog} from './Debug';
 import {TX_FEE, SETTINGS} from './constants';
 import getKomodoRewards from './lib/get-komodo-rewards';
 import getRewardEndDate from './lib/get-reward-end-date';
-import asyncForEach from './lib/async';
 import {getAvailableExplorerUrl} from './send-coin-helpers';
 import accountDiscovery, {setConfigVar} from './lib/account-discovery';
 import coinEndpoits from './lib/coins';
@@ -159,7 +158,7 @@ export const scanCoins = async (coinTickers, explorerEndpointOverride, vendor, s
   let balances = [], tiptime;
   
   const scanCoin = async coin => {
-    const bc = new blockchain.insightClass;
+    const bc = new blockchain.insightClass();
     let isExplorerEndpointSet = false;
     writeLog(coin);
     

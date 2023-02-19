@@ -124,7 +124,7 @@
   "qr_gen_modal": "Code QR pour votre adresse {{template}}",
   "hw_fw_req_modal_manage_coins": "Gérez vos pièces depuis l'appareil {{template}}.",
   "hw_fw_req_modal_ledger_info": "Assurez-vous que l'application KMD et le micrologiciel de votre Ledger sont à jour, fermez toutes les applications susceptibles d'utiliser la connexion à votre appareil, telles que Ledger Live, puis connectez votre Ledger, ouvrez l'application KMD et cliquez sur le \"Vérifier le solde\" bouton.",
-  "hw_fw_req_modal_tezor_info": "Assurez-vous que le firmware de votre Trezor est à jour, puis connectez votre Trezor et cliquez sur le bouton \"Vérifier le solde\". Veuillez noter que vous devrez autoriser les fenêtres contextuelles pour que Trezor fonctionne correctement. ",
+  "hw_fw_req_modal_trezor_info": "Assurez-vous que le firmware de votre Trezor est à jour, puis connectez votre Trezor et cliquez sur le bouton \"Vérifier le solde\". Veuillez noter que vous devrez autoriser les fenêtres contextuelles pour que Trezor fonctionne correctement. ",
   "hw_fw_req_modal_vendor_info": "Assurez-vous également que votre {{template}} est initialisé avant de l'utiliser",
   "hw_fw_req_modal_wallet": "Portefeuille KMD",
   "hw_fw_req_modal_have_trouble": "Vous rencontrez des difficultés pour accéder à votre appareil Ledger ? Lisez ici à propos",

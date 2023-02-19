@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Modal from './Modal';
 import './SettingsModal.scss';
 import SettingsModal from './SettingsModal';
@@ -9,13 +9,13 @@ import {
 } from './lib/localstorage-util';
 import {clearPubkeysCache} from './lib/account-discovery';
 import Translate, {t} from './Translate';
-
+import * as demoData from './demoAppData';
 //import {writeLog} from './Debug';
 
 const LoginModal = props => {
   const initialState = {
     isClosed: false,
-    password: '1',
+    password: '',
     error: false,
   };
   const [state, setState] = useState(initialState);
@@ -31,12 +31,12 @@ const LoginModal = props => {
     writeLog('login state', state);
   });*/
 
-  const close = () => {
-    setLocalStoragePW(state.password);
+  const close = (password) => {
+    setLocalStoragePW(password);
     
     if (!localStorage.getItem('hw-wallet') ||
         localStorage.getItem('hw-wallet') === 'null') {
-      props.closeLoginModal(state.password);
+      props.closeLoginModal(password);
       
       setState(prevState => ({
         ...prevState,
@@ -53,7 +53,7 @@ const LoginModal = props => {
             error: false,
           }));
 
-          props.closeLoginModal(state.password);
+          props.closeLoginModal(password);
         } else {
           setState(prevState => ({
             ...prevState,
@@ -62,6 +62,17 @@ const LoginModal = props => {
         }
       });
     }
+  }
+
+  const loadDemoData = () => {
+    localStorage.setItem('hw-wallet', demoData.appData);
+
+    setState(prevState => ({
+      ...prevState,
+      password: demoData.pw,
+    }));
+
+    close(demoData.pw);
   }
 
   const reset = () => {
@@ -80,6 +91,11 @@ const LoginModal = props => {
 
     return (
       <React.Fragment>
+        <button
+          className="button is-primary load-demo-btn"
+          onClick={loadDemoData}>
+          {t('login_load_demo_data')}
+        </button>
         <Modal
           title={firstTimeUse ? t('login_create_password') : t('login_auth')}
           show={props.isClosed === false}
@@ -117,7 +133,7 @@ const LoginModal = props => {
             <button
               className="button is-primary"
               disabled={!state.password}
-              onClick={close}>
+              onClick={() => close(state.password)}>
               <Translate name="login_ok" />
             </button>
             {state.error &&

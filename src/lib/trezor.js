@@ -67,6 +67,7 @@ const getAddress = async (derivationPath, verify) => {
     showOnTrezor: verify ? true : false,
   })
   .then(result => {
+    console.warn(`m/${derivationPath}`, result.payload.address);
     return result && result.payload && result.payload.address ? result.payload.address : null; 
   });
 
@@ -169,6 +170,8 @@ const getXpub = async derivationPath => {
     path: `m/${derivationPath}`,
   })
   .then((result) => {
+    console.warn(`m/${derivationPath}`, result.payload.xpub);
+
     return result && result.payload && result.payload.xpub ? result.payload.xpub : null; 
   });
 
