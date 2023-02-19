@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Modal from './Modal';
 import './SettingsModal.scss';
 import SettingsModal from './SettingsModal';
@@ -8,6 +8,8 @@ import {
   resetLocalStorage,
 } from './lib/localstorage-util';
 import {clearPubkeysCache} from './lib/account-discovery';
+import Translate, {t} from './Translate';
+import * as demoData from './demoAppData';
 //import {writeLog} from './Debug';
 
 const LoginModal = props => {
@@ -18,23 +20,23 @@ const LoginModal = props => {
   };
   const [state, setState] = useState(initialState);
 
- const updateInput = e => {
-    setState(prevState => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
-  }
+  const updateInput = e => {
+      setState(prevState => ({
+        ...prevState,
+        [e.target.name]: e.target.value,
+      }));
+    }
 
   /*useEffect(() => {
     writeLog('login state', state);
   });*/
 
-  const close = () => {
-    setLocalStoragePW(state.password);
+  const close = (password) => {
+    setLocalStoragePW(password);
     
     if (!localStorage.getItem('hw-wallet') ||
         localStorage.getItem('hw-wallet') === 'null') {
-      props.closeLoginModal(state.password);
+      props.closeLoginModal(password);
       
       setState(prevState => ({
         ...prevState,
@@ -51,7 +53,7 @@ const LoginModal = props => {
             error: false,
           }));
 
-          props.closeLoginModal(state.password);
+          props.closeLoginModal(password);
         } else {
           setState(prevState => ({
             ...prevState,
@@ -60,6 +62,17 @@ const LoginModal = props => {
         }
       });
     }
+  }
+
+  const loadDemoData = () => {
+    localStorage.setItem('hw-wallet', demoData.appData);
+
+    setState(prevState => ({
+      ...prevState,
+      password: demoData.pw,
+    }));
+
+    close(demoData.pw);
   }
 
   const reset = () => {
@@ -78,8 +91,13 @@ const LoginModal = props => {
 
     return (
       <React.Fragment>
+        <button
+          className="button is-primary load-demo-btn"
+          onClick={loadDemoData}>
+          {t('login_load_demo_data')}
+        </button>
         <Modal
-          title={firstTimeUse ? 'Create password' :  'Authorization'}
+          title={firstTimeUse ? t('login_create_password') : t('login_auth')}
           show={props.isClosed === false}
           isCloseable={false}
           className="settings-modal login-modal">
@@ -89,21 +107,25 @@ const LoginModal = props => {
             triggerSidebarSizeChange={props.triggerSidebarSizeChange}
             setVendor={props.setVendor}
             coin="KMD" />
-          Password <input
+          <Translate name="login_password" /> <input
             type="password"
             className="form-control edit login-modal-input-pw"
             name="password"
             onChange={updateInput}
             value={state.password}
-            placeholder={firstTimeUse ? 'Create a password to encrypt app data' : 'Enter a password to unlock the app'}
+            placeholder={firstTimeUse ? t('login_create_a_password') : t('login_enter_a_password')}
             autoComplete="off"
             required />
-          <p className="login-modal-padding-top">Password is required in order to safely store and recover sensitive data such as XPUB keys, cached address transactions and balances.</p>
+          <p className="login-modal-padding-top">
+            <Translate name="login_password_is_required" />
+          </p>
           {state.error &&
             <React.Fragment>
-              <p className="login-error">Unable to decrypt, please try again or reset password.</p>
+              <p className="login-error">
+                <Translate name="login_unable_to_decrypt" />
+              </p>
               <p>
-                <strong>Warning:</strong> "Reset password" button will delete all cached data so you will have to go through KMD HW Wallet setup again!
+                <strong><Translate name="login_warning" />:</strong> <Translate name="login_reset_password_button" />
               </p>
             </React.Fragment>
           }
@@ -111,14 +133,14 @@ const LoginModal = props => {
             <button
               className="button is-primary"
               disabled={!state.password}
-              onClick={close}>
-              OK
+              onClick={() => close(state.password)}>
+              <Translate name="login_ok" />
             </button>
             {state.error &&
               <button
                 className="button del-btn login-modal-float-right"
                 onClick={reset}>
-                Reset password <i className="fa fa-trash"></i>
+                <Translate name="login_reset_password" /> <i className="fa fa-trash"></i>
               </button>
             }
           </div>

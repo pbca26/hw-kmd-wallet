@@ -1,5 +1,6 @@
 import React from 'react';
 import './BetaWarning.scss';
+import Translate from './Translate';
 
 const BetaWarning = () => (
   <nav
@@ -7,7 +8,7 @@ const BetaWarning = () => (
     aria-label="main navigation">
     <div className="container">
       <span>
-        <strong>Warning:</strong> This is a beta version! Please do not use it to transact any substantial amounts.
+        <strong><Translate name="beta_warning_modal" />:</strong> <Translate name="beta_warning_modal_beta_version" />
       </span>
     </div>
   </nav>

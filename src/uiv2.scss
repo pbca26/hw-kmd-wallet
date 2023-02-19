@@ -262,6 +262,7 @@ input[type="text"] {
     right: 13px;
     cursor: pointer;
     font-size: 1.2em;
+    z-index: 110;
   }
 }
 
@@ -326,4 +327,12 @@ input[type="text"] {
 }
 .coin-icons-wrapper {
   position: absolute;
+}
+
+.App .button.is-primary.load-demo-btn {
+  z-index: 1000;
+  border-radius: 0 !important;
+  bottom: 0;
+  position: fixed;
+  width: 100%;
 }

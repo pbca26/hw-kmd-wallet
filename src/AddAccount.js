@@ -6,6 +6,7 @@ import updateActionState from './lib/update-action-state';
 import {VENDOR} from './constants';
 import ActionListModal from './ActionListModal';
 import {writeLog} from './Debug';
+import Translate, {t} from './Translate';
 
 const AddAccount = props => {
   const initialState = {
@@ -14,12 +15,12 @@ const AddAccount = props => {
     actions: {
       connect: {
         icon: 'fab fa-usb',
-        description: props.vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
+        description: props.vendor === 'ledger' ? <div><Translate name="common_connect_and_unlock_ledger" /></div> : <div><Translate name="common_connect_and_unlock_trezor" /></div>,
         state: null
       },
       approve: {
         icon: 'fas fa-microchip',
-        description: <div>Approve all public key export requests on your device. <strong>There will be multiple requests</strong>.</div>,
+        description: <div><Translate name="common_approve_public_key" /> <strong><Translate name="common_multiple_req" /></strong>.</div>,
         state: null
       }
     }
@@ -42,7 +43,7 @@ const AddAccount = props => {
       updateActionState({setState}, currentAction, 'loading');
       const hwIsAvailable = await hw[vendor].isAvailable();
       if (!hwIsAvailable) {
-        throw new Error(`${VENDOR[vendor]} device is unavailable!`);
+        throw new Error(t('common_error_device', VENDOR[vendor]));
       }
       updateActionState({setState}, currentAction, true);
 
@@ -96,7 +97,7 @@ const AddAccount = props => {
           show={isCheckingRewards}
           className="Scan-balances-modal">
           <p>
-            Exporting a public key from your {VENDOR[vendor]} device. Please approve the public key export request on your device.
+            <Translate name="common_exporting_public_key" template={VENDOR[vendor]} />
           </p>
         </ActionListModal>
       </React.Fragment>

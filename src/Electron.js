@@ -11,8 +11,8 @@ try {
   helpers = window.require('@electron/remote').getGlobal('app').helpers;
   ipcRenderer = window.require('electron').ipcRenderer;
   shell = window.require('electron').shell;
-  console.warn('run app in electron mode');
-  if (appData.isDev) console.warn('appData', appData);
+  console.debug('run app in electron mode');
+  if (appData.isDev) console.debug('appData', appData);
 } catch (e) {
-  console.warn('run app in browser mode');
+  console.debug('run app in browser mode');
 }

@@ -1,10 +1,12 @@
 import BlockchainInsight from './blockchain-insight';
+import BlockchainInsightClass from './blockchain-insight-class';
 import BlockchainSPV from './blockchain-spv';
 import {writeLog} from '../Debug';
 
 const blockchain = {
   insight: BlockchainInsight,
   spv: BlockchainSPV,
+  insightClass: BlockchainInsightClass,
 };
 export let blockchainAPI = 'insight';
 

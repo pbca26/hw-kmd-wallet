@@ -1,6 +1,6 @@
 // https://github.com/mdn/pwa-examples
 
-console.warn('pwa test');
+console.debug('pwa test');
 
 self.addEventListener('install', function(e) {
   e.waitUntil(

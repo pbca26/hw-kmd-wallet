@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import Modal from './Modal';
 import copyToClipboard from './lib/copy-to-clipboard';
+import Translate, {t} from './Translate';
 
 const CoinSettingsModal = props => {
   const initialState = {
@@ -51,13 +52,13 @@ const CoinSettingsModal = props => {
   const renderAccountList = () => {
     return (
       <div className="coin-settings-accounts-block">
-        <h4>Accounts</h4>
+        <h4><Translate name="coin_settings_modal_accounts" /></h4>
         <div className="coin-settings-accounts">
           {props.accounts.map((item, index) => (
             <div
               className="item"
               key={`coin-settings-accounts-${index}`}>
-              <span className="item-label">Account {item.accountIndex + 1}</span>
+              <span className="item-label"><Translate name="coin_settings_modal_account" /> {item.accountIndex + 1}</span>
               <button
                 className="button"
                 onClick={() => props.enableAccount(item.accountIndex)}>
@@ -75,7 +76,7 @@ const CoinSettingsModal = props => {
                   <button
                     className="button is-light copy-btn"
                     onClick={() => triggerCopyToClipboard(item.xpub)}>
-                    <i className="fa fa-copy"></i> <span className="copy-btn-text">Copy</span>
+                    <i className="fa fa-copy"></i> <span className="copy-btn-text"><Translate name="common_copy" /></span>
                   </button>
                 </div>
               }
@@ -97,7 +98,7 @@ const CoinSettingsModal = props => {
           <i className="fa fa-wrench"></i>
         </span>
         <Modal
-          title="Coin Settings"
+          title={t('coin_settings_modal')}
           show={state.isClosed === false}
           handleClose={() => close()}
           isCloseable={true}
@@ -105,12 +106,12 @@ const CoinSettingsModal = props => {
           <button
             className="button del-btn"
             onClick={syncData}>
-            Resync {activeCoin} <i className="fa fa-history"></i>
+            <Translate name="coin_settings_modal_resync" /> {activeCoin} <i className="fa fa-history"></i>
           </button>
           <button
             className="button del-btn"
             onClick={deleteCoin}>
-            Remove {activeCoin} <i className="fa fa-trash"></i>
+            <Translate name="coin_settings_modal_remove" /> {activeCoin} <i className="fa fa-trash"></i>
           </button>
           {renderAccountList()}
         </Modal>

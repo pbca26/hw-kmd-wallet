@@ -5,7 +5,6 @@ import blockchain, {blockchainAPI} from './lib/blockchain';
 import updateActionState from './lib/update-action-state';
 import {VENDOR, SETTINGS} from './constants';
 import ActionListModal from './ActionListModal';
-import asyncForEach from './lib/async';
 import humanReadableSatoshis from './lib/human-readable-satoshis';
 import {
   isElectron,
@@ -15,10 +14,11 @@ import {writeLog} from './Debug';
 import {getAvailableExplorerUrl} from './send-coin-helpers';
 import {checkTipTime, calculateRewardData, calculateBalanceData, checkRewardsOverdue} from './app-helpers';
 import {getLocalStorageVar, setLocalStorageVar} from './lib/localstorage-util';
+import Translate, {t} from './Translate';
 
 const headings = [
-  'Coin',
-  'Balance',
+  t('check_balances_modal_coin'),
+  t('check_balances_modal_balance'),
 ];
 
 const CheckAllBalancesButton = props => {
@@ -36,17 +36,17 @@ const CheckAllBalancesButton = props => {
     actions: {
       connect: {
         icon: 'fab fa-usb',
-        description: props.vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
+        description: props.vendor === 'ledger' ? <div><Translate name="common_connect_and_unlock_ledger" /></div> : <div><Translate name="common_connect_and_unlock_trezor" /></div>,
         state: null
       },
       approve: {
         icon: 'fas fa-microchip',
-        description: <div>Approve all public key export requests on your device. <strong>There will be multiple requests</strong>.</div>,
+        description: <div><Translate name="common_approve_public_key" /> <strong><Translate name="common_multiple_req" /></strong>.</div>,
         state: null
       },
       finished: {
         icon: 'fas fa-check',
-        description: <div>All coins are checked.</div>,
+        description: <div><Translate name="check_balances_modal_all_checked" /></div>,
         state: null
       },
     },
@@ -143,7 +143,7 @@ const CheckAllBalancesButton = props => {
       let isExplorerEndpointSet = false;
 
       if (explorerUrl) {
-        writeLog(`${coin} set api endpoint to ${explorerUrl}`);
+        writeLog(`${coin} set api endpoint to ${explorerUrl}`, blockchainAPI);
         blockchain[blockchainAPI].setExplorerUrl(explorerUrl);
         isExplorerEndpointSet = true;
     
@@ -169,32 +169,32 @@ const CheckAllBalancesButton = props => {
           updateActionState({setState}, currentAction, 'loading');
           const hwIsAvailable = await hw[vendor].isAvailable();
           if (!hwIsAvailable) {
-            throw new Error(`${VENDOR[vendor]} device is unavailable!`);
+            throw new Error(t('common_error_device', VENDOR[vendor]));
           }
           updateActionState({setState}, currentAction, true);
 
           currentAction = 'approve';
           updateActionState({setState}, currentAction, 'loading');
-          let [accounts, tiptime] = await Promise.all([
-            accountDiscovery(
-              vendor,
-              coin,
-              null,
-              getLocalStorageVar('settings') && getLocalStorageVar('settings').historyLength
-            ),
-            blockchain[blockchainAPI].getTipTime()
-          ]);
+          let accounts = await accountDiscovery(
+            vendor,
+            coin,
+            null,
+            getLocalStorageVar('settings') && getLocalStorageVar('settings').historyLength
+          );
 
           updateActionState({setState}, currentAction, true);
 
-          if (coin === 'KMD') {
-            tiptime = checkTipTime(tiptime);
-            accounts = calculateRewardData({accounts, tiptime});
-            writeLog('check if any KMD rewards are overdue');
-            accounts = checkRewardsOverdue(accounts);            
-          }
+          if (accounts.length) {
+            if (coin === 'KMD') {
+              let tiptime = await blockchain[blockchainAPI].getTipTime();
+              tiptime = checkTipTime(tiptime);
+              accounts = calculateRewardData({accounts, tiptime});
+              writeLog('check if any KMD rewards are overdue');
+              accounts = checkRewardsOverdue(accounts);
+            }
 
-          accounts = calculateBalanceData(accounts);
+            accounts = calculateBalanceData(accounts);
+          }
 
           let balanceSum = 0;
           let rewardsSum = 0;
@@ -208,7 +208,7 @@ const CheckAllBalancesButton = props => {
             coin,
             balance: balanceSum,
             rewards: rewardsSum,
-            accounts,
+            accounts: accounts || [],
           });
 
           if (index === coinTickers.length - 1) {
@@ -311,7 +311,7 @@ const CheckAllBalancesButton = props => {
           {children}
         </button>
         <ActionListModal
-          title={`${isInProgress ? 'Scanning Blockchain' : 'Scan complete'} ${isInProgress ? coin : ''}${isInProgress ? progress : ''}`}
+          title={`${isInProgress ? t('check_balances_modal_scanning_bc') : t('check_balances_modal_scan_end')} ${isInProgress ? coin : ''}${isInProgress ? progress : ''}`}
           isCloseable={true}
           actions={actions}
           error={error}
@@ -319,14 +319,14 @@ const CheckAllBalancesButton = props => {
           show={isCheckingRewards}
           className="Scan-balances-modal"
           childrenPosition="bottom"
-          topText={`Exporting public keys from your ${VENDOR[vendor]} device, scanning the blockchain for funds, and calculating any claimable rewards. Please approve any public key export requests on your device.`}>
+          topText={t('check_balances_modal_exporting_keys', VENDOR[vendor])}>
           {balances &&
            balances.length > 0 &&
             <React.Fragment>{renderCoinBalances()}</React.Fragment>
           }
           {emptyBalances &&
             <p>
-              <strong>No active balances are found</strong>
+              <strong><Translate name="check_balances_modal_no_balances" /></strong>
             </p>
           }
           {!isInProgress &&
@@ -334,7 +334,7 @@ const CheckAllBalancesButton = props => {
             <button
               className="button is-primary"
               onClick={confirm}>
-              Confirm
+              <Translate name="check_balances_modal_confirm" />
             </button>
           }
         </ActionListModal>

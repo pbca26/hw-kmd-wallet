@@ -5,6 +5,8 @@ import humanReadableSatoshis from './lib/human-readable-satoshis';
 import {writeLog} from './Debug';
 import coins from './lib/coins';
 import {TX_FEE} from './constants';
+import Translate, {t} from './Translate';
+import blockchain from './lib/blockchain';
 
 export const formatUtxos = (utxos, coin, tiptime) => {
   let formattedUtxos = [];
@@ -55,25 +57,29 @@ export const validate = data => {
   let error;
 
   if (Number(amount) > balance) {
-    error = 'insufficient balance';
+    error = t('send_error_insufficient_balance');
   } else if (Number(amount) < humanReadableSatoshis(TX_FEE)) {
-    error = `amount is too small, min is ${humanReadableSatoshis(TX_FEE)} ${coin}`;
+    error = `${t('send_error_amount_small')} ${humanReadableSatoshis(TX_FEE)} ${coin}`;
   } else if (!Number(amount) || Number(amount) < 0) {
-    error = 'wrong amount format';
+    error = t('send_error_wrong_amount');
   }
 
   writeLog('validate state', data.state);
 
   const validateAddress = checkPublicAddress(data.state.sendToIn);
-  if (!validateAddress) error = 'Invalid send to address';
+  if (!validateAddress) error = t('send_error_invalid_address');
 
   return error;
 };
 
-export const getAvailableExplorerUrl = async (coin, blockchain) => {
+export const getAvailableExplorerUrl = async (coin, _blockchain) => {
+  if (!_blockchain) _blockchain = blockchain.insight;
+  else if (_blockchain.insight) _blockchain = _blockchain.insight;
+
   const getInfoRes = await Promise.all(coins[coin].api.map((value, index) => {
-    blockchain.setExplorerUrl(value);
-    return blockchain.getInfo(value);
+    console.debug('getAvailableExplorerUrl', _blockchain);
+    _blockchain.setExplorerUrl(value);
+    return _blockchain.getInfo(value);
   }));
   let longestBlockHeight = 0;
   let apiEndPointIndex = null;
@@ -100,22 +106,22 @@ export const getStateActionsInit = vendor => {
   return {
     connect: {
       icon: 'fab fa-usb',
-      description: vendor === 'ledger' ? <div>Connect and unlock your Ledger, then open the Komodo app on your device.</div> : <div>Connect and unlock your Trezor.</div>,
+      description: vendor === 'ledger' ? <div><Translate name="common_connect_and_unlock_ledger" /></div> : <div><Translate name="common_connect_and_unlock_trezor" /></div>,
       state: null
     },
     confirmAddress: {
       icon: 'fas fa-search-dollar',
-      description: <div>Confirm the address on your device matches the new unused address shown above.</div>,
+      description: <div><Translate name="send_confirm_address" />.</div>,
       state: null
     },
     approveTransaction: {
       icon: 'fas fa-key',
-      description: <div>Approve the transaction on your device after carefully checking the values and addresses match those shown above.</div>,
+      description: <div><Translate name="send_approve_tx" />.</div>,
       state: null
     },
     broadcastTransaction: {
       icon: 'fas fa-broadcast-tower',
-      description: <div>Broadcasting transaction to the network.</div>,
+      description: <div><Translate name="send_broadcasting_tx" />.</div>,
       state: null
     },
   };

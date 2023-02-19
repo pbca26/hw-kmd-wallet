@@ -1,6 +1,7 @@
 import React from 'react';
 import './DashboardPrices.scss';
 import {PRICE_DEFAULT_COINS} from './constants';
+import Translate from './Translate';
 
 const DashboardPrices = props => {
   const render = () => {
@@ -15,9 +16,9 @@ const DashboardPrices = props => {
           <table>
             <thead>
               <tr>
-                <th>Currency</th>
-                <th>Price, $</th>
-                <th>Change, %</th>
+                <th><Translate name="dashboard_prices_currency" /></th>
+                <th><Translate name="dashboard_prices_price" />, $</th>
+                <th><Translate name="dashboard_prices_change" />, %</th>
               </tr>
             </thead>
             {!coinPriceTickers.length &&

@@ -4,6 +4,7 @@ import {
   voteCoin,
   VENDOR,
 } from './constants';
+import Translate, {t} from './Translate';
 
 export const DesktopDownloadButton = () => (
   <div className="download-desktop-block">
@@ -13,7 +14,7 @@ export const DesktopDownloadButton = () => (
       rel="noopener noreferrer">
       <button
         className="button is-light">
-        <i className="fa fa-download"></i>Download for desktop
+        <i className="fa fa-download"></i><Translate name="app_download_desktop_app" />
       </button>
     </a>
   </div>
@@ -29,7 +30,7 @@ export const HeaderNonAuth = ({coin}) => (
           alt="Komodo logo" />
       </div>
       <h1 className="navbar-item">
-        <strong>HW KMD {coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
+        <strong>HW KMD {coin === voteCoin ? t('app_nn_elections') : ' ' + t('app_wallet_sm')}</strong>
       </h1>
     </div>
   </Header>
@@ -46,15 +47,15 @@ export const HeaderAuth = ({coin, vendor, syncInProgress}) => (
       </div>
       <h1 className="navbar-item">
         {!vendor &&
-          <strong>HW KMD {coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
+          <strong>HW KMD {coin === voteCoin ? t('app_nn_elections') : ' ' + t('app_wallet_sm')}</strong>
         }
         {vendor &&
-          <strong>{VENDOR[vendor]} KMD HW {coin === voteCoin ? 'Notary Elections' : ' wallet'}</strong>
+          <strong>{VENDOR[vendor]} KMD HW {coin === voteCoin ? t('app_nn_elections') : ' ' + t('app_wallet_sm')}</strong>
         }
         {syncInProgress &&
           <i
             className="fa fa-redo-alt sync-progress-icon"
-            title="Sync in progress..."></i>
+            title={`${t('app_sync_progress')}...`}></i>
         }
       </h1>
     </div>
@@ -63,7 +64,7 @@ export const HeaderAuth = ({coin, vendor, syncInProgress}) => (
 
 export const VendorSelector = ({setVendor}) => (
   <div className="vendor-selector">
-    <h3>Choose your vendor</h3>
+    <h3><Translate name="app_choose_vendor" /></h3>
     <div className="vendor-selector-items">
       <img
         className="vendor-ledger"

@@ -1,5 +1,6 @@
 import React from 'react';
 import './ConnectionError.scss';
+import Translate from './Translate';
 
 const ConnectionError = () => (
   <nav
@@ -7,7 +8,7 @@ const ConnectionError = () => (
     aria-label="main navigation">
     <div className="container">
       <span>
-        <strong>Error:</strong> unable to connect to API endpoint. Please retry later.
+        <strong><Translate name="conn_error_modal_err" />:</strong> <Translate name="conn_error_modal_unable_to_connect" />
       </span>
     </div>
   </nav>

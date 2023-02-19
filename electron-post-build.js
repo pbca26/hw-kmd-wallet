@@ -1,7 +1,7 @@
 const fs = require('fs');
 const buildPath = 'build';
 
-let files = [{
+const files = [{
   name: `${buildPath}/index.html`,
   data: fs.readFileSync(`${buildPath}/index.html`, 'utf-8'),
 }];
