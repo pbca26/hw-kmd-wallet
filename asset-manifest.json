@@ -1,7 +1,14 @@
 {
   "files": {
-    "main.css": "https://pbca26.github.io/hw-kmd-wallet/static/css/main.43462e3a.css",
-    "main.js": "https://pbca26.github.io/hw-kmd-wallet/static/js/main.af89785c.js",
+    "main.css": "https://pbca26.github.io/hw-kmd-wallet/static/css/main.cf96fcf5.css",
+    "main.js": "https://pbca26.github.io/hw-kmd-wallet/static/js/main.b42dee63.js",
+    "static/css/764.4c7ac0af.chunk.css": "https://pbca26.github.io/hw-kmd-wallet/static/css/764.4c7ac0af.chunk.css",
+    "static/js/764.55818f42.chunk.js": "https://pbca26.github.io/hw-kmd-wallet/static/js/764.55818f42.chunk.js",
+    "static/js/787.a0be78c4.chunk.js": "https://pbca26.github.io/hw-kmd-wallet/static/js/787.a0be78c4.chunk.js",
+    "static/js/797.0650e92b.chunk.js": "https://pbca26.github.io/hw-kmd-wallet/static/js/797.0650e92b.chunk.js",
+    "static/js/127.19741ac6.chunk.js": "https://pbca26.github.io/hw-kmd-wallet/static/js/127.19741ac6.chunk.js",
+    "static/js/979.f20c3f58.chunk.js": "https://pbca26.github.io/hw-kmd-wallet/static/js/979.f20c3f58.chunk.js",
+    "static/js/821.bdf0c68c.chunk.js": "https://pbca26.github.io/hw-kmd-wallet/static/js/821.bdf0c68c.chunk.js",
     "static/media/fa-solid-900.svg": "https://pbca26.github.io/hw-kmd-wallet/static/media/fa-solid-900.7a8b4f130182d19a2d7c.svg",
     "static/media/fa-brands-400.svg": "https://pbca26.github.io/hw-kmd-wallet/static/media/fa-brands-400.2f517e09eb2ca6650ff5.svg",
     "static/media/fa-solid-900.eot": "https://pbca26.github.io/hw-kmd-wallet/static/media/fa-solid-900.9bbb245e67a133f6e486.eot",
@@ -18,11 +25,18 @@
     "static/media/fa-regular-400.woff": "https://pbca26.github.io/hw-kmd-wallet/static/media/fa-regular-400.bb58e57c48a3e911f15f.woff",
     "static/media/fa-regular-400.woff2": "https://pbca26.github.io/hw-kmd-wallet/static/media/fa-regular-400.7a3337626410ca2f4071.woff2",
     "index.html": "https://pbca26.github.io/hw-kmd-wallet/index.html",
-    "main.43462e3a.css.map": "https://pbca26.github.io/hw-kmd-wallet/static/css/main.43462e3a.css.map",
-    "main.af89785c.js.map": "https://pbca26.github.io/hw-kmd-wallet/static/js/main.af89785c.js.map"
+    "main.cf96fcf5.css.map": "https://pbca26.github.io/hw-kmd-wallet/static/css/main.cf96fcf5.css.map",
+    "main.b42dee63.js.map": "https://pbca26.github.io/hw-kmd-wallet/static/js/main.b42dee63.js.map",
+    "764.4c7ac0af.chunk.css.map": "https://pbca26.github.io/hw-kmd-wallet/static/css/764.4c7ac0af.chunk.css.map",
+    "764.55818f42.chunk.js.map": "https://pbca26.github.io/hw-kmd-wallet/static/js/764.55818f42.chunk.js.map",
+    "787.a0be78c4.chunk.js.map": "https://pbca26.github.io/hw-kmd-wallet/static/js/787.a0be78c4.chunk.js.map",
+    "797.0650e92b.chunk.js.map": "https://pbca26.github.io/hw-kmd-wallet/static/js/797.0650e92b.chunk.js.map",
+    "127.19741ac6.chunk.js.map": "https://pbca26.github.io/hw-kmd-wallet/static/js/127.19741ac6.chunk.js.map",
+    "979.f20c3f58.chunk.js.map": "https://pbca26.github.io/hw-kmd-wallet/static/js/979.f20c3f58.chunk.js.map",
+    "821.bdf0c68c.chunk.js.map": "https://pbca26.github.io/hw-kmd-wallet/static/js/821.bdf0c68c.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.43462e3a.css",
-    "static/js/main.af89785c.js"
+    "static/css/main.cf96fcf5.css",
+    "static/js/main.b42dee63.js"
   ]
 }
