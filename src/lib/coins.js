@@ -1,10 +1,7 @@
 const coins = {
   KMD: {
     explorer: 'https://kmd.explorer.dexstats.info/',
-    api: [
-      'https://explorer.komodoplatform.com:10000/kmd/api/',
-      'https://kmd.explorer.dexstats.info/insight-api-komodo/',
-    ],
+    api: ['https://kmd.explorer.dexstats.info/insight-api-komodo/'],
     prices: {
       coinpaprika: 'kmd-komodo',
     },
@@ -136,7 +133,6 @@ const coins = {
   VOTE2022: {
     explorer: 'https://vote.explorer.dexstats.info/',
     api: [
-      'https://explorer.komodoplatform.com:10000/vote2022/api/',
       'https://vote.explorer.dexstats.info/insight-api-komodo/',
       'https://vote.kmdexplorer.io/insight-api-komodo/',
     ],
@@ -146,7 +142,6 @@ const coins = {
   RICK: {
     explorer: 'https://rick.explorer.dexstats.info/',
     api: [
-      'https://explorer.komodoplatform.com:10000/rick/api/',
       'https://rick.explorer.dexstats.info/insight-api-komodo/',
       'https://rick.kmd.dev/insight-api-komodo/',
     ],
@@ -156,7 +151,6 @@ const coins = {
     explorer: 'https://morty.explorer.dexstats.info/',
     api: [
       'https://morty.explorer.dexstats.info/insight-api-komodo/',
-      'https://explorer.komodoplatform.com:10000/morty/api/',
       'https://morty.kmd.dev/insight-api-komodo/',
     ],
     enabled: true,
@@ -164,7 +158,6 @@ const coins = {
   VRSC: {
     explorer: 'https://vrsc.explorer.dexstats.info/',
     api: [
-      'https://explorer.komodoplatform.com:10000/vrsc/api/',
       'https://vrsc.explorer.dexstats.info/insight-api-komodo/',
       'https://insight.vrsc.0x03.services/insight-api-komodo/',
     ],
@@ -175,10 +168,7 @@ const coins = {
   },
   WSB: {
     explorer: 'https://wsb.explorer.dexstats.info/',
-    api: [
-      'https://wsb.explorer.dexstats.info/insight-api-komodo/',
-      'https://explorer.komodoplatform.com:10000/wsb/api/',
-    ],
+    api: ['https://wsb.explorer.dexstats.info/insight-api-komodo/'],
     airdrop: true,
     enabled: false,
   },
@@ -218,10 +208,7 @@ const coins = {
   },
   TOKEL: {
     explorer: 'https://tokel.explorer.dexstats.info/',
-    api: [
-      'https://tokel.explorer.dexstats.info/insight-api-komodo/',
-      'https://explorer.komodoplatform.com:10000/tokel/api/',
-    ],
+    api: ['https://tokel.explorer.dexstats.info/insight-api-komodo/'],
     airdrop: true,
     prices: {
       coinpaprika: 'tkl-tokel',
@@ -230,10 +217,7 @@ const coins = {
   },
   TKLTEST: {
     explorer: 'https://tkltest.explorer.dexstats.info/',
-    api: [
-      'https://tkltest.explorer.dexstats.info/insight-api-komodo/',
-      'https://explorer.komodoplatform.com:10000/tkltest/api/',
-    ],
+    api: ['https://tkltest.explorer.dexstats.info/insight-api-komodo/'],
     enabled: true,
   },
   /* coins below need special handling due to no overwinter support
